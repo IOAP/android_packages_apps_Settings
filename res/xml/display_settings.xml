@@ -56,27 +56,11 @@
                 android:title="@string/wifi_display_settings_title"
                 android:fragment="com.android.settings.wfd.WifiDisplaySettings" />
 
-        <CheckBoxPreference
-                android:key="adaptive_backlight"
-                android:title="@string/adaptive_backlight_title"
-                android:summary="@string/adaptive_backlight_summary"
-                android:defaultValue="true" />
-
-        <!-- DeviceParts Device Specific Display settings -->
-        <Preference
-            android:key="advanced_display_settings"
-            android:title="@string/advanced_settings_title">
-            <intent
-                android:action="com.cyanogenmod.action.LAUNCH_DEVICE_SETTINGS"
-                android:targetPackage="com.cyanogenmod.settings.device"
-                android:targetClass="com.cyanogenmod.settings.device.DisplaySettings" />
-        </Preference>
-
-        <CheckBoxPreference
-            android:key="wake_when_plugged_or_unplugged"
-            android:title="@string/wake_when_plugged_or_unplugged_title"
-            android:summary="@string/wake_when_plugged_or_unplugged_summary"
-            android:defaultValue="false" />
+        <PreferenceScreen
+            android:id="@+id/animations"
+            android:title="@string/animation_manager_title"
+            android:summary="@string/animation_control_summary"
+            android:fragment="com.android.settings.vanir.AnimationControls" />
 
         <PreferenceCategory
             android:key="lights_prefs"
