@@ -252,6 +252,19 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                         Toast.LENGTH_LONG);
                 mDevHitToast.show();
             }
+        } else if (prefKey.equals(KEY_PIXEL_VERSION)) {
+            System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
+            mHits[mHits.length-1] = SystemClock.uptimeMillis();
+            if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClassName("android",
+                        com.android.internal.app.PixelPlatlogo.class.getName());
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
+                }
+            }
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
