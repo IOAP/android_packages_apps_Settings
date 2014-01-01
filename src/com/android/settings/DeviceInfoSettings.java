@@ -68,12 +68,11 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
     private static final String KEY_PIXEL_VERSION = "pixel_version_title";
     private static final String KEY_MOD_BUILD_DATE = "build_date";
-    private static final String KEY_DEVICE_GPU = "device_gpu";
+    private static final String KEY_DEVICE_CPU = "device_cpu";
     private static final String KEY_DEVICE_MEMORY = "device_memory";
     private static final String KEY_CM_UPDATES = "cm_updates";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
-
     long[] mHits = new long[3];
     int mDevHitCountdown;
     Toast mDevHitToast;
@@ -100,11 +99,10 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         setStringSummary(KEY_DEVICE_MODEL, Build.MODEL);
         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
-        setStringSummary(KEY_KERNEL_VERSION, getFormattedKernelVersion());
-        findPreference(KEY_KERNEL_VERSION).setEnabled(true);
-        setValueSummary(KEY_PIXEL_VERSION, "ro.pixel.version");
+        findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
+        setValueSummary(KEY_PIXEL_VERSION, "ro.modversion");
         findPreference(KEY_PIXEL_VERSION).setEnabled(true);
-
+        setValueSummary(KEY_MOD_BUILD_DATE, "ro.build.date");
 
         if (!SELinux.isSELinuxEnabled()) {
             String status = getResources().getString(R.string.selinux_status_disabled);
@@ -117,8 +115,8 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         // Remove selinux information if property is not present
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SELINUX_STATUS,
                 PROPERTY_SELINUX_STATUS);
-                
-                String cpuInfo = getCPUInfo();
+
+        String cpuInfo = getCPUInfo();
         String memInfo = getMemInfo();
 
         // Only the owner should see the Updater settings, if it exists
@@ -216,61 +214,19 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                     Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
                 }
             }
-        } else if (preference.getKey().equals(KEY_BUILD_NUMBER)) {
-            // Don't enable developer options for secondary users.
-            if (UserHandle.myUserId() != UserHandle.USER_OWNER) return true;
-
-            if (mDevHitCountdown > 0) {
-                if (mDevHitCountdown == 1) {
-                    if (super.ensurePinRestrictedPreference(preference)) {
-                        return true;
-                    }
-                }
-                mDevHitCountdown--;
-                if (mDevHitCountdown == 0) {
-                    getActivity().getSharedPreferences(DevelopmentSettings.PREF_FILE,
-                            Context.MODE_PRIVATE).edit().putBoolean(
-                                    DevelopmentSettings.PREF_SHOW, true).apply();
-                    if (mDevHitToast != null) {
-                        mDevHitToast.cancel();
-                    }
-                    mDevHitToast = Toast.makeText(getActivity(), R.string.show_dev_on,
-                            Toast.LENGTH_LONG);
-                    mDevHitToast.show();
-                } else if (mDevHitCountdown > 0
-                        && mDevHitCountdown < (TAPS_TO_BE_A_DEVELOPER-2)) {
-                    if (mDevHitToast != null) {
-                        mDevHitToast.cancel();
-                    }
-                    mDevHitToast = Toast.makeText(getActivity(), getResources().getQuantityString(
-                            R.plurals.show_dev_countdown, mDevHitCountdown, mDevHitCountdown),
-                            Toast.LENGTH_SHORT);
-                    mDevHitToast.show();
-                }
-            } else if (mDevHitCountdown < 0) {
-                if (mDevHitToast != null) {
-                    mDevHitToast.cancel();
-                }
-                mDevHitToast = Toast.makeText(getActivity(), R.string.show_dev_already,
-                        Toast.LENGTH_LONG);
-                mDevHitToast.show();
-            }
-        } else if (prefKey.equals(KEY_PIXEL_VERSION)) {
-            System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
-            mHits[mHits.length-1] = SystemClock.uptimeMillis();
-            if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.setClassName("android",
-                        com.android.internal.app.PixelPlatlogo.class.getName());
-                try {
-                    startActivity(intent);
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
-                }
-            }
-        } else if (prefKey.equals(KEY_KERNEL_VERSION)) {
-            setStringSummary(KEY_KERNEL_VERSION, getKernelVersion());
-            return true;
+         } else if (prefKey.equals(KEY_PIXEL_VERSION)) {
+             System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
+              mHits[mHits.length-1] = SystemClock.uptimeMillis();
+             if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
+                  Intent intent = new Intent(Intent.ACTION_MAIN);
+                  intent.setClassName("android",
+                          com.android.internal.app.PixelPlatlogo.class.getName());
+                  try {
+                      startActivity(intent);
+                  } catch (Exception e) {
+                      Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
+                  }
+              }
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -328,20 +284,6 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
             return reader.readLine();
         } finally {
             reader.close();
-        }
-    }
-
-    private String getKernelVersion() {
-        String procVersionStr;
-        try {
-            procVersionStr = readLine(FILENAME_PROC_VERSION);
-            return procVersionStr;
-        } catch (IOException e) {
-            Log.e(LOG_TAG,
-                "IO Exception when getting kernel version for Device Info screen",
-                e);
-
-            return "Unavailable";
         }
     }
 
@@ -435,8 +377,8 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
 
         try {
             /* The expected /proc/cpuinfo output is as follows:
-             * Processor        : ARMv7 Processor rev 2 (v7l)
-             * BogoMIPS        : 272.62
+             * Processor	: ARMv7 Processor rev 2 (v7l)
+             * BogoMIPS	: 272.62
              */
             String firstLine = readLine(FILENAME_PROC_CPUINFO);
             if (firstLine != null) {
