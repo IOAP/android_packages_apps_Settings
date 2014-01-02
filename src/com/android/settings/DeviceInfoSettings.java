@@ -100,7 +100,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
-        setValueSummary(KEY_PIXEL_VERSION, "ro.modversion");
+        setValueSummary(KEY_PIXEL_VERSION, "ro.pixel.version");
         findPreference(KEY_PIXEL_VERSION).setEnabled(true);
         setValueSummary(KEY_MOD_BUILD_DATE, "ro.build.date");
 
@@ -200,8 +200,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        String prefKey = preference.getKey();
-        if (prefKey.equals(KEY_FIRMWARE_VERSION)) {
+        if (preference.getKey().equals(KEY_FIRMWARE_VERSION)) {
             System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
             mHits[mHits.length-1] = SystemClock.uptimeMillis();
             if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
@@ -214,19 +213,45 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                     Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
                 }
             }
-         } else if (prefKey.equals(KEY_PIXEL_VERSION)) {
-             System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
-              mHits[mHits.length-1] = SystemClock.uptimeMillis();
-             if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
-                  Intent intent = new Intent(Intent.ACTION_MAIN);
-                  intent.setClassName("android",
-                          com.android.internal.app.PixelPlatlogo.class.getName());
-                  try {
-                      startActivity(intent);
-                  } catch (Exception e) {
-                      Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
-                  }
-              }
+        } else if (preference.getKey().equals(KEY_BUILD_NUMBER)) {
+            // Don't enable developer options for secondary users.
+            if (UserHandle.myUserId() != UserHandle.USER_OWNER) return true;
+
+            if (mDevHitCountdown > 0) {
+                if (mDevHitCountdown == 1) {
+                    if (super.ensurePinRestrictedPreference(preference)) {
+                        return true;
+                    }
+                }
+                mDevHitCountdown--;
+                if (mDevHitCountdown == 0) {
+                    getActivity().getSharedPreferences(DevelopmentSettings.PREF_FILE,
+                            Context.MODE_PRIVATE).edit().putBoolean(
+                                    DevelopmentSettings.PREF_SHOW, true).apply();
+                    if (mDevHitToast != null) {
+                        mDevHitToast.cancel();
+                    }
+                    mDevHitToast = Toast.makeText(getActivity(), R.string.show_dev_on,
+                            Toast.LENGTH_LONG);
+                    mDevHitToast.show();
+                } else if (mDevHitCountdown > 0
+                        && mDevHitCountdown < (TAPS_TO_BE_A_DEVELOPER-2)) {
+                    if (mDevHitToast != null) {
+                        mDevHitToast.cancel();
+                    }
+                    mDevHitToast = Toast.makeText(getActivity(), getResources().getQuantityString(
+                            R.plurals.show_dev_countdown, mDevHitCountdown, mDevHitCountdown),
+                            Toast.LENGTH_SHORT);
+                    mDevHitToast.show();
+                }
+            } else if (mDevHitCountdown < 0) {
+                if (mDevHitToast != null) {
+                    mDevHitToast.cancel();
+                }
+                mDevHitToast = Toast.makeText(getActivity(), R.string.show_dev_already,
+                        Toast.LENGTH_LONG);
+                mDevHitToast.show();
+            }
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
