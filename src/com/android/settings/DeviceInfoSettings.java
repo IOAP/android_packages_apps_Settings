@@ -100,7 +100,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
-        setValueSummary(KEY_PIXEL_VERSION, "ro.pixel.version");
+        setValueSummary(KEY_PIXEL_VERSION, "ro.modversion");
         setValueSummary(KEY_MOD_BUILD_DATE, "ro.build.date");
 
         if (!SELinux.isSELinuxEnabled()) {
