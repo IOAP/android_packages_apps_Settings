@@ -19,6 +19,25 @@
     android:title="@string/system_interface_title"
     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
 
+
+   <!-- Active display -->	
+   <PreferenceScreen	
+    	android:key="active_display"	
+   	 android:fragment="com.android.settings.crdroid.ActiveDisplaySettings"	
+    	android:title="@string/ad_settings_title"	
+    	android:summary="@string/ad_settings_summary" /> 
+
+     <PreferenceScreen
+        android:key="app_sidebar"
+        android:fragment="com.android.settings.crdroid.AppSidebar"
+        android:title="@string/app_sidebar_title"/>
+
+    <PreferenceScreen
+  	android:key="lcd_density_setup"
+        android:fragment="com.android.settings.util.DensityChanger"
+        android:title="@string/lcd_density_title"
+        android:summary="@string/lcd_density_summary" />
+
     <PreferenceScreen
         android:key="status_bar"
         android:fragment="com.android.settings.cyanogenmod.StatusBar"
@@ -34,6 +53,11 @@
         android:fragment="com.android.settings.cyanogenmod.NotificationDrawer"
         android:title="@string/notification_drawer_title" />
 
+    <PreferenceScreen
+        android:id="@+id/lockscreen_notifcation_settings"
+        android:fragment="com.android.settings.pac.LockscreenNotifications"
+        android:title="@string/lockscreen_notifications" />
+
     <ListPreference
             android:key="expanded_desktop"
             android:title="@string/power_menu_expanded_desktop"
@@ -45,6 +69,18 @@
             android:key="expanded_desktop_no_navbar"
             android:title="@string/power_menu_expanded_desktop"
             android:persistent="true" />
+
+
+    <CheckBoxPreference
+            android:key="enable_nav_bar"
+            android:title="@string/navbar_enable_bar"
+            android:summary="@string/navbar_enable_bar_summary" />
+
+    <PreferenceScreen
+	android:key="navbar_style_dimen_settings"
+	android:fragment="com.android.settings.crdroid.NavbarDimenSettings"
+	android:title="@string/navbar_style_dimen_title" 
+	android:dependency="enable_nav_bar" />
 
     <!-- Device Specific Touchscreen gestures -->
     <Preference
@@ -59,28 +95,15 @@
         android:key="navigation_bar"
         android:title="@string/navigation_bar_category" >
 
-	<CheckBoxPreference
-            android:key="enable_nav_bar"
-            android:title="@string/navbar_enable_bar"
-            android:summary="@string/navbar_enable_bar_summary" />
-
-	<PreferenceScreen
-            android:key="navbar_dimen_settings"
-            android:fragment="com.android.settings.crdroid.NavbarDimenSettings"
-            android:title="@string/navbar_style_dimen_title" 
-	    android:dependency="enable_nav_bar" />
-
         <PreferenceScreen
             android:key="navigation_bar"
             android:fragment="com.android.settings.cyanogenmod.NavBar"
-            android:title="@string/navigation_bar_title" 
-            android:dependency="enable_nav_bar" />
+            android:title="@string/navigation_bar_title" />
 
         <PreferenceScreen
             android:key="navigation_ring"
             android:fragment="com.android.settings.cyanogenmod.NavRing"
-            android:title="@string/navigation_ring_title" 
-	    android:dependency="enable_nav_bar" />
+            android:title="@string/navigation_ring_title" />
 
     </PreferenceCategory>
 

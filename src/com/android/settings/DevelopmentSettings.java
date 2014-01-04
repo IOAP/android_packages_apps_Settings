@@ -132,6 +132,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private static final String DEBUG_HW_OVERDRAW_KEY = "debug_hw_overdraw";
     private static final String DEBUG_LAYOUT_KEY = "debug_layout";
     private static final String FORCE_RTL_LAYOUT_KEY = "force_rtl_layout_all_locales";
+    private static final String WINDOW_ANIMATION_SCALE_KEY = "window_animation_scale";
+    private static final String TRANSITION_ANIMATION_SCALE_KEY = "transition_animation_scale";
+    private static final String ANIMATOR_DURATION_SCALE_KEY = "animator_duration_scale";
     private static final String OVERLAY_DISPLAY_DEVICES_KEY = "overlay_display_devices";
     private static final String DEBUG_DEBUGGING_CATEGORY_KEY = "debug_debugging_category";
     private static final String DEBUG_APPLICATIONS_CATEGORY_KEY = "debug_applications_category";
@@ -157,6 +160,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private static final String TERMINAL_APP_PACKAGE = "com.android.terminal";
 
     private static final String DEVELOPMENT_TOOLS = "development_tools";
+
+    private static final String MEDIA_SCANNER_ON_BOOT = "media_scanner_on_boot";
 
     private static final String ADVANCED_REBOOT_KEY = "advanced_reboot";
 
@@ -206,6 +211,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private ListPreference mDebugHwOverdraw;
     private ListPreference mTrackFrameTime;
     private ListPreference mShowNonRectClip;
+    private ListPreference mWindowAnimationScale;
+    private ListPreference mTransitionAnimationScale;
+    private ListPreference mAnimatorDurationScale;
     private ListPreference mOverlayDisplayDevices;
     private ListPreference mOpenGLTraces;
 
@@ -222,6 +230,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private CheckBoxPreference mAdvancedReboot;
 
     private CheckBoxPreference mDevelopmentShortcut;
+
+    private ListPreference mMSOB;
 
     private final ArrayList<Preference> mAllPrefs = new ArrayList<Preference>();
     private final ArrayList<CheckBoxPreference> mResetCbPrefs
@@ -289,6 +299,10 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mAdvancedReboot = findAndInitCheckboxPref(ADVANCED_REBOOT_KEY);
         mDevelopmentShortcut = findAndInitCheckboxPref(DEVELOPMENT_SHORTCUT_KEY);
 
+        mMSOB = (ListPreference) findPreference(MEDIA_SCANNER_ON_BOOT);
+        mAllPrefs.add(mMSOB);
+        mMSOB.setOnPreferenceChangeListener(this);
+
         if (!android.os.Process.myUserHandle().equals(UserHandle.OWNER)) {
             disableForUser(mEnableAdb);
             disableForUser(mClearAdbKeys);
@@ -326,6 +340,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mForceRtlLayout = findAndInitCheckboxPref(FORCE_RTL_LAYOUT_KEY);
         mDebugHwOverdraw = addListPreference(DEBUG_HW_OVERDRAW_KEY);
         mWifiDisplayCertification = findAndInitCheckboxPref(WIFI_DISPLAY_CERTIFICATION_KEY);
+        mWindowAnimationScale = addListPreference(WINDOW_ANIMATION_SCALE_KEY);
+        mTransitionAnimationScale = addListPreference(TRANSITION_ANIMATION_SCALE_KEY);
+        mAnimatorDurationScale = addListPreference(ANIMATOR_DURATION_SCALE_KEY);
         mOverlayDisplayDevices = addListPreference(OVERLAY_DISPLAY_DEVICES_KEY);
         mOpenGLTraces = addListPreference(OPENGL_TRACES_KEY);
 
@@ -547,6 +564,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateShowHwLayersUpdatesOptions();
         updateDebugHwOverdrawOptions();
         updateDebugLayoutOptions();
+        updateAnimationScaleOptions();
         updateOverlayDisplayDevicesOptions();
         updateOpenGLTracesOptions();
         updateImmediatelyDestroyActivitiesOptions();
@@ -559,6 +577,26 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateRootAccessOptions();
         updateAdvancedRebootOptions();
         updateDevelopmentShortcutOptions();
+        updateMSOBOptions();
+    }
+
+    private void resetMSOBOptions() {
+        Settings.System.putInt(getActivity().getContentResolver(),
+                Settings.System.MEDIA_SCANNER_ON_BOOT, 0);
+    }
+
+    private void writeMSOBOptions(Object newValue) {
+        Settings.System.putInt(getActivity().getContentResolver(),
+                Settings.System.MEDIA_SCANNER_ON_BOOT,
+                Integer.valueOf((String) newValue));
+        updateMSOBOptions();
+    }
+
+    private void updateMSOBOptions() {
+        int value = Settings.System.getInt(getActivity().getContentResolver(),
+                Settings.System.MEDIA_SCANNER_ON_BOOT, 0);
+        mMSOB.setValue(String.valueOf(value));
+        mMSOB.setSummary(mMSOB.getEntry());
     }
 
     private void writeAdvancedRebootOptions() {
@@ -569,7 +607,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private void updateAdvancedRebootOptions() {
         mAdvancedReboot.setChecked(Settings.Secure.getInt(getActivity().getContentResolver(),
-                Settings.Secure.ADVANCED_REBOOT, 0) != 0);
+                Settings.Secure.ADVANCED_REBOOT, 1) != 0);
     }
 
     private void resetDevelopmentShortcutOptions() {
@@ -626,6 +664,14 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             }
         }
         resetDebuggerOptions();
+        resetMSOBOptions();
+        resetRootAccessOptions();
+        resetAdbNotifyOptions();
+        resetVerifyAppsOverUsbOptions();
+        resetDevelopmentShortcutOptions();
+        writeAnimationScaleOption(0, mWindowAnimationScale, null);
+        writeAnimationScaleOption(1, mTransitionAnimationScale, null);
+        writeAnimationScaleOption(2, mAnimatorDurationScale, null);
         writeOverlayDisplayDevicesOptions(null);
         writeAppProcessLimitOptions(null);
         mHaveDebugSettings = false;
@@ -1163,6 +1209,42 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             getActivity().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0) != 0);
     }
 
+    private void updateAnimationScaleValue(int which, ListPreference pref) {
+        try {
+            float scale = mWindowManager.getAnimationScale(which);
+            if (scale != 1) {
+                mHaveDebugSettings = true;
+            }
+            CharSequence[] values = pref.getEntryValues();
+            for (int i=0; i<values.length; i++) {
+                float val = Float.parseFloat(values[i].toString());
+                if (scale <= val) {
+                    pref.setValueIndex(i);
+                    pref.setSummary(pref.getEntries()[i]);
+                    return;
+                }
+            }
+            pref.setValueIndex(values.length-1);
+            pref.setSummary(pref.getEntries()[0]);
+        } catch (RemoteException e) {
+        }
+    }
+
+    private void updateAnimationScaleOptions() {
+        updateAnimationScaleValue(0, mWindowAnimationScale);
+        updateAnimationScaleValue(1, mTransitionAnimationScale);
+        updateAnimationScaleValue(2, mAnimatorDurationScale);
+    }
+
+    private void writeAnimationScaleOption(int which, ListPreference pref, Object newValue) {
+        try {
+            float scale = newValue != null ? Float.parseFloat(newValue.toString()) : 1;
+            mWindowManager.setAnimationScale(which, scale);
+            updateAnimationScaleValue(which, pref);
+        } catch (RemoteException e) {
+        }
+    }
+
     private void updateOverlayDisplayDevicesOptions() {
         String value = Settings.Global.getString(getActivity().getContentResolver(),
                 Settings.Global.OVERLAY_DISPLAY_DEVICES);
@@ -1470,6 +1552,15 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             updateHdcpValues();
             pokeSystemProperties();
             return true;
+        } else if (preference == mWindowAnimationScale) {
+            writeAnimationScaleOption(0, mWindowAnimationScale, newValue);
+            return true;
+        } else if (preference == mTransitionAnimationScale) {
+            writeAnimationScaleOption(1, mTransitionAnimationScale, newValue);
+            return true;
+        } else if (preference == mAnimatorDurationScale) {
+            writeAnimationScaleOption(2, mAnimatorDurationScale, newValue);
+            return true;
         } else if (preference == mOverlayDisplayDevices) {
             writeOverlayDisplayDevicesOptions(newValue);
             return true;
@@ -1506,6 +1597,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             } else {
                 writeRootAccessOptions(newValue);
             }
+            return true;
+        } else if (preference == mMSOB) {
+            writeMSOBOptions(newValue);
             return true;
         }
         return false;

@@ -32,6 +32,13 @@
             android:title="@*android:string/bugreport_title"
             android:dialogTitle="@*android:string/bugreport_title" />
 
+    <ListPreference
+        android:key="media_scanner_on_boot"
+        android:title="@string/media_scanner_on_boot_title"
+        android:persistent="false"
+        android:entries="@array/media_scanner_on_boot_entries"
+        android:entryValues="@array/media_scanner_on_boot_values" />
+
     <CheckBoxPreference
         android:key="advanced_reboot"
         android:title="@string/advanced_reboot_title"
@@ -183,6 +190,27 @@
             android:key="force_rtl_layout_all_locales"
             android:title="@string/force_rtl_layout_all_locales"
             android:summary="@string/force_rtl_layout_all_locales_summary"/>
+
+        <ListPreference
+            android:key="window_animation_scale"
+            android:title="@string/window_animation_scale_title"
+            android:persistent="false"
+            android:entries="@array/window_animation_scale_entries"
+            android:entryValues="@array/window_animation_scale_values" />
+
+        <ListPreference
+            android:key="transition_animation_scale"
+            android:title="@string/transition_animation_scale_title"
+            android:persistent="false"
+            android:entries="@array/transition_animation_scale_entries"
+            android:entryValues="@array/transition_animation_scale_values" />
+
+        <ListPreference
+            android:key="animator_duration_scale"
+            android:title="@string/animator_duration_scale_title"
+            android:persistent="false"
+            android:entries="@array/animator_duration_scale_entries"
+            android:entryValues="@array/animator_duration_scale_values" />
 
         <ListPreference
             android:key="overlay_display_devices"
