@@ -18,7 +18,42 @@
         android:title="@string/about_settings">
 
     <!-- IOKP logo -->	
-	<PreferenceScreen android:layout="@layout/logo_row" android:key="ioap_logo" />
+	<PreferenceScreen android:layout="@layout/logo_row" android:key="ioap_logo"></PreferenceScreen><PreferenceScreen android:key="status_info" android:title="@string/device_status" android:summary="@string/device_status_summary">
+            <intent android:action="android.intent.action.MAIN" android:targetPackage="com.android.settings" android:targetClass="com.android.settings.deviceinfo.Status" />
+        </PreferenceScreen><PreferenceScreen android:key="container" android:title="@string/legal_information">
+                    
+            <!-- Note: The titles given here probably won't be used.  Instead, we programmatically
+                       fill the title with the label of the activity with the corresponding action.
+                       If there is not an activity for an action, the item will be removed from the
+                       list. -->
+
+            <!-- Copyright information -->
+            <PreferenceScreen android:key="copyright" android:title="@string/copyright_title">
+                <intent android:action="android.settings.COPYRIGHT" />
+            </PreferenceScreen>
+
+            <!-- License information -->
+            <PreferenceScreen android:key="license" android:title="@string/license_title">
+                <intent android:action="android.settings.LICENSE" />
+            </PreferenceScreen>
+
+            <!-- CM License information -->
+            <PreferenceScreen android:key="cmlicense" android:title="@string/cmlicense_title">
+                <intent android:action="android.settings.CMLICENSE" />
+            </PreferenceScreen>
+
+            <!-- Terms and conditions -->
+            <PreferenceScreen android:key="terms" android:title="@string/terms_title">
+                <intent android:action="android.settings.TERMS" />
+            </PreferenceScreen>
+
+        </PreferenceScreen><PreferenceScreen android:key="changelog" android:title="@string/changelog_title" android:fragment="com.android.settings.cyanogenmod.ChangeLog">
+        </PreferenceScreen><PreferenceScreen android:key="safetylegal" android:title="@string/settings_safetylegal_title">
+            <intent android:action="android.settings.SAFETY" />
+        </PreferenceScreen><PreferenceScreen android:key="regulatory_info" android:title="@string/regulatory_information">
+            <intent android:action="android.settings.SHOW_REGULATORY_INFO" />
+        </PreferenceScreen><PreferenceScreen android:key="additional_system_update_settings" android:title="@string/additional_system_update_settings_list_item_title"><intent android:action="android.intent.action.MAIN" android:targetPackage="@string/additional_system_update" android:targetClass="@string/additional_system_update_menu" />
+        </PreferenceScreen>
 
         <!-- System update settings - launches activity -->
       <!--  <PreferenceScreen android:key="system_update_settings"
@@ -27,73 +62,18 @@
             <intent android:action="android.settings.SYSTEM_UPDATE_SETTINGS" />
         </PreferenceScreen> -->
 
-        <PreferenceScreen android:key="additional_system_update_settings"
-                          android:title="@string/additional_system_update_settings_list_item_title">
-            <intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="@string/additional_system_update"
-                    android:targetClass="@string/additional_system_update_menu" />
-        </PreferenceScreen>
+        
 
         <!-- Device status - launches activity -->
-        <PreferenceScreen android:key="status_info"
-                android:title="@string/device_status" 
-                android:summary="@string/device_status_summary">
-            <intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.android.settings"
-                    android:targetClass="com.android.settings.deviceinfo.Status" />
-        </PreferenceScreen>
+        
 
         <!-- Change Log -->
-        <PreferenceScreen android:key="changelog"
-            android:title="@string/changelog_title"
-            android:fragment="com.android.settings.cyanogenmod.ChangeLog" >
-        </PreferenceScreen>
+        
 
         <!-- Legal Information -->
-        <PreferenceScreen
-                android:key="container"
-                android:title="@string/legal_information">
-                    
-            <!-- Note: The titles given here probably won't be used.  Instead, we programmatically
-                       fill the title with the label of the activity with the corresponding action.
-                       If there is not an activity for an action, the item will be removed from the
-                       list. -->
-
-            <!-- Copyright information -->
-            <PreferenceScreen
-                    android:key="copyright"
-                    android:title="@string/copyright_title">
-                <intent android:action="android.settings.COPYRIGHT" />
-            </PreferenceScreen>
-
-            <!-- License information -->
-            <PreferenceScreen
-                    android:key="license"
-                    android:title="@string/license_title">
-                <intent android:action="android.settings.LICENSE" />
-            </PreferenceScreen>
-
-            <!-- CM License information -->
-            <PreferenceScreen
-                    android:key="cmlicense"
-                    android:title="@string/cmlicense_title">
-                <intent android:action="android.settings.CMLICENSE" />
-            </PreferenceScreen>
-
-            <!-- Terms and conditions -->
-            <PreferenceScreen
-                    android:key="terms"
-                    android:title="@string/terms_title">
-                <intent android:action="android.settings.TERMS" />
-            </PreferenceScreen>
-
-        </PreferenceScreen>
         
-        <PreferenceScreen
-                android:key="safetylegal"
-                android:title="@string/settings_safetylegal_title">
-            <intent android:action="android.settings.SAFETY" />
-        </PreferenceScreen>
+        
+        
 
         <!-- Contributors -->
         <!-- 
@@ -104,11 +84,7 @@
         </PreferenceScreen>
         -->
 
-        <PreferenceScreen
-                android:key="regulatory_info"
-                android:title="@string/regulatory_information">
-            <intent android:action="android.settings.SHOW_REGULATORY_INFO" />
-        </PreferenceScreen>
+        
 
         <!-- Device hardware model -->
         <Preference android:key="device_model" 
@@ -141,16 +117,8 @@
                 android:summary="@string/device_info_default"/>
 
         <!-- Device cpu info -->
-        <Preference android:key="device_cpu"
-                style="?android:preferenceInformationStyle"
-                android:title="@string/cpu_info"
-                android:summary="@string/device_info_default"/>
 
         <!-- Device mem info -->
-        <Preference android:key="device_memory"
-                style="?android:preferenceInformationStyle"
-                android:title="@string/mem_info"
-                android:summary="@string/device_info_default"/>
 
         <!-- IOAP version -->
         <Preference android:key="ioap_version"
@@ -159,10 +127,6 @@
                 android:summary="@string/ioap_version_default" />
 
         <!-- Mod version -->
-        <Preference android:key="mod_version"
-                style="?android:preferenceInformationStyle"
-                android:title="@string/mod_version"
-                android:summary="@string/mod_version_default" />
 
         <!-- Mod build date -->
         <Preference android:key="build_date"
