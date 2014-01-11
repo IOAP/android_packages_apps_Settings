@@ -214,6 +214,12 @@
 	<!-- Notification Drawer Style -->
 	<activity android:name=".pac.NotificationDrawerStyle" />
 
+	<!-- Nav Ring -->
+	<activity android:name=".ioap.NavRingTargets" />
+
+	<!-- Nav Bar -->
+        <activity android:name=".ioap.navbar.NavbarTabHostFragment" />
+
         <!-- Wireless Controls -->
         <activity android:name="Settings$WirelessSettingsActivity"
                 android:taskAffinity="com.android.settings"
