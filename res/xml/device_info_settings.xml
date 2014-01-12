@@ -72,7 +72,6 @@
                 android:title="@string/ioap_version"
                 android:summary="@string/ioap_version_default" />
 
-
         <!-- Mod build date -->
         <Preference android:key="build_date"
                 style="?android:preferenceInformationStyle"
