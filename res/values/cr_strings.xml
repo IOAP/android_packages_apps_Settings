@@ -424,4 +424,24 @@
     <string name="notification_show_wifi_ssid_title">Show Wifi network name</string>
     <string name="notification_show_wifi_ssid_summary">Display the name of the connected Wifi network</string>
 
+    <!-- Display : Animation options -->
+    <string name="display_category_animation_options_title">Animation options</string>
+    <string name="system_power_crt_mode_title">CRT animation </string>
+    <string name="system_power_crt_mode_dialog_title">CRT animation</string>
+    <string name="system_power_crt_mode_off">Don\'t show</string>
+    <string name="system_power_crt_mode_horizontal">Collapse horizontal</string>
+    <string name="system_power_crt_mode_vertical">Collapse vertical</string>
+    <string name="system_power_crt_mode_both">Collapse orientation dependent</string>
+    <string name="system_power_crt_mode_scale">Scale down</string>
+
+    <!-- Sound settings screen, setting check box label -->
+    <string name="camera_sounds_title">Camera shutter sound</string>
+    <string name="camera_sounds_entry_stock">Default (bloop)</string>
+    <string name="camera_sounds_entry_realistic">Realistic (click)</string>
+    <string name="camera_sounds_entry_off">Disabled (ILLEGAL in some areas)</string>
+
+    <!-- AppOps additions -->
+    <string name="appops_settings">Apps permissions</string>
+    <string name="appops_sysapp_beware">Beware!</string>
+    <string name="appops_sysapp_warning">"Changing permissions of core Android components might lead to undesired behavior. Change settings here at your own risk</string>
 </resources>
