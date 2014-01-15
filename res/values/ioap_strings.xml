@@ -13,8 +13,9 @@
     <string name="style_title">Style</string>
     <string name="save">Save</string>
     <string name="ioap_changelog_title">IOAP Changelogs</string>
-    <string name="ioap_version">IOAP Version</string>
+    <string name="ioap_version">IOAP version</string>
     <string name="ioap_version_default">Unknown</string>
+
 
     <!-- Color Picker -->
     <string name="dialog_color_picker">Color Picker</string>
@@ -263,16 +264,11 @@
     <!-- double-tap to sleep -->
     <string name="status_bar_double_tap_to_sleep_title">Double-tap to sleep</string>
 
-    <!-- Notification Drawer - Swipe to Switch full screen detection-->
-    <string name="title_full_screen_swipe">Swipe-to-Switch detection</string>
-    <string name="summary_full_screen_swipe">Use full screen detection for swipe to switch, not just the bottom bar</string>
-
-     <!--Lockscreen See Through-->
-     <string name="see_through_title">See through</string>
-     <string name="see_through_summary">Shows the content behind your lockscreen</string>
+    <!--Lockscreen See Through-->
+    <string name="see_through_title">See through</string>
+    <string name="see_through_summary">Shows the content behind your lockscreen</string>
 
     <!-- Lockscreen Notifications -->
-    <!-- Categories -->
     <string name="general">General</string>
     <string name="layout">Layout</string>
     <string name="privacy">Privacy</string>
@@ -404,27 +400,11 @@
     <!-- Power Menu -->
     <string name="power_menu_screenrecord_title">Screenrecord</string>
 
-    <!-- Lockscreen style settings -->
-    <string name="lockscreen_style_reset_message">Reset all lockscreen colors?</string>
-    <string name="lockscreen_icon_title">Lock handle icon</string>
-    <string name="lockscreen_lock_icon_custom">Custom icon</string>
-    <string name="lockscreen_lock_icon_default">Default icon</string>
-    <string name="lockscreen_colorize_handle_title">Colorize custom handle</string>
-    <string name="lockscreen_colorize_handle_summary">Lock color will be set to the lock handle</string>
-    <string name="lockscreen_style_title">Theme style</string>
-    <string name="lockscreen_frame_color_title">Frame color</string>
-    <string name="lockscreen_frame_color_summary">Color of the widget and unlock frames</string>
-    <string name="lockscreen_lock_color_title">Lock color</string>
-    <string name="lockscreen_lock_color_summary">Color of the lock handles</string>
-    <string name="lockscreen_dots_color_title">Dots color</string>
-    <string name="lockscreen_dots_color_summary">Color of the glowpad dots</string>
-    <string name="lockscreen_lock_icon_ioap">IOAP icon</string>
-
     <!-- Show wifi network name in notification drawer-->
     <string name="notification_show_wifi_ssid_title">Show Wifi network name</string>
-    <string name="notification_show_wifi_ssid_summary">Display the name of the connected Wifi network</string>
+    <string name="notification_show_wifi_ssid_summary">Display the name of the currently connected Wifi network</string>
 
-    <!-- Display : Animation options -->
+    <!-- Display Animation options -->
     <string name="display_category_animation_options_title">Animation options</string>
     <string name="system_power_crt_mode_title">CRT animation </string>
     <string name="system_power_crt_mode_dialog_title">CRT animation</string>
@@ -444,4 +424,5 @@
     <string name="appops_settings">Apps permissions</string>
     <string name="appops_sysapp_beware">Beware!</string>
     <string name="appops_sysapp_warning">"Changing permissions of core Android components might lead to undesired behavior. Change settings here at your own risk</string>
+
 </resources>

@@ -16,17 +16,6 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
         android:title="@string/development_settings_title">
-
-    <PreferenceScreen
-            android:key="development_tools"
-            android:title="@string/development_tools_title"
-            android:persistent="false" >
-        <intent
-                android:action="android.settings.development.LAUNCH_TOOLS"
-                android:targetPackage="com.android.development"
-                android:targetClass="com.android.development.Development" />
-    </PreferenceScreen>
-
     <com.android.settings.BugreportPreference
             android:key="bugreport"
             android:title="@*android:string/bugreport_title"
@@ -133,11 +122,6 @@
             android:key="allow_mock_location"
             android:title="@string/allow_mock_location"
             android:summary="@string/allow_mock_location_summary"/>
-
-        <CheckBoxPreference
-            android:key="development_shortcut"
-            android:title="@string/development_shortcut_title"
-            android:summary="@string/development_shortcut_summary" />
 
         <PreferenceScreen android:key="debug_app"
                 android:title="@string/debug_app" />
@@ -301,13 +285,6 @@
             android:key="immediately_destroy_activities"
             android:title="@string/immediately_destroy_activities"
             android:summary="@string/immediately_destroy_activities_summary"/>
-
-        <ListPreference
-            android:key="select_runtime"
-            android:title="@string/select_runtime_title"
-            android:dialogTitle="@string/select_runtime_dialog_title"
-            android:entries="@array/select_runtime_titles"
-            android:entryValues="@array/select_runtime_values" />
 
         <ListPreference
             android:key="app_process_limit"

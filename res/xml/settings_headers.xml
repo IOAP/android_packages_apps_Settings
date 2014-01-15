@@ -58,8 +58,25 @@
         android:fragment="com.android.settings.WirelessSettings"
         android:icon="@drawable/empty_icon" />
 
-    <!-- INTERFACE -->
-    <header android:title="@string/header_category_interface" />
+    <!-- Quick Links -->
+    <header android:title="@string/quick_links_title" />
+
+    <header android:icon="@drawable/ic_settings_rom_control"
+            android:title="@string/rom_control_title">
+        <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="com.aokp.romcontrol.MainActivity"
+                android:targetPackage="com.aokp.romcontrol" />
+    </header>
+
+    <header android:id="@+id/advanced_settings"
+            android:title="@string/advanced_settings_title"
+            android:icon="@drawable/ic_settings_advanced">
+        <intent
+                android:action="com.cyanogenmod.action.LAUNCH_DEVICE_SETTINGS"
+                android:targetPackage="com.cyanogenmod.settings.device"
+                android:targetClass="com.cyanogenmod.settings.device.DeviceSettings" />
+    </header>
 
     <!-- Profiles -->
     <header
@@ -67,6 +84,14 @@
         android:icon="@drawable/ic_settings_profiles"
         android:fragment="com.android.settings.profiles.ProfilesSettings"
         android:title="@string/profiles_settings_title" />   
+
+    <!-- Other device controls -->
+    <header
+        android:id="@+id/more_device_settings"
+        android:title="@string/more_device_controls_title"
+        android:breadCrumbTitle="@string/more_device_settings_title"
+        android:fragment="com.android.settings.cyanogenmod.MoreDeviceSettings"
+        android:icon="@drawable/empty_icon" />
 
     <!-- Dark UI -->
     <header
@@ -129,14 +154,6 @@
                 android:targetClass="com.aokp.romcontrol.MainActivity"
                 android:targetPackage="com.aokp.romcontrol" />
     </header>
-
-    <!-- Other device controls -->
-    <header
-        android:id="@+id/more_device_settings"
-        android:title="@string/more_device_controls_title"
-        android:breadCrumbTitle="@string/more_device_settings_title"
-        android:fragment="com.android.settings.cyanogenmod.MoreDeviceSettings"
-        android:icon="@drawable/empty_icon" />
 
     <!-- DEVICE -->
     <header android:id="@+id/device_section"
@@ -260,6 +277,13 @@
         android:fragment="com.android.settings.cyanogenmod.superuser.PolicyNativeFragment"
         android:icon="@drawable/ic_action_permission"
         android:title="@string/superuser" />
+
+    <!-- App Ops -->
+    <header
+        android:fragment="com.android.settings.applications.AppOpsSummary"
+        android:icon="@drawable/ic_app_ops"
+        android:title="@string/app_ops_settings"
+        android:id="@+id/appops_settings" />
 
     <!-- Date & Time -->
     <header
