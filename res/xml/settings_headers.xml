@@ -70,29 +70,12 @@
                 android:targetPackage="com.aokp.romcontrol" />
     </header>
 
-    <header android:id="@+id/advanced_settings"
-            android:title="@string/advanced_settings_title"
-            android:icon="@drawable/ic_settings_advanced">
-        <intent
-                android:action="com.cyanogenmod.action.LAUNCH_DEVICE_SETTINGS"
-                android:targetPackage="com.cyanogenmod.settings.device"
-                android:targetClass="com.cyanogenmod.settings.device.DeviceSettings" />
-    </header>
-
     <!-- Profiles -->
     <header
         android:id="@+id/profiles_settings"
         android:icon="@drawable/ic_settings_profiles"
         android:fragment="com.android.settings.profiles.ProfilesSettings"
         android:title="@string/profiles_settings_title" />   
-
-    <!-- Other device controls -->
-    <header
-        android:id="@+id/more_device_settings"
-        android:title="@string/more_device_controls_title"
-        android:breadCrumbTitle="@string/more_device_settings_title"
-        android:fragment="com.android.settings.cyanogenmod.MoreDeviceSettings"
-        android:icon="@drawable/empty_icon" />
 
     <!-- Dark UI -->
     <header
@@ -146,6 +129,14 @@
         android:icon="@drawable/ic_settings_system"
         android:fragment="com.android.settings.cyanogenmod.SystemUiSettings"
         android:title="@string/system_settings_title" />
+
+    <!-- Other device controls -->
+    <header
+        android:id="@+id/more_device_settings"
+        android:title="@string/more_device_controls_title"
+        android:breadCrumbTitle="@string/more_device_settings_title"
+        android:fragment="com.android.settings.cyanogenmod.MoreDeviceSettings"
+        android:icon="@drawable/empty_icon" />
 
     <!-- DEVICE -->
     <header android:id="@+id/device_section"
