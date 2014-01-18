@@ -211,6 +211,9 @@
             </intent-filter>
         </activity>
 
+	<!-- About IOAP -->
+	<activity android:name=".ioap.About" />
+
 	<!-- Notification Drawer Style -->
 	<activity android:name=".pac.NotificationDrawerStyle" />
 

@@ -62,13 +62,11 @@
     <header android:title="@string/quick_links_title" />
 
     <!-- About IOAP -->
-    <header android:icon="@drawable/ic_settings_rom_control"
-            android:title="@string/rom_control_title">
-        <intent
-                android:action="android.intent.action.MAIN"
-                android:targetClass="com.aokp.romcontrol.MainActivity"
-                android:targetPackage="com.aokp.romcontrol" />
-    </header>
+    <header
+        android:id="@+id/about_ioap"
+        android:fragment="com.android.settings.ioap.About"
+        android:icon="@drawable/ic_settings_rom_control"
+        android:title="@string/about_ioap_settings_title" />
 
     <!-- Profiles -->
     <header

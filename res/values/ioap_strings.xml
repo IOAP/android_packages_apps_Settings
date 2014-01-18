@@ -16,6 +16,23 @@
     <string name="ioap_version">IOAP version</string>
     <string name="ioap_version_default">Unknown</string>
 
+    <!-- About IOAP -->
+    <string name="about_ioap_settings_title">About IOAP</string>
+    <string name="about_ioap">About IOAP</string>
+    <string name="about_ioap_summary">@null</string>
+    <string name="contributors_title">Contributor(s)</string>
+    <string name="devs">Developer(s)</string>
+    <string name="facebook_ioap">http://www.facebook.com/Infamous</string>
+    <string name="gplus_ioap">https://plus.google.com/+Infamous</string>
+    <string name="name_ioap">IOAP</string>
+    <string name="github_ioap">https://github.com/IOAP</string>
+    <string name="email_ioap">infamous@gmail.com</string>
+    <string name="twitter_ioap">IOKP</string>
+    <string name="ioap_site_title">IOAP Website</string>
+    <string name="ioap_site_summary">Visit the IOAP website for latest news.</string>
+    <string name="google_ioap">https://plus.google.com/+Infamous/about</string>
+
+
 
     <!-- Color Picker -->
     <string name="dialog_color_picker">Color Picker</string>
