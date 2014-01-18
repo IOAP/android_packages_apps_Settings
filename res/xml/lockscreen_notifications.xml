@@ -41,7 +41,7 @@
             android:title="@string/dismiss_all"
             android:summary="@string/dismiss_all_summary" />
 
-        <com.android.settings.probam.AppMultiSelectListPreference
+        <com.android.settings.ioap.AppMultiSelectListPreference
             android:key="excluded_apps"
             android:persistent="false"
             android:title="@string/excluded_apps_title"

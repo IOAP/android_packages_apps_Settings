@@ -95,6 +95,23 @@
             android:entries="@array/entries_system_power_crt_mode"
             android:entryValues="@array/values_system_power_crt_mode" />
 
+        <ListPreference
+            android:key="listview_animation"
+            android:dialogTitle="@string/listview_animation_title"
+            android:title="@string/listview_animation_title"
+            android:entries="@array/listview_animation_entries"
+            android:entryValues="@array/listview_animation_values"
+            android:defaultValue="0" />
+
+        <ListPreference
+            android:key="listview_interpolator"
+            android:dialogTitle="@string/listview_interpolator_title"
+            android:title="@string/listview_interpolator_title"
+            android:entries="@array/listview_interpolator_entries"
+            android:entryValues="@array/listview_interpolator_values"
+            android:defaultValue="0" />
+
+
     </PreferenceCategory>
 
         <PreferenceCategory
@@ -112,41 +129,4 @@
                 android:fragment="com.android.settings.notificationlight.BatteryLightSettings" />
 
         </PreferenceCategory>
-
-      <PreferenceCategory
-		android:key="xposed_options"
-		android:title="@string/xposed_category_title" >
-
-	<PreferenceScreen
-	android:key="xposed_warning"
-		    android:title="@string/xposed_warning_title"
-	android:summary="@string/xposed_warning_summary" >
-	</PreferenceScreen>
-
-	<PreferenceScreen
-	android:key="xposed_framework_modules"
-		    android:title="@string/xposed_framework_modules_title"
-	android:summary="@string/xposed_framework_modules_summary" >
-	<intent android:action="android.intent.action.MAIN"
-		        android:targetPackage="de.robv.android.xposed.installer"
-	android:targetClass="de.robv.android.xposed.installer.XposedInstallerActivity" />
-	</PreferenceScreen>
-
-	<PreferenceScreen
-	android:key="xposed__per_app_settings"
-		    android:title="@string/xposed_per_app_title"
-	android:summary="@string/xposed_per_app__summary" >
-	<intent android:action="android.intent.action.MAIN"
-		        android:targetPackage="de.robv.android.xposed.mods.appsettings"
-	android:targetClass="de.robv.android.xposed.mods.appsettings.XposedModActivity" />
-	</PreferenceScreen>
-
-	<PreferenceScreen
-	android:key="xposed_netflix_workaround"
-		    android:title="@string/xposed_netflix_title"
-	android:summary="@string/xposed_netflix_summary" >
-	</PreferenceScreen>
-
-     </PreferenceCategory>
-
 </PreferenceScreen>
