@@ -289,6 +289,7 @@
     <string name="general">General</string>
     <string name="layout">Layout</string>
     <string name="privacy">Privacy</string>
+    <string name="Lockscreen_notifications_header">Lockscreen Notifications</string>
     <string name="lockscreen_notifications">Lockscreen notifications</string>
     <string name="lockscreen_notifications_summary">Show pending notifications on lockscreen</string>
     <string name="pocket_mode">Pocket mode</string>
