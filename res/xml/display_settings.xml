@@ -18,12 +18,6 @@
         android:title="@string/display_settings"
         xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
 
-	<!-- Recents RAM bar -->
-  	<PreferenceScreen
-            android:key="recents_ram_bar"
-            android:fragment="com.android.settings.crdroid.RamBar"
-            android:title="@string/ram_bar" /> 
-
         <com.android.settings.BrightnessPreference
                 android:title="@string/brightness"
                 android:persistent="false"/>
@@ -37,6 +31,11 @@
             android:key="display_rotation"
             android:fragment="com.android.settings.cyanogenmod.DisplayRotation"
             android:title="@string/display_rotation_title" />
+
+        <PreferenceScreen
+                android:key="screen_recorder"
+                android:title="@string/screen_recorder_title"
+                android:fragment="com.android.settings.ioap.ScreenRecorderSettings" />
 
         <ListPreference
                 android:key="screen_timeout"
@@ -68,6 +67,12 @@
                 android:summary="@string/adaptive_backlight_summary"
                 android:defaultValue="true" />
 
+        <CheckBoxPreference
+            android:key="wake_when_plugged_or_unplugged"
+            android:title="@string/wake_when_plugged_or_unplugged_title"
+            android:summary="@string/wake_when_plugged_or_unplugged_summary"
+            android:defaultValue="false" />
+
         <!-- DeviceParts Device Specific Display settings -->
         <Preference
             android:key="advanced_display_settings"
@@ -79,40 +84,9 @@
         </Preference>
 
         <CheckBoxPreference
-            android:key="wake_when_plugged_or_unplugged"
-            android:title="@string/wake_when_plugged_or_unplugged_title"
-            android:summary="@string/wake_when_plugged_or_unplugged_summary"
+            android:key="double_tap_wake_gesture"
+            android:title="@string/double_tap_to_wake_title"
             android:defaultValue="false" />
-
-    <PreferenceCategory
-        android:key="category_animation_options"
-        android:title="@string/display_category_animation_options_title" >
-
-        <ListPreference
-            android:key="system_power_crt_mode"
-            android:dialogTitle="@string/system_power_crt_mode_dialog_title"
-            android:title="@string/system_power_crt_mode_title"
-            android:entries="@array/entries_system_power_crt_mode"
-            android:entryValues="@array/values_system_power_crt_mode" />
-
-        <ListPreference
-            android:key="listview_animation"
-            android:dialogTitle="@string/listview_animation_title"
-            android:title="@string/listview_animation_title"
-            android:entries="@array/listview_animation_entries"
-            android:entryValues="@array/listview_animation_values"
-            android:defaultValue="0" />
-
-        <ListPreference
-            android:key="listview_interpolator"
-            android:dialogTitle="@string/listview_interpolator_title"
-            android:title="@string/listview_interpolator_title"
-            android:entries="@array/listview_interpolator_entries"
-            android:entryValues="@array/listview_interpolator_values"
-            android:defaultValue="0" />
-
-
-    </PreferenceCategory>
 
         <PreferenceCategory
             android:key="lights_prefs"
@@ -130,40 +104,15 @@
 
         </PreferenceCategory>
 
-      <PreferenceCategory
-		android:key="xposed_options"
-		android:title="@string/xposed_category_title" >
+        <PreferenceCategory
+            android:key="smart_cover_category"
+            android:title="@string/smart_cover_category_title">
 
-	<PreferenceScreen
-	android:key="xposed_warning"
-		    android:title="@string/xposed_warning_title"
-	android:summary="@string/xposed_warning_summary" >
-	</PreferenceScreen>
+            <CheckBoxPreference
+                android:key="smart_cover_wake"
+                android:title="@string/smart_cover_wake_title"
+                android:summary="@string/smart_cover_wake_summary" />
 
-	<PreferenceScreen
-	android:key="xposed_framework_modules"
-		    android:title="@string/xposed_framework_modules_title"
-	android:summary="@string/xposed_framework_modules_summary" >
-	<intent android:action="android.intent.action.MAIN"
-		        android:targetPackage="de.robv.android.xposed.installer"
-	android:targetClass="de.robv.android.xposed.installer.XposedInstallerActivity" />
-	</PreferenceScreen>
-
-	<PreferenceScreen
-	android:key="xposed__per_app_settings"
-		    android:title="@string/xposed_per_app_title"
-	android:summary="@string/xposed_per_app__summary" >
-	<intent android:action="android.intent.action.MAIN"
-		        android:targetPackage="de.robv.android.xposed.mods.appsettings"
-	android:targetClass="de.robv.android.xposed.mods.appsettings.XposedModActivity" />
-	</PreferenceScreen>
-
-	<PreferenceScreen
-	android:key="xposed_netflix_workaround"
-		    android:title="@string/xposed_netflix_title"
-	android:summary="@string/xposed_netflix_summary" >
-	</PreferenceScreen>
-
-     </PreferenceCategory>
+        </PreferenceCategory>
 
 </PreferenceScreen>

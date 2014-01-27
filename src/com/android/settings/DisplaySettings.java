@@ -47,6 +47,7 @@ import com.android.settings.Utils;
 import com.android.settings.cyanogenmod.DisplayRotation;
 
 import org.cyanogenmod.hardware.AdaptiveBacklight;
+import org.cyanogenmod.hardware.TapToWake;
 
 import java.util.ArrayList;
 
@@ -58,21 +59,20 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final int FALLBACK_SCREEN_TIMEOUT_VALUE = 30000;
 
     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout";
-    private static final String KEY_ACCELEROMETER = "accelerometer";
     private static final String KEY_FONT_SIZE = "font_size";
     private static final String KEY_SCREEN_SAVER = "screensaver";
     private static final String KEY_DISPLAY_ROTATION = "display_rotation";
     private static final String KEY_ADAPTIVE_BACKLIGHT = "adaptive_backlight";
     private static final String KEY_ADVANCED_DISPLAY_SETTINGS = "advanced_display_settings";
+    private static final String KEY_TAP_TO_WAKE = "double_tap_wake_gesture";
 
     private static final String CATEGORY_LIGHTS = "lights_prefs";
     private static final String KEY_NOTIFICATION_PULSE = "notification_pulse";
     private static final String KEY_BATTERY_LIGHT = "battery_light";
     private static final String KEY_WAKE_WHEN_PLUGGED_OR_UNPLUGGED = "wake_when_plugged_or_unplugged";
-    private static final String KEY_ANIMATION_OPTIONS = "category_animation_options";
-    private static final String KEY_POWER_CRT_MODE = "system_power_crt_mode";
-    private static final String KEY_LISTVIEW_ANIMATION = "listview_animation";
-    private static final String KEY_LISTVIEW_INTERPOLATOR = "listview_interpolator";
+
+    private static final String PREF_SMART_COVER_CATEGORY = "smart_cover_category";
+    private static final String PREF_SMART_COVER_WAKE = "smart_cover_wake";
 
     private static final int DLG_GLOBAL_CHANGE_WARNING = 1;
 
@@ -90,9 +90,9 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private Preference mScreenSaverPreference;
 
     private CheckBoxPreference mAdaptiveBacklight;
-    private ListPreference mCrtMode;
-    private ListPreference mListViewAnimation;
-    private ListPreference mListViewInterpolator;
+    private CheckBoxPreference mTapToWake;
+
+    private CheckBoxPreference mSmartCoverWake;
 
     private ContentObserver mAccelerometerRotationObserver =
             new ContentObserver(new Handler()) {
@@ -117,9 +117,11 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         Resources res = getResources();
 
         addPreferencesFromResource(R.xml.display_settings);
-        PreferenceScreen prefSet = getPreferenceScreen();
 
         mDisplayRotationPreference = (PreferenceScreen) findPreference(KEY_DISPLAY_ROTATION);
+        if (!RotationPolicy.isRotationSupported(getActivity())) {
+            getPreferenceScreen().removePreference(mDisplayRotationPreference);
+        }
 
         mScreenSaverPreference = findPreference(KEY_SCREEN_SAVER);
         if (mScreenSaverPreference != null
@@ -141,11 +143,26 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         mFontSizePref.setOnPreferenceChangeListener(this);
         mFontSizePref.setOnPreferenceClickListener(this);
 
+        mSmartCoverWake = (CheckBoxPreference) findPreference(PREF_SMART_COVER_WAKE);
+        mSmartCoverWake.setOnPreferenceChangeListener(this);
+        if(!getResources().getBoolean(com.android.internal.R.bool.config_lidControlsSleep)) {
+            PreferenceCategory smartCoverOptions = (PreferenceCategory)
+                    getPreferenceScreen().findPreference(PREF_SMART_COVER_CATEGORY);
+            getPreferenceScreen().removePreference(smartCoverOptions);
+        }
+
         mAdaptiveBacklight = (CheckBoxPreference) findPreference(KEY_ADAPTIVE_BACKLIGHT);
         if (!isAdaptiveBacklightSupported()) {
             getPreferenceScreen().removePreference(mAdaptiveBacklight);
             mAdaptiveBacklight = null;
         }
+
+        mTapToWake = (CheckBoxPreference) findPreference(KEY_TAP_TO_WAKE);
+        if (!isTapToWakeSupported()) {
+            getPreferenceScreen().removePreference(mTapToWake);
+            mTapToWake = null;
+        }
+
 
         Utils.updatePreferenceToSpecificActivityFromMetaDataOrRemove(getActivity(),
                 getPreferenceScreen(), KEY_ADVANCED_DISPLAY_SETTINGS);
@@ -176,39 +193,6 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         } else {
             getPreferenceScreen().removePreference(lightPrefs);
         }
-
-
-        // respect device default configuration
-        // true fades while false animates
-        boolean electronBeamFadesConfig = getResources().getBoolean(
-                com.android.internal.R.bool.config_animateScreenLights);
-        PreferenceCategory animationOptions =
-            (PreferenceCategory) prefSet.findPreference(KEY_ANIMATION_OPTIONS);
-        mCrtMode = (ListPreference) prefSet.findPreference(KEY_POWER_CRT_MODE);
-        if (!electronBeamFadesConfig && mCrtMode != null) {
-            int crtMode = Settings.System.getInt(getContentResolver(),
-                    Settings.System.SYSTEM_POWER_CRT_MODE, 1);
-            mCrtMode.setValue(String.valueOf(crtMode));
-            mCrtMode.setSummary(mCrtMode.getEntry());
-            mCrtMode.setOnPreferenceChangeListener(this);
-        } else if (animationOptions != null) {
-            prefSet.removePreference(animationOptions);
-        }
-
-        mListViewAnimation = (ListPreference) prefSet.findPreference(KEY_LISTVIEW_ANIMATION);
-        int listviewanimation = Settings.System.getInt(getContentResolver(),
-                Settings.System.LISTVIEW_ANIMATION, 0);
-        mListViewAnimation.setValue(String.valueOf(listviewanimation));
-        mListViewAnimation.setSummary(mListViewAnimation.getEntry());
-        mListViewAnimation.setOnPreferenceChangeListener(this);
-
-        mListViewInterpolator = (ListPreference) prefSet.findPreference(KEY_LISTVIEW_INTERPOLATOR);
-        int listviewinterpolator = Settings.System.getInt(getContentResolver(),
-                Settings.System.LISTVIEW_INTERPOLATOR, 0);
-        mListViewInterpolator.setValue(String.valueOf(listviewinterpolator));
-        mListViewInterpolator.setSummary(mListViewInterpolator.getEntry());
-        mListViewInterpolator.setOnPreferenceChangeListener(this);
-        mListViewInterpolator.setEnabled(listviewanimation > 0);
     }
 
     private void updateDisplayRotationPreferenceDescription() {
@@ -258,7 +242,6 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         summary.append(" " + getString(R.string.display_rotation_unit));
         mDisplayRotationPreference.setSummary(summary);
     }
-
 
     private void updateTimeoutPreferenceDescription(long currentTimeout) {
         ListPreference preference = mScreenTimeoutPreference;
@@ -346,6 +329,10 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             mAdaptiveBacklight.setChecked(AdaptiveBacklight.isEnabled());
         }
 
+        if (mTapToWake != null) {
+            mTapToWake.setChecked(TapToWake.isEnabled());
+        }
+
         // Default value for wake-on-plug behavior from config.xml
         boolean wakeUpWhenPluggedOrUnpluggedConfig = getResources().getBoolean(
                 com.android.internal.R.bool.config_unplugTurnsOnScreen);
@@ -366,6 +353,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
 
         // Display rotation observer
         getContentResolver().unregisterContentObserver(mAccelerometerRotationObserver);
+
     }
 
     @Override
@@ -452,6 +440,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                     Settings.Global.WAKE_WHEN_PLUGGED_OR_UNPLUGGED,
                     mWakeWhenPluggedOrUnplugged.isChecked() ? 1 : 0);
             return true;
+        } else if (preference == mTapToWake) {
+            return TapToWake.setEnabled(mTapToWake.isChecked());
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -459,7 +449,11 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     @Override
     public boolean onPreferenceChange(Preference preference, Object objValue) {
         final String key = preference.getKey();
-        if (KEY_SCREEN_TIMEOUT.equals(key)) {
+        if (preference == mSmartCoverWake) {
+            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
+                    Settings.System.LOCKSCREEN_LID_WAKE, (Boolean) objValue ? 1 : 0);
+            return true;
+        } else if (KEY_SCREEN_TIMEOUT.equals(key)) {
             int value = Integer.parseInt((String) objValue);
             try {
                 Settings.System.putInt(getContentResolver(), SCREEN_OFF_TIMEOUT, value);
@@ -471,34 +465,6 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         if (KEY_FONT_SIZE.equals(key)) {
             writeFontSizePreference(objValue);
         }
-
-        if (KEY_POWER_CRT_MODE.equals(key)) {
-            int value = Integer.parseInt((String) objValue);
-            int index = mCrtMode.findIndexOfValue((String) objValue);
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.SYSTEM_POWER_CRT_MODE,
-                    value);
-            mCrtMode.setSummary(mCrtMode.getEntries()[index]);
-        }
-
-        if (KEY_LISTVIEW_ANIMATION.equals(key)) {
-            int value = Integer.parseInt((String) objValue);
-            int index = mListViewAnimation.findIndexOfValue((String) objValue);
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.LISTVIEW_ANIMATION,
-                    value);
-            mListViewAnimation.setSummary(mListViewAnimation.getEntries()[index]);
-            mListViewInterpolator.setEnabled(value > 0);
-        }
-        if (KEY_LISTVIEW_INTERPOLATOR.equals(key)) {
-            int value = Integer.parseInt((String) objValue);
-            int index = mListViewInterpolator.findIndexOfValue((String) objValue);
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.LISTVIEW_INTERPOLATOR,
-                    value);
-            mListViewInterpolator.setSummary(mListViewInterpolator.getEntries()[index]);
-        }
-
         return true;
     }
 
@@ -529,11 +495,29 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                 Log.d(TAG, "Adaptive backlight settings restored.");
             }
         }
+        if (isTapToWakeSupported()) {
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+            final boolean enabled = prefs.getBoolean(KEY_TAP_TO_WAKE, true);
+            if (!TapToWake.setEnabled(enabled)) {
+                Log.e(TAG, "Failed to restore tap-to-wake settings.");
+            } else {
+                Log.d(TAG, "Tap-to-wake settings restored.");
+            }
+        }
     }
 
     private static boolean isAdaptiveBacklightSupported() {
         try {
             return AdaptiveBacklight.isSupported();
+        } catch (NoClassDefFoundError e) {
+            // Hardware abstraction framework not installed
+            return false;
+        }
+    }
+
+    private static boolean isTapToWakeSupported() {
+        try {
+            return TapToWake.isSupported();
         } catch (NoClassDefFoundError e) {
             // Hardware abstraction framework not installed
             return false;
