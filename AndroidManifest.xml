@@ -44,7 +44,6 @@
     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES"/>
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
     <uses-permission android:name="android.permission.BATTERY_STATS"/>
-    <uses-permission android:name="android.permission.RESET_BATTERY_STATS"/>
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="com.android.launcher.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.MOVE_PACKAGE" />
@@ -70,8 +69,6 @@
     <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CHANGE_PRIVACY_GUARD_STATE" />
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
-    <uses-permission android:name="android.permission.GET_TOP_ACTIVITY_INFO"/>
 
     <permission
         android:name="android.permission.REQUEST_SUPERUSER"
@@ -198,38 +195,11 @@
             </intent-filter>
         </activity>
 
-	<!--  TRDS  -->
-	<activity android:name=".slim.themes.ThemeSettings" />
-
-	<!--  DensityChanger  -->
-        <activity
-            android:name=".util.DensityChanger"
-            android:label="@string/lcd_density_wizard" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.android.settings.SHORTCUT" />
-            </intent-filter>
-        </activity>
-
 	<!-- About IOAP -->
 	<activity android:name=".ioap.About" />
 
-	<!-- Notification Drawer Style -->
-	<activity android:name=".pac.NotificationDrawerStyle" />
-
-	<!-- Lockscreen Notifications -->
-        <activity
-            android:name=".probam.LockscreenNotifications"
-            android:label="@string/Lockscreen_notifications_header" >
-        </activity>
-
-	<!-- Nav Ring -->
-	<activity android:name=".ioap.NavRingTargets" />
-
-	<!-- Nav Bar -->
-        <activity android:name=".ioap.navbar.NavbarTabHostFragment" />
-
         <!-- Wireless Controls -->
+
         <activity android:name="Settings$WirelessSettingsActivity"
                 android:taskAffinity="com.android.settings"
                 android:label="@string/wireless_networks_settings_title"
@@ -1181,6 +1151,9 @@
         <activity android:name="ConfirmLockPassword"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
 
+        <activity android:name="ChooseEncryptionPassword" android:exported="false"
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
+
         <activity android:name="ChooseLockGeneric"
             android:label="@string/lockpassword_choose_lock_generic_header"
             android:excludeFromRecents="true" >
@@ -1722,19 +1695,6 @@
         />
 
         <!-- CyanogenMod activities Start -->
-        <activity android:name="Settings$SystemSettingsActivity"
-                android:label="@string/system_settings_title"
-                android:taskAffinity=""
-                android:excludeFromRecents="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
-                android:value="com.android.settings.cyanogenmod.SystemUiSettings" />
-            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                android:resource="@id/system_settings" />
-        </activity>
 
         <activity android:name=".cyanogenmod.AutoBrightnessSetup"
                 android:excludeFromRecents="true"
@@ -1794,17 +1754,21 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".cyanogenmod.LockscreenTargets" />
-
         <activity android:name=".cyanogenmod.LockscreenButtons" />
 
         <activity android:name=".cyanogenmod.PerformanceSettings" />
 
         <activity android:name=".ApnEditor" />
 
-        <activity android:name=".cyanogenmod.ChangeLog" />
+        <activity android:name="Settings$AnonymousStatsActivity"
+                android:label="@string/anonymous_statistics_title"
+                android:configChanges="orientation|keyboardHidden|screenSize"
+                android:clearTaskOnLaunch="true">
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.cmstats.AnonymousStats" />
+        </activity>
 
-        <activity android:name=".cyanogenmod.LockscreenInterface" />
+        <activity android:name=".cyanogenmod.ChangeLog" />
 
         <activity android:name=".notificationlight.NotificationLightSettings" />
 
@@ -1829,12 +1793,11 @@
                 android:resource="@id/security_settings" />
         </activity>
 
+        <activity android:name=".cyanogenmod.PrivacySettings" />
+
         <!-- CyanogenMod activities End -->
 
-	<activity android:name=".crdroid.RamBar" />
-
-	<activity android:name=".crdroid.AppSidebar" />
-
+	<activity android:name=".ioap.RamBar" />  
 
    	<!-- Pseudo-activity used to provide an intent-filter entry point to ass display rotation config -->
         <activity android:name="Settings$ASSRamBarActivity"
@@ -1844,8 +1807,60 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
-                android:value="com.android.settings.crdroid.RamBar" />
+                android:value="com.android.settings.ioap.RamBar" />
         </activity>
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to quite hours settings -->
+        <activity android:name="Settings$QuietHoursSettingsActivity"
+                android:label="@string/quiet_hours_title"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.ioap.QuietHours" />
+        </activity>
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to quick tiles settings -->
+        <activity android:name="Settings$QuickSettingsTilesSettingsActivity"
+                android:label="@string/tile_picker_title"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.ioap.quicksettings.QuickSettingsTiles" />
+        </activity>
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to battery icon settings -->
+        <activity android:name="Settings$BatteryIconStyleSettingsActivity"
+                android:label="@string/battery_icon_title"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.ioap.BatteryIconStyle" />
+        </activity>
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to rotation settings
+        <activity android:name="Settings$DisplayRotationSettingsActivity"
+                android:label="@string/display_rotation_title"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.ioap.DisplayRotation" />
+        </activity> -->
 
         <!-- Pseudo-activity used to provide an intent-filter entry point to encryption settings -->
         <activity android:name="Settings$CryptKeeperSettingsActivity"
