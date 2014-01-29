@@ -8,7 +8,7 @@
     <string name="attention">Attention</string>
     <string name="disabled">Disabled</string>
     <string name="default_string">Default</string>
-    <string name="additional_options_title">Additional Options</string>
+    <string name="additional_options_title">Additional options</string>
     <string name="reset_message">Reset all entries to default?</string>
     <string name="style_title">Style</string>
     <string name="add">Add</string>
@@ -44,13 +44,13 @@
     <string name="set">Set</string>
 
     <!-- Status bar -->
-    <string name="status_bar_title">StatusBar</string>
-    <string name="status_bar_style_title">StatusBar Options</string>
+    <string name="status_bar_title">Status bar</string>
+    <string name="status_bar_style_title">Status bar options</string>
     <string name="status_bar_general_title">General</string>
 
     <!-- Status bar | Clock -->
-    <string name="status_bar_clock">Clock and Date</string>
-    <string name="status_bar_clock_title">Clock and Date Style</string>
+    <string name="status_bar_clock">Clock and date</string>
+    <string name="status_bar_clock_title">Clock and date style</string>
     <string name="clock_title_enable">Alignment</string>
     <string name="clock_enabled">Enabled</string>
     <string name="clock_disabled">Disabled</string>
@@ -89,8 +89,8 @@
     <string name="clock_font_normal">Normal</string>
 
     <!-- Advanced low battery indicator options -->  
-    <string name="lights_and_warnings_title">Lights and Warnings</string>
-    <string name="lights_and_warnings_style_title">Lights and Warnings options</string>
+    <string name="lights_and_warnings_title">Lights and warnings</string>
+    <string name="lights_and_warnings_style_title">Lights and warnings options</string>
     <string name="pref_low_battery_warning_policy_title">Low battery warning</string>
     <string name="pref_low_battery_warning_policy_dialog_title">Indicate low battery warning with</string>
     <string name="low_battery_warning_policy_popup_sound">Pop-up and sound</string>
@@ -104,9 +104,9 @@
     <string name="screen_on_notification_led_title">Screen-On Notification Light</string>
     <string name="screen_on_notification_led_summary">Enable Notification Light even when screen is on</string> 
 
-    <!-- Misc & Alt App -->
-    <string name="general_settings_title">General Options</string>
-    <string name="general_settings_style_title">General Options</string>
+    <!-- Alternate default app picker -->
+    <string name="general_settings_title">General settings</string>
+    <string name="general_settings_style_title">General options</string>
     <string name="display_short">Display</string>
     <string name="misc_short">Misc</string>
     <string name="alt_resolver">Use Alt Default App Grid</string>
@@ -129,7 +129,7 @@
     <string name="hide_network_speed_summary">Hide network stats indicator when there is no traffic</string>
 
     <!-- Display : Animation options -->
-    <string name="screen_and_animations_title">Screen Animations</string>
+    <string name="screen_and_animations_title">Screen and animations</string>
     <string name="display_category_animation_options_title">Screen and animation options</string>
     <string name="system_power_crt_mode_title">CRT animation </string>
     <string name="system_power_crt_mode_dialog_title">CRT animation</string>
@@ -267,7 +267,7 @@
     <string name="shortcuts_color_mode_summary">Change the shorcuts icon color mode</string>
 
     <!-- Notification drawer settings  -->
-    <string name="notification_drawer_qs_title">Notification Drawer</string>
+    <string name="notification_drawer_qs_title">Notification &amp; QS drawer</string>
     <string name="notification_drawer_title">Notification drawer</string>
     <string name="notification_shortcuts_settings_title">Shortcuts</string>
     <string name="notification_shortcuts_settings_summary">Show shortcuts in the notification drawer</string>
@@ -664,7 +664,7 @@
     <string name="notif_alpha_title">Notification transparency</string>
 
     <!-- Custom notification panel header -->
-    <string name="omni_features_title">Omni Gear</string>
+    <string name="omni_features_title">Omni features</string>
     <string name="notification_drawer_category_title">Notification drawer</string>
     <string name="custom_statusbar_header_title">Contextual notification panel header</string>
     <string name="custom_statusbar_header_summary">Sets the background of the notification panel header to an image based on the current date and time</string>
