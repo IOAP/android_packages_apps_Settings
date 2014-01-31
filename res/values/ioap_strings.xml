@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012-2013 IOAP Project
 
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- General strings -->
@@ -163,7 +176,9 @@
     <string name="shortcut_action_back">Back</string>
     <string name="shortcut_action_recent">Recents</string>
     <string name="shortcut_action_lastapp">Last app</string>
-    <string name="shortcut_action_search">Search</string>
+    <string name="shortcut_action_assist">Search</string>
+    <string name="shortcut_action_search">Search in app</string>
+    <string name="shortcut_action_voice_search">Voice search</string>
     <string name="shortcut_action_screenshot">Screenshot</string>
     <string name="shortcut_action_menu">Menu</string>
     <string name="shortcut_action_ime">Open IME Switcher</string>
@@ -189,14 +204,12 @@
     <string name="shortcut_action_disable_message">Disabled\nAdd an entry to enable this feature</string>
     <string name="shortcut_image_not_valid">The chosen app did not return a valid icon or does not support image cropping. Use another app.</string>
     <string name="shortcut_duplicate_entry">The chosen action cannot be added twice</string>
-
     <string name="shortcut_action_help_shortcut">shortcut</string>
     <string name="shortcut_action_help_button">button</string>
     <string name="shortcut_action_help_icon">, while selecting the icon will bring up customization options</string>
     <string name="shortcut_action_help_main">To add a %1$s, select the Add icon.  Once a %1$s is added, selecting the row will change the target%2$s\n\nTo remove a %1$s, swipe the row horizontally left or right.  Re-order a %1$s in the list by vertically dragging the anchor on the left.\n\nTo clear or reset to defaults, select the Reset icon.</string>
     <string name="shortcut_action_help_delete_last_entry">Removing every %1$s in the list will disable the feature entirely.</string>
     <string name="shortcut_action_help">Help</string>
-
     <string name="shortcuts_icon_picker_alarm">Alarm</string>
     <string name="shortcuts_icon_picker_andy">Andy</string>
     <string name="shortcuts_icon_picker_battery">Battery</string>
@@ -394,7 +407,7 @@
 
     <!-- Power menu -->
     <string name="power_menu_style_summary">Change global menu colors</string>
-    <string name="power_menu_screenrecord_title">Screen record</string>
+    <string name="power_menu_screenrecord_title">ScreenRecord</string>
 
     <!-- Recents Ram Bar -->
     <string name="ram_bar">Recents RAM bar</string>
@@ -664,7 +677,7 @@
     <string name="notif_alpha_title">Notification transparency</string>
 
     <!-- Custom notification panel header -->
-    <string name="omni_features_title">Omni Gear</string>
+    <string name="omni_features_title">OmniGear</string>
     <string name="notification_drawer_category_title">Notification drawer</string>
     <string name="custom_statusbar_header_title">Contextual notification panel header</string>
     <string name="custom_statusbar_header_summary">Sets the background of the notification panel header to an image based on the current date and time</string>
@@ -821,6 +834,31 @@
     <!-- Header on first screen of choose encryption password [CHAR LIMIT=30] -->
     <string name="encryptionpassword_choose_your_password_header">Set encryption password</string>
 
+    <!-- Hardware keys -->
+    <string name="button_keys_title">Hardware Buttons</string>
+    <string name="keys_bindings_title">Key actions</string>
+    <string name="keys_enable_custom_title">Enable custom actions</string>
+    <string name="keys_enable_custom_summary">Enable custom hardware key actions</string>
+    <string name="keys_back_press_title">Back key</string>
+    <string name="keys_back_long_press_title">Back key (long press)</string>
+    <string name="keys_back_double_tap_title">Back key (double tap)</string>
+    <string name="keys_home_press_title">Home key</string>
+    <string name="keys_home_long_press_title">Home key (long press)</string>
+    <string name="keys_home_double_tap_title">Home key (double tap)</string>
+    <string name="keys_menu_press_title">Menu key</string>
+    <string name="keys_menu_long_press_title">Menu key (long press)</string>
+    <string name="keys_menu_double_tap_title">Menu key (double tap)</string>
+    <string name="keys_assist_press_title">Search key</string>
+    <string name="keys_assist_long_press_title">Search key (long press)</string>
+    <string name="keys_assist_double_tap_title">Search key (double tap)</string>
+    <string name="keys_app_switch_press_title">App switch key</string>
+    <string name="keys_app_switch_long_press_title">App switch key (long press)</string>
+    <string name="keys_app_switch_double_tap_title">App switch key (double tap)</string>
+    <string name="keys_action_normal">Normal press</string>
+    <string name="keys_action_long">Long press</string>
+    <string name="keys_action_double">Double tap</string>
+    <string name="no_home_key">You have no button assigned any more to the \"Home\" action!\n\nThis can make your device unusable!</string>
+
     <!-- Minimum Vibration Duration -->
     <string name="minimum_vibration_duration">Minimum vibration duration</string>
 
@@ -922,13 +960,23 @@
     <string name="title_full_screen_swipe">Swipe-to-Switch detection</string>
     <string name="summary_full_screen_swipe">Use full screen detection for swipe to switch, not just the bottom bar</string>
 
-    <!-- Dark UI Themes -->
+    <!-- TRDS -->
     <string name="theme_settings_title">Dark UI</string>
     <string name="theme_auto_mode_title">Switch theme</string>
     <string name="theme_auto_mode_off">Manual</string>
     <string name="theme_auto_mode_lightsensor">On light condition change</string>
     <string name="theme_auto_mode_twilight">On daytime</string>
     <string name="theme_auto_switch_mode_error">Automatic light condition change mode is enabled. Manual switching is not possible.</string>
+
+    <!-- Battery Bar -->
+    <string name="battery_bar">Battery bar location</string>
+    <string name="battery_bar_color">Battery bar color</string>
+    <string name="battery_bar_cat">Battery bar style</string>
+    <string name="battery_bar_style_title">Battery bar alignment</string>
+    <string name="battery_bar_thickness_title">Battery bar thickness</string>
+    <string name="battery_bar_animate_title">Charging animation</string>
+    <string name="battery_bar_animate_summary">The charging animation may result in a poor user experience. Enable at your own discretion.</string>
+    <string name="battery_bar_title">Battery Bar</string>
 
     <!-- Device specific settings -->
     <string name="quick_links_title">Quick Links</string>
