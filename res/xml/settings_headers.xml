@@ -235,8 +235,7 @@
     </header>
 
     <!-- SYSTEM -->
-    <header 
-        android:id="@+id/system_section"
+    <header android:id="@+id/system_section"
         android:title="@string/header_category_system" />
 
     <!-- Superuser -->
