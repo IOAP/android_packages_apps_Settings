@@ -28,7 +28,7 @@
     <string name="title_general">General</string>
     <string name="ioap_changelog_title">IOAP Changelogs</string>
     <string name="ioap_version">IOAP version</string>
-    <string name="ioap_version_default">Unknown</string>
+    <string name="ioap_version_default">3.1</string>
 
     <!-- About IOAP -->
     <string name="about_ioap_settings_title">About IOAP</string>
