@@ -127,7 +127,7 @@
                 android:summary="@string/mod_version_default"/>
 
         <!-- Detailed build version -->
-        <Preference android:key="ioap_version"
+        <Preference android:key="build_number" 
                 style="?android:preferenceInformationStyle"
                 android:title="@string/ioap_version_title"
                 android:summary="@string/ioap_version_default"/>
