@@ -19,8 +19,6 @@ package com.android.settings.cyanogenmod;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
@@ -37,15 +35,11 @@ import com.android.settings.Utils;
 
 public class LockscreenInterface extends SettingsPreferenceFragment {
 
-    private static final String LOCKSCREEN_GENERAL_CATEGORY = "lockscreen_general_category";
     private static final String LOCKSCREEN_WIDGETS_CATEGORY = "lockscreen_widgets_category";
-    private static final String KEY_LOCKSCREEN_BUTTONS = "lockscreen_buttons";
     private static final String KEY_ENABLE_WIDGETS = "keyguard_enable_widgets";
     private static final String KEY_LOCK_CLOCK = "lock_clock";
-    private static final String KEY_ENABLE_CAMERA = "keyguard_enable_camera";
 
     private CheckBoxPreference mEnableKeyguardWidgets;
-    private CheckBoxPreference mEnableCameraWidget;
 
     private ChooseLockSettingsHelper mChooseLockSettingsHelper;
     private LockPatternUtils mLockUtils;
@@ -61,39 +55,15 @@ public class LockscreenInterface extends SettingsPreferenceFragment {
         mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         // Find categories
-        PreferenceCategory generalCategory = (PreferenceCategory)
-                findPreference(LOCKSCREEN_GENERAL_CATEGORY);
         PreferenceCategory widgetsCategory = (PreferenceCategory)
                 findPreference(LOCKSCREEN_WIDGETS_CATEGORY);
 
         // Find preferences
         mEnableKeyguardWidgets = (CheckBoxPreference) findPreference(KEY_ENABLE_WIDGETS);
-        mEnableCameraWidget = (CheckBoxPreference) findPreference(KEY_ENABLE_CAMERA);
 
-        // Remove lockscreen button actions if device doesn't have hardware keys
-        if (!hasButtons()) {
-            generalCategory.removePreference(findPreference(KEY_LOCKSCREEN_BUTTONS));
-        }
-
-        // Remove/disable custom widgets based on device RAM and policy
-        if (ActivityManager.isLowRamDeviceStatic()) {
-            // Widgets take a lot of RAM, so disable them on low-memory devices
-            widgetsCategory.removePreference(findPreference(KEY_ENABLE_WIDGETS));
-            mEnableKeyguardWidgets = null;
-        } else {
-            checkDisabledByPolicy(mEnableKeyguardWidgets,
-                    DevicePolicyManager.KEYGUARD_DISABLE_WIDGETS_ALL);
-        }
-
-        // Enable or disable camera widget based on device and policy
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
-                Camera.getNumberOfCameras() == 0) {
-            widgetsCategory.removePreference(mEnableCameraWidget);
-            mEnableCameraWidget = null;
-        } else {
-            checkDisabledByPolicy(mEnableCameraWidget,
-                    DevicePolicyManager.KEYGUARD_DISABLE_SECURE_CAMERA);
-        }
+        // Enable or disable lockscreen widgets based on policy
+        checkDisabledByPolicy(mEnableKeyguardWidgets,
+                DevicePolicyManager.KEYGUARD_DISABLE_WIDGETS_ALL);
 
         // Remove cLock settings item if not installed
         if (!isPackageInstalled("com.cyanogenmod.lockclock")) {
@@ -111,13 +81,9 @@ public class LockscreenInterface extends SettingsPreferenceFragment {
     public void onResume() {
         super.onResume();
 
-        // Update custom widgets and camera
+        // Update custom widgets
         if (mEnableKeyguardWidgets != null) {
             mEnableKeyguardWidgets.setChecked(mLockUtils.getWidgetsEnabled());
-        }
-
-        if (mEnableCameraWidget != null) {
-            mEnableCameraWidget.setChecked(mLockUtils.getCameraEnabled());
         }
     }
 
@@ -128,20 +94,9 @@ public class LockscreenInterface extends SettingsPreferenceFragment {
         if (KEY_ENABLE_WIDGETS.equals(key)) {
             mLockUtils.setWidgetsEnabled(mEnableKeyguardWidgets.isChecked());
             return true;
-        } else if (KEY_ENABLE_CAMERA.equals(key)) {
-            mLockUtils.setCameraEnabled(mEnableCameraWidget.isChecked());
-            return true;
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
-
-    /**
-     * Checks if the device has hardware buttons.
-     * @return has Buttons
-     */
-    public boolean hasButtons() {
-        return !getResources().getBoolean(com.android.internal.R.bool.config_showNavigationBar);
     }
 
     /**

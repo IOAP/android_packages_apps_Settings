@@ -35,7 +35,6 @@ import android.os.Handler;
 import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
@@ -56,8 +55,8 @@ import com.android.settings.DialogCreatable;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
+import com.android.settings.ioap.SeekBarPreference;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +90,8 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             "toggle_large_text_preference";
     private static final String TOGGLE_POWER_BUTTON_ENDS_CALL_PREFERENCE =
             "toggle_power_button_ends_call_preference";
+    private static final String TOGGLE_HOME_BUTTON_ANSWERS_CALL_PREFERENCE =
+            "toggle_home_button_answers_call_preference";
     private static final String TOGGLE_LOCK_SCREEN_ROTATION_PREFERENCE =
             "toggle_lock_screen_rotation_preference";
     private static final String TOGGLE_SPEAK_PASSWORD_PREFERENCE =
@@ -119,6 +120,9 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
     // presentation.
     private static final long DELAY_UPDATE_SERVICES_MILLIS = 1000;
 
+    // Default longpress duration
+    private static final int LONGPRESS_TIME_DEFAULT = 500;
+
     // Dialog IDs.
     private static final int DIALOG_ID_NO_ACCESSIBILITY_SERVICES = 1;
 
@@ -127,9 +131,6 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             new SimpleStringSplitter(ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR);
 
     static final Set<ComponentName> sInstalledServices = new HashSet<ComponentName>();
-
-    private final Map<String, String> mLongPressTimeoutValuetoTitleMap =
-            new HashMap<String, String>();
 
     private final Configuration mCurConfig = new Configuration();
 
@@ -191,15 +192,14 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
 
     private CheckBoxPreference mToggleLargeTextPreference;
     private CheckBoxPreference mTogglePowerButtonEndsCallPreference;
+    private CheckBoxPreference mToggleHomeButtonAnswersCallPreference;
     private CheckBoxPreference mToggleLockScreenRotationPreference;
     private CheckBoxPreference mToggleSpeakPasswordPreference;
-    private ListPreference mSelectLongPressTimeoutPreference;
+    private SeekBarPreference mSelectLongPressTimeoutPreference;
     private Preference mNoServicesMessagePreference;
     private PreferenceScreen mCaptioningPreferenceScreen;
     private PreferenceScreen mDisplayMagnificationPreferenceScreen;
     private PreferenceScreen mGlobalGesturePreferenceScreen;
-
-    private int mLongPressTimeoutDefault;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -241,8 +241,6 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             String stringValue = (String) newValue;
             Settings.Secure.putInt(getContentResolver(),
                     Settings.Secure.LONG_PRESS_TIMEOUT, Integer.parseInt(stringValue));
-            mSelectLongPressTimeoutPreference.setSummary(
-                    mLongPressTimeoutValuetoTitleMap.get(stringValue));
             return true;
         }
         return false;
@@ -255,6 +253,9 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             return true;
         } else if (mTogglePowerButtonEndsCallPreference == preference) {
             handleTogglePowerButtonEndsCallPreferenceClick();
+            return true;
+        } else if (mToggleHomeButtonAnswersCallPreference == preference) {
+            handleToggleHomeButtonAnswersCallPreferenceClick();
             return true;
         } else if (mToggleLockScreenRotationPreference == preference) {
             handleLockScreenRotationPreferenceClick();
@@ -287,6 +288,14 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
                 (mTogglePowerButtonEndsCallPreference.isChecked()
                         ? Settings.Secure.INCALL_POWER_BUTTON_BEHAVIOR_HANGUP
                         : Settings.Secure.INCALL_POWER_BUTTON_BEHAVIOR_SCREEN_OFF));
+    }
+
+    private void handleToggleHomeButtonAnswersCallPreferenceClick() {
+        Settings.Secure.putInt(getContentResolver(),
+                Settings.Secure.RING_HOME_BUTTON_BEHAVIOR,
+                (mToggleHomeButtonAnswersCallPreference.isChecked()
+                        ? Settings.Secure.RING_HOME_BUTTON_BEHAVIOR_ANSWER
+                        : Settings.Secure.RING_HOME_BUTTON_BEHAVIOR_DO_NOTHING));
     }
 
     private void handleLockScreenRotationPreferenceClick() {
@@ -340,6 +349,14 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             mSystemsCategory.removePreference(mTogglePowerButtonEndsCallPreference);
         }
 
+        // Home button answers calls.
+        mToggleHomeButtonAnswersCallPreference =
+            (CheckBoxPreference) findPreference(TOGGLE_HOME_BUTTON_ANSWERS_CALL_PREFERENCE);
+        if (!KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME)
+                || !Utils.isVoiceCapable(getActivity())) {
+            mSystemsCategory.removePreference(mToggleHomeButtonAnswersCallPreference);
+        }
+
         // Lock screen rotation.
         mToggleLockScreenRotationPreference =
                 (CheckBoxPreference) findPreference(TOGGLE_LOCK_SCREEN_ROTATION_PREFERENCE);
@@ -353,19 +370,13 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
 
         // Long press timeout.
         mSelectLongPressTimeoutPreference =
-                (ListPreference) findPreference(SELECT_LONG_PRESS_TIMEOUT_PREFERENCE);
+                (SeekBarPreference) findPreference(SELECT_LONG_PRESS_TIMEOUT_PREFERENCE);
+        mSelectLongPressTimeoutPreference.setDefault(LONGPRESS_TIME_DEFAULT);
+        mSelectLongPressTimeoutPreference.isMilliseconds(true);
+        mSelectLongPressTimeoutPreference.setInterval(1);
+        mSelectLongPressTimeoutPreference.minimumValue(80);
+        mSelectLongPressTimeoutPreference.multiplyValue(20);
         mSelectLongPressTimeoutPreference.setOnPreferenceChangeListener(this);
-        if (mLongPressTimeoutValuetoTitleMap.size() == 0) {
-            String[] timeoutValues = getResources().getStringArray(
-                    R.array.long_press_timeout_selector_values);
-            mLongPressTimeoutDefault = Integer.parseInt(timeoutValues[0]);
-            String[] timeoutTitles = getResources().getStringArray(
-                    R.array.long_press_timeout_selector_titles);
-            final int timeoutValueCount = timeoutValues.length;
-            for (int i = 0; i < timeoutValueCount; i++) {
-                mLongPressTimeoutValuetoTitleMap.put(timeoutValues[i], timeoutTitles[i]);
-            }
-        }
 
         // Captioning.
         mCaptioningPreferenceScreen = (PreferenceScreen) findPreference(
@@ -503,6 +514,17 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             mTogglePowerButtonEndsCallPreference.setChecked(powerButtonEndsCall);
         }
 
+        // Home button answers calls.
+        if (KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME)
+                && Utils.isVoiceCapable(getActivity())) {
+            final int incallHomeBehavior = Settings.Secure.getInt(getContentResolver(),
+                    Settings.Secure.RING_HOME_BUTTON_BEHAVIOR,
+                    Settings.Secure.RING_HOME_BUTTON_BEHAVIOR_DEFAULT);
+            final boolean homeButtonAnswersCall =
+                (incallHomeBehavior == Settings.Secure.RING_HOME_BUTTON_BEHAVIOR_ANSWER);
+            mToggleHomeButtonAnswersCallPreference.setChecked(homeButtonAnswersCall);
+        }
+
         // Auto-rotate screen
         updateLockScreenRotationCheckbox();
 
@@ -513,10 +535,9 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
 
         // Long press timeout.
         final int longPressTimeout = Settings.Secure.getInt(getContentResolver(),
-                Settings.Secure.LONG_PRESS_TIMEOUT, mLongPressTimeoutDefault);
-        String value = String.valueOf(longPressTimeout);
-        mSelectLongPressTimeoutPreference.setValue(value);
-        mSelectLongPressTimeoutPreference.setSummary(mLongPressTimeoutValuetoTitleMap.get(value));
+                Settings.Secure.LONG_PRESS_TIMEOUT, LONGPRESS_TIME_DEFAULT);
+        // Minimum 80 is 4 intervals of the 20 multiplier
+        mSelectLongPressTimeoutPreference.setInitValue((longPressTimeout / 20) - 4);
 
         // Captioning.
         final boolean captioningEnabled = Settings.Secure.getInt(getContentResolver(),

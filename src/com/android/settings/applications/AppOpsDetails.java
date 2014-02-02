@@ -17,12 +17,9 @@
 package com.android.settings.applications;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.AppOpsManager;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -102,19 +99,6 @@ public class AppOpsDetails extends Fragment {
             mPackageInfo = null;
         }
 
-        if (packageName != null && packageName.equals("android")) {
-            final Resources r = getActivity().getResources();
-
-            new AlertDialog.Builder(getActivity()).setTitle(r.getString(R.string.appops_sysapp_beware))
-                .setMessage(r.getString(R.string.appops_sysapp_warning))
-                .setPositiveButton(r.getString(R.string.dlg_ok), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-        }
-
         return packageName;
     }
 
@@ -154,6 +138,8 @@ public class AppOpsDetails extends Fragment {
                 }
                 ((TextView)view.findViewById(R.id.op_name)).setText(
                         entry.getSwitchText(mState));
+                ((TextView)view.findViewById(R.id.op_counts)).setText(
+                        entry.getCountsText(res));
                 ((TextView)view.findViewById(R.id.op_time)).setText(
                         entry.getTimeText(res, true));
                 Switch sw = (Switch)view.findViewById(R.id.switchWidget);
