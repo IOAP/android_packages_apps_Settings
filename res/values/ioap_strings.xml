@@ -15,9 +15,6 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- Device Info screen. Used for a status item's value when the proper value is not known -->
-    <string name="device_info_default">v3.1</string>
-
     <!-- General strings -->
     <string name="reset">Reset</string>
     <string name="enabled">Enabled</string>
@@ -33,6 +30,12 @@
     <string name="ioap_version">IOAP version</string>
     <string name="ioap_version_title">IOAP build</string>
     <string name="ioap_version_default">v3.1</string>
+
+    <!-- Spare parts -->
+    <string name="ioap_settings_title">Spare parts</string>
+
+    <!-- Shortcuts -->
+    <string name="ioap_shortcut_picker">Actions</string>
 
     <!-- About IOAP -->
     <string name="about_ioap_settings_title">About IOAP</string>
@@ -50,6 +53,8 @@
     <string name="ioap_site_summary">Visit the IOAP website for latest news.</string>
     <string name="google_ioap">https://plus.google.com/+Infamous/about</string>
     <string name="ioap_settings_title">IOAP Controls</string>
+    <string name="temasek_settings_title">Spare parts</string>
+    <string name="temasek_shortcut_picker">Actions</string>
 
     <!-- Color Picker -->
     <string name="dialog_color_picker">Color Picker</string>
@@ -170,6 +175,8 @@
     <string name="restart_systemui">Restart SystemUI</string>
 
     <!-- Button shorcut actions -->
+    <string name="shortcut_action_navbar">Navigation bar</string>
+    <string name="shortcut_action_pie">Pie controls</string>
     <string name="shortcut_action_airplane">Airplane mode</string>
     <string name="shortcut_action_expanded_desktop">Expanded desktop</string>
     <string name="shortcut_action_power_off">Power off</string>
@@ -214,6 +221,7 @@
     <string name="shortcut_action_help_main">To add a %1$s, select the Add icon.  Once a %1$s is added, selecting the row will change the target%2$s\n\nTo remove a %1$s, swipe the row horizontally left or right.  Re-order a %1$s in the list by vertically dragging the anchor on the left.\n\nTo clear or reset to defaults, select the Reset icon.</string>
     <string name="shortcut_action_help_delete_last_entry">Removing every %1$s in the list will disable the feature entirely.</string>
     <string name="shortcut_action_help">Help</string>
+    <string name="shortcut_action_help_pie_second_layer_delete_last_entry">Removing every %1$s in the list will disable the second pie layer entirely.</string>
     <string name="shortcuts_icon_picker_alarm">Alarm</string>
     <string name="shortcuts_icon_picker_andy">Andy</string>
     <string name="shortcuts_icon_picker_battery">Battery</string>
@@ -390,6 +398,7 @@
     <string name="navbar_targets_title">Ring targets</string>
     <string name="navbar_cat">Navigation bar</string>
     <string name="navbar_dimensions_reset_message">Reset all dimensions entries to default?</string>
+    <string name="navigation_bar_warning_no_navigation_present">No other navigation is currently enabled. Turning off the navigation bar can result in an unusable device. Do you want to enable pie controls instead?</string>
 
     <!-- Navigation bar button style -->
     <string name="nav_bar_button_style_summary">Change navigation bar button colors</string>
@@ -907,6 +916,7 @@
     <string name="privacy_mode_summary">Disables notifications from beeing shown and dismissed. This way, you just see the icons of your notifications.</string>
     <string name="excluded_apps_title">Excluded applications</string>
     <string name="excluded_apps_summary">Excluded applications will not show up as lockscreen notifications</string>
+    <string name="notification_color">Notification background color</string>
 
     <!-- Screen recorder -->
     <string name="screen_recorder_title">Screen recorder</string>
@@ -974,18 +984,96 @@
     <string name="theme_auto_mode_twilight">On daytime</string>
     <string name="theme_auto_switch_mode_error">Automatic light condition change mode is enabled. Manual switching is not possible.</string>
 
-    <!-- Battery Bar -->
-    <string name="battery_bar">Battery bar location</string>
-    <string name="battery_bar_color">Battery bar color</string>
-    <string name="battery_bar_cat">Battery bar style</string>
-    <string name="battery_bar_style_title">Battery bar alignment</string>
-    <string name="battery_bar_thickness_title">Battery bar thickness</string>
-    <string name="battery_bar_animate_title">Charging animation</string>
-    <string name="battery_bar_animate_summary">The charging animation may result in a poor user experience. Enable at your own discretion.</string>
-    <string name="battery_bar_title">Battery Bar</string>
+    <!-- Show 4G icon instead of LTE. User defined settings -->
+    <string name="show_lte_or_fourgee_title">Show 4G network</string>
+    <string name="show_lte_or_fourgee_summary">This will allow you to show 4G instead of LTE</string>
+
+    <!-- Sound themes -->
+    <string name="audio_theme_title">Omnirom audio theme</string>
+    <string name="sound_packages_title">Sound packs</string>
+    <string name="install_sound_pack_title">Install sound pack</string>
+    <string name="install_sound_pack_summary">Install new sound packs added in SoundPacks folder on the internal storage</string>
+    <string name="select_sound_pack_title">Select sound pack</string>
+    <string name="select_sound_pack_summary">Select the active sound pack</string>
+    <string name="default_sound_pack">Default (System)</string>
+    <string name="error_pack_install">Error while installing the sound pack</string>
+
+    <!-- Telo Radio -->
+    <string name="telo_radio_settings_title">Connection manager</string>
+    <string name="telo_radio_options_category">Screen on configuration</string>
+    <string name="telo_radio_lte_title">LTE</string>
+    <string name="telo_radio_lte_summary">Select this option if you use LTE (4G).</string>
+    <string name="telo_radio_2g_wifi_title">2G on Wi-Fi</string>
+    <string name="telo_radio_2g_wifi_title_summary">When Wi-Fi is connected network mode is switched to 2G.</string>
+    <string name="telo_radio_2g_screenoff_category">Screen off configuration</string>
+    <string name="telo_radio_2g_screenoff_title">2G with screen off</string>
+    <string name="telo_radio_2g_screenoff_summary">The device will switch to 2G when the screen is off.</string>
+    <string name="telo_radio_2g_screenoff_timeout_title">Time to switch to 2G</string>
+    <string name="telo_radio_2g_3min">3 minutes</string>
+    <string name="telo_radio_2g_5min">5 minutes</string>
+    <string name="telo_radio_2g_10min">10 minutes</string>
+    <string name="telo_radio_2g_15min">15 minutes</string>
+    <string name="telo_radio_2g_20min">20 minutes</string>
+    <string name="telo_radio_go_3g_unlock_title">3G Unlock</string>
+    <string name="telo_radio_go_3g_unlock_summary">When device is unlocked network mode switches to 3G again.</string>
+
+    <!-- Captive portal toggle -->
+    <string name="captive_toggle">Captive portal detection</string>
+    <string name="captive_toggle_summary">Toggle captive portal detection</string>
+    <string name="captive_server">Server for captive portal detection</string>
+    <string name="captive_server_summary">Server used to detect captive portal. Leave empty for default.</string>
 
     <!-- Device specific settings -->
     <string name="quick_links_title">Quick Links</string>
     <string name="advanced_settings_title">Device options</string>
+
+    <!-- Pie Control -->
+    <string name="pie_control_title">SlimPIE</string>
+    <string name="pie_control_summary">Enable pie controls</string>
+    <string name="pie_control_size">Navigation size</string>
+    <string name="pie_control_trigger_positions">Trigger options</string>
+    <string name="pie_control_trigger_left">Trigger left screen border</string>
+    <string name="pie_control_trigger_bottom">Trigger bottom screen border</string>
+    <string name="pie_control_trigger_right">Trigger right screen border</string>
+    <string name="pie_control_trigger_top">Trigger top screen border</string>
+    <string name="pie_control_trigger_top_summary">Top pie does not show status and clock information</string>
+    <string name="pie_button_style">Buttons style</string>
+    <string name="pie_button_color_title">Button color</string>
+    <string name="pie_button_alpha_title">Button transparency</string>
+    <string name="pie_button_outline_color_title">Button outline color</string>
+    <string name="pie_button_pressed_color_title">Button pressed color</string>
+    <string name="pie_button_long_pressed_color_title">Button long pressed color</string>
+    <string name="pie_button_pressed_alpha_title">Button pressed transparency</string>
+    <string name="pie_icon_style">Button icon style</string>
+    <string name="pie_icon_color_title">Button icon color</string>
+    <string name="pie_icon_color_mode_title">Button icon color mode</string>
+    <string name="pie_icon_color_mode_dialog_title">Colorize</string>
+    <string name="pie_icon_color_mode_summary">Change the button icon color mode</string>
+    <string name="pie_trigger_note_title">Note</string>
+    <string name="pie_trigger_note_summary">To avoid conflicts with status bar or navigation bar, the triggers on these edges are automatically turned off if one or both are available</string>
+    <string name="pie_background_color_title">Background color</string>
+    <string name="pie_snap_color_title">Snap point color</string>
+    <string name="pie_text_color_title">Text color</string>
+    <string name="pie_background_alpha_title">Background transparency</string>
+    <string name="pie_mirror_right_title">Mirror right pie</string>
+    <string name="pie_mirror_right_summary">Mirror right pie on the horizontal axis</string>
+    <string name="pie_style">Style and dimension</string>
+    <string name="pie_style_title">Style</string>
+    <string name="pie_dimens_title">Dimension</string>
+    <string name="pie_show_snap_title">Show snap points</string>
+    <string name="pie_show_snap_summary">Shows snap points to change the trigger edge dynamically</string>
+    <string name="pie_show_text_title">Show status and clock</string>
+    <string name="pie_show_text_summary">Shows phone status, time and date information</string>
+    <string name="pie_show_background_title">Show background</string>
+    <string name="pie_show_background_summary">Enable pie background screen</string>
+    <string name="pie_button">Buttons</string>
+    <string name="pie_button_second_layer">Buttons second layer</string>
+    <string name="pie_button_second_layer_summary">Change second layer buttons</string>
+    <string name="pie_button_style_summary">Change pie button style</string>
+    <string name="pie_style_reset_message">Reset style entries to default?</string>
+    <string name="pie_warning_no_navigation_present">No other navigation is currently enabled. Turning off pie controls can result in an unusable device. Do you want to enable navigation bar instead?</string>
+    <string name="pie_trigger_warning">Minimum one of the main triggers (bottom, left or right) needs to be enabled.</string>
+    <string name="pie_disable_ime_triggers_title">Reduce trigger size on keyboard</string>
+    <string name="pie_disable_ime_triggers_summary">Reduces left and right trigger size if keyboard is active</string>
 
 </resources>
