@@ -139,7 +139,6 @@ public class ConfirmLockPattern extends PreferenceActivity {
             mLockPatternView.setTactileFeedbackEnabled(mLockPatternUtils.isTactileFeedbackEnabled());
             mLockPatternView.setLockPatternSize(mLockPatternUtils.getLockPatternSize());
             mLockPatternView.setOnPatternListener(mConfirmExistingLockPatternListener);
-            mLockPatternView.setLockPatternUtils(mLockPatternUtils);
             updateStage(Stage.NeedToUnlock);
 
             if (savedInstanceState != null) {

@@ -23,18 +23,6 @@
         android:persistent="false"
         android:disableDependentsState="true" />
 
-    <CheckBoxPreference
-        android:key="toggle_captive"
-        android:title="@string/captive_toggle"
-        android:persistent="false"
-        android:summary="@string/captive_toggle_summary" />
-
-    <EditTextPreference
-        android:key="server_captive"
-        android:title="@string/captive_server"
-        android:persistent="false"
-        android:summary="@string/captive_server_summary" />
-
     <com.android.settings.SmsListPreference
         android:key="sms_application"
         android:title="@string/sms_application_title"
@@ -60,13 +48,6 @@
         android:fragment="com.android.settings.vpn2.VpnSettings"
         android:key="vpn_settings"
         android:title="@string/vpn_settings_title" />
-
-
-    <PreferenceScreen
-        android:key="connection_manager"
-        android:id="@+id/telo_radio_settings"
-        android:fragment="com.android.settings.temasek.TeloRadioSettings"
-        android:title="@string/telo_radio_settings_title" />
 
     <PreferenceScreen
         android:key="mobile_network_settings"
