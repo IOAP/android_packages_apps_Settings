@@ -15,9 +15,6 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- Device Info screen. Used for a status item's value when the proper value is not known -->
-    <string name="device_info_default">v3.1</string>
-
     <!-- General strings -->
     <string name="reset">Reset</string>
     <string name="enabled">Enabled</string>
@@ -31,7 +28,7 @@
     <string name="title_general">General</string>
     <string name="ioap_changelog_title">IOAP Changelogs</string>
     <string name="ioap_version">IOAP version</string>
-    <string name="ioap_version_title">IOAP build</string>
+    <string name="ioap_version_title">IOAP version</string>
     <string name="ioap_version_default">v3.1</string>
 
     <!-- About IOAP -->
@@ -743,13 +740,11 @@
     <string name="help_qs_message">To add a quick settings tile, press the Add button and choose the tile you would like. To rearrange your tiles, longpress the tile and drag it into the position you want. If you want to delete a tile, drag it to the delete button which appears while dragging the tile.\n\nTo setup dynamic tiles press the respective icon on the top right of the screen\n\nTo disable quick settings, remove all tiles.</string>
     <string name="custom_tile_dialog_text">Each action will add a new state to the tile. Each click changes to the next state. Long-press to add long-press actions. If no click action exists the long-action icon will be used for the tile. This allows you to change states by clicking and launch actions by long-pressing.</string>
     <string name="custom_tile_dialog_title">Custom tile actions</string>
-    <string name="custom_tile_dialog_extra_text">Advanced tile detected. Your tile will now change states when adjusted from anywhere. You may optionally input an icon and label for the toggle to switch to if it doesn\'t recognize the state it\'s in.</string>
     <string name="custom_toggle_extras">Custom tile extras</string>
     <string name="custom_toggle_collapse_check">Collapse notification shade</string>
     <string name="custom_toggle_match_state_check">Click action matches icon</string>
     <string name="custom_tile_long_press">Longpress:</string>
     <string name="custom_tile_null_warning">An action must be set first</string>
-    <string name="custom_tile_resolve_name">Unknown</string>
 
     <!-- QuickSettings style options -->
     <string name="quicksettings_tiles_style">Style</string>
