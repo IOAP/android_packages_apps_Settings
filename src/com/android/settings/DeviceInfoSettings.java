@@ -29,6 +29,7 @@ import android.os.UserHandle;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.telephony.MSimTelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -66,14 +67,16 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
     private static final String KEY_UPDATE_SETTING = "additional_system_update_settings";
     private static final String KEY_EQUIPMENT_ID = "fcc_equipment_id";
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
-    private static final String KEY_MOD_VERSION = "mod_version";
     private static final String KEY_MOD_BUILD_DATE = "build_date";
+    private static final String KEY_PAC_VERSION = "ioap_version";
     private static final String KEY_DEVICE_CPU = "device_cpu";
     private static final String KEY_DEVICE_MEMORY = "device_memory";
-    private static final String KEY_CM_UPDATES = "cm_updates";
+    private static final String KEY_STATUS = "status_info";
 
-
+    static final int TAPS_TO_BE_A_DEVELOPER = 7;
     long[] mHits = new long[3];
+    int mDevHitCountdown;
+    Toast mDevHitToast;
 
     public DeviceInfoSettings() {
         super(null /* Don't PIN protect the entire screen */);
@@ -98,9 +101,9 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
-        setValueSummary(KEY_MOD_VERSION, "ro.cm.display.version");
-        findPreference(KEY_MOD_VERSION).setEnabled(true);
         setValueSummary(KEY_MOD_BUILD_DATE, "ro.build.date");
+        setValueSummary(KEY_PAC_VERSION, "ro.pac.version");
+        findPreference(KEY_PAC_VERSION).setEnabled(true);
 
         if (!SELinux.isSELinuxEnabled()) {
             String status = getResources().getString(R.string.selinux_status_disabled);
@@ -109,7 +112,11 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
             String status = getResources().getString(R.string.selinux_status_permissive);
             setStringSummary(KEY_SELINUX_STATUS, status);
         }
-        findPreference(KEY_SELINUX_STATUS).setEnabled(true);
+
+        if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
+            findPreference(KEY_STATUS).getIntent().setClassName(
+                    "com.android.settings","com.android.settings.deviceinfo.MSimStatus");
+        }
 
         // Remove selinux information if property is not present
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SELINUX_STATUS,
@@ -124,7 +131,8 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                 PROPERTY_EQUIPMENT_ID);
 
         // Remove Baseband version if wifi-only device
-        if (Utils.isWifiOnly(getActivity())) {
+        if (Utils.isWifiOnly(getActivity())
+                || (MSimTelephonyManager.getDefault().isMultiSimEnabled())) {
             getPreferenceScreen().removePreference(findPreference(KEY_BASEBAND_VERSION));
         }
 
@@ -144,15 +152,43 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         Utils.updatePreferenceToSpecificActivityOrRemove(act, parentPreference, KEY_TEAM,
                 Utils.UPDATE_PREFERENCE_FLAG_SET_TITLE_TO_MATCHING_ACTIVITY);
 
+        // These are contained by the root preference screen
+        parentPreference = getPreferenceScreen();
+        if (UserHandle.myUserId() == UserHandle.USER_OWNER) {
+            Utils.updatePreferenceToSpecificActivityOrRemove(act, parentPreference,
+                    KEY_SYSTEM_UPDATE_SETTINGS,
+                    Utils.UPDATE_PREFERENCE_FLAG_SET_TITLE_TO_MATCHING_ACTIVITY);
+            /* Make sure the activity is provided by who we want... */
+            if (findPreference(KEY_SYSTEM_UPDATE_SETTINGS) != null)
+                removePreferenceIfPackageNotInstalled(findPreference(KEY_SYSTEM_UPDATE_SETTINGS));
+        } else {
+            // Remove for secondary users
+            removePreference(KEY_SYSTEM_UPDATE_SETTINGS);
+        }
+        Utils.updatePreferenceToSpecificActivityOrRemove(act, parentPreference, KEY_CONTRIBUTORS,
+                Utils.UPDATE_PREFERENCE_FLAG_SET_TITLE_TO_MATCHING_ACTIVITY);
+
+        // Read platform settings for additional system update setting
+        removePreferenceIfBoolFalse(KEY_UPDATE_SETTING,
+                R.bool.config_additional_system_update_setting_enable);
+
         // Remove regulatory information if not enabled.
         removePreferenceIfBoolFalse(KEY_REGULATORY_INFO,
                 R.bool.config_show_regulatory_info);
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mDevHitCountdown = getActivity().getSharedPreferences(DevelopmentSettings.PREF_FILE,
+                Context.MODE_PRIVATE).getBoolean(DevelopmentSettings.PREF_SHOW,
+                        android.os.Build.TYPE.equals("eng")) ? -1 : TAPS_TO_BE_A_DEVELOPER;
+        mDevHitToast = null;
+    }
+
+    @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        String prefKey = preference.getKey();
-        if (prefKey.equals(KEY_FIRMWARE_VERSION)) {
+        if (preference.getKey().equals(KEY_FIRMWARE_VERSION)) {
             System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
             mHits[mHits.length-1] = SystemClock.uptimeMillis();
             if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
@@ -165,34 +201,44 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                     Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
                 }
             }
-        } else if (prefKey.equals(KEY_MOD_VERSION)) {
-            System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
-            mHits[mHits.length-1] = SystemClock.uptimeMillis();
-            if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.setClassName("com.android.settings",
-                        com.android.settings.iokp.PlatLogoActivity.class.getName());
-                try {
-                    startActivity(intent);
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
-                }
-            }
-        } else if (preference.getKey().equals(KEY_SELINUX_STATUS)) {
-            System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
-            mHits[mHits.length-1] = SystemClock.uptimeMillis();
-            if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
-                    SELinux.setSELinuxEnforce(!SELinux.isSELinuxEnforced());
-                    if (!SELinux.isSELinuxEnabled()) {
-                            String status = getResources().getString(R.string.selinux_status_disabled);
-                            setStringSummary(KEY_SELINUX_STATUS, status);
-                    } else if (!SELinux.isSELinuxEnforced()) {
-                            String status = getResources().getString(R.string.selinux_status_permissive);
-                            setStringSummary(KEY_SELINUX_STATUS, status);
-                    } else if (SELinux.isSELinuxEnforced()) {
-                            String status = getResources().getString(R.string.selinux_status_enforcing);
-                            setStringSummary(KEY_SELINUX_STATUS, status);
+        } else if (preference.getKey().equals(KEY_BUILD_NUMBER)) {
+            // Don't enable developer options for secondary users.
+            if (UserHandle.myUserId() != UserHandle.USER_OWNER) return true;
+
+            if (mDevHitCountdown > 0) {
+                if (mDevHitCountdown == 1) {
+                    if (super.ensurePinRestrictedPreference(preference)) {
+                        return true;
                     }
+                }
+                mDevHitCountdown--;
+                if (mDevHitCountdown == 0) {
+                    getActivity().getSharedPreferences(DevelopmentSettings.PREF_FILE,
+                            Context.MODE_PRIVATE).edit().putBoolean(
+                                    DevelopmentSettings.PREF_SHOW, true).apply();
+                    if (mDevHitToast != null) {
+                        mDevHitToast.cancel();
+                    }
+                    mDevHitToast = Toast.makeText(getActivity(), R.string.show_dev_on,
+                            Toast.LENGTH_LONG);
+                    mDevHitToast.show();
+                } else if (mDevHitCountdown > 0
+                        && mDevHitCountdown < (TAPS_TO_BE_A_DEVELOPER-2)) {
+                    if (mDevHitToast != null) {
+                        mDevHitToast.cancel();
+                    }
+                    mDevHitToast = Toast.makeText(getActivity(), getResources().getQuantityString(
+                            R.plurals.show_dev_countdown, mDevHitCountdown, mDevHitCountdown),
+                            Toast.LENGTH_SHORT);
+                    mDevHitToast.show();
+                }
+            } else if (mDevHitCountdown < 0) {
+                if (mDevHitToast != null) {
+                    mDevHitToast.cancel();
+                }
+                mDevHitToast = Toast.makeText(getActivity(), R.string.show_dev_already,
+                        Toast.LENGTH_LONG);
+                mDevHitToast.show();
             }
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);

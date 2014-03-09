@@ -34,13 +34,13 @@
 
     <PreferenceCategory android:key="keyboard_settings_category"
             android:title="@string/keyboard_settings_category">
-        <PreferenceScreen android:key="current_input_method"
-                android:title="@string/current_input_method" />
+    <PreferenceScreen android:key="current_input_method"
+            android:title="@string/current_input_method" />
     </PreferenceCategory>
 
     <PreferenceScreen
         android:key="keyboard_input_settings"
-        android:fragment="com.android.settings.ioap.InputMethodsSettings"
+        android:fragment="com.android.settings.slim.InputMethodsSettings"
         android:title="@string/title_keyboard_input" />
 
     <PreferenceCategory
@@ -72,6 +72,14 @@
                 android:order="1002"
                 android:persistent="false"/>
     </PreferenceCategory>
+
+    <ListPreference
+            android:key="volume_key_cursor_control"
+            android:persistent="false"
+            android:dialogTitle="@string/volume_key_cursor_control_title"
+            android:title="@string/volume_key_cursor_control_title"
+            android:entries="@array/volume_key_cursor_control_entries"
+            android:entryValues="@array/volume_key_cursor_control_values" />
 
     <PreferenceCategory android:key="voice_category"
             android:title="@string/voice_category" >

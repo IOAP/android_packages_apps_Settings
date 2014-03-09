@@ -49,15 +49,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
                     android:text="@string/hex"
-                    android:textSize="20sp"
-                />
+                    android:textSize="20sp" />
 
                 <EditText
                     android:id="@+id/hex"
                     android:hint="@string/hex_hint"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                />
+                    android:layout_height="wrap_content" />
 
                 <ImageButton
                     android:id="@+id/enter"
@@ -66,8 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:gravity="center"
-                />
+                    android:gravity="center" />
 
         </LinearLayout>
 
@@ -82,15 +79,13 @@
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
-                android:layout_weight="0.5"
-            />
+                android:layout_weight="0.5" />
 
             <net.margaritov.preference.colorpicker.ColorPickerPanelView
                 android:id="@+id/red_panel"
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-            />
+                android:layout_weight="0.5" />
 
         </LinearLayout>
 
@@ -105,15 +100,13 @@
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
-                android:layout_weight="0.5"
-            />
+                android:layout_weight="0.5" />
 
             <net.margaritov.preference.colorpicker.ColorPickerPanelView
                 android:id="@+id/green_panel"
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-            />
+                android:layout_weight="0.5" />
 
         </LinearLayout>
 
@@ -128,15 +121,13 @@
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
-                android:layout_weight="0.5"
-            />
+                android:layout_weight="0.5" />
 
             <net.margaritov.preference.colorpicker.ColorPickerPanelView
                 android:id="@+id/yellow_panel"
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-            />
+                android:layout_weight="0.5" />
 
         </LinearLayout>
 

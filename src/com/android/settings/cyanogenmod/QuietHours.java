@@ -63,8 +63,8 @@ public class QuietHours extends SettingsPreferenceFragment implements
             getPreferenceScreen().removePreference(mQuietHoursRinger);
             mQuietHoursRinger = null;
         } else {
-            int ringerMuteType = Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_RINGER, 0);
-            mQuietHoursRinger.setValue(String.valueOf(ringerMuteType));
+            int muteType = Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_RINGER, 0);
+            mQuietHoursRinger.setValue(String.valueOf(muteType));
             mQuietHoursRinger.setSummary(mQuietHoursRinger.getEntry());
             mQuietHoursRinger.setOnPreferenceChangeListener(this);
         }

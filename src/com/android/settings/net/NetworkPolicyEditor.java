@@ -38,12 +38,12 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.text.format.Time;
 
-import com.android.internal.util.Objects;
 import com.google.android.collect.Lists;
 import com.google.android.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Utility class to modify list of {@link NetworkPolicy}. Specifically knows
@@ -153,10 +153,8 @@ public class NetworkPolicyEditor {
         } else {
             final Time time = new Time();
             time.setToNow();
-//            cycleDay = time.monthDay;
-//            cycleLength = CYCLE_MONTHLY;
-            cycleDay = 0;
-            cycleLength = CYCLE_WEEKLY;
+            cycleDay = time.monthDay;
+            cycleLength = CYCLE_MONTHLY;
             cycleTimezone = time.timezone;
             metered = true;
         }
@@ -178,7 +176,7 @@ public class NetworkPolicyEditor {
         policy.clearSnooze();
         writeAsync();
     }
-    
+
     public int getPolicyCycleLength(NetworkTemplate template) {
         return getPolicy(template).cycleLength;
     }
@@ -286,7 +284,7 @@ public class NetworkPolicyEditor {
         boolean has4g = false;
         for (NetworkPolicy policy : mPolicies) {
             final NetworkTemplate template = policy.template;
-            if (Objects.equal(subscriberId, template.getSubscriberId())) {
+            if (Objects.equals(subscriberId, template.getSubscriberId())) {
                 switch (template.getMatchRule()) {
                     case MATCH_MOBILE_3G_LOWER:
                         has3g = true;
@@ -342,9 +340,10 @@ public class NetworkPolicyEditor {
             }
             mPolicies.remove(policy3g);
             mPolicies.remove(policy4g);
-            mPolicies.add(new NetworkPolicy(templateAll, restrictive.cycleDay, restrictive.cycleLength,
-                    restrictive.cycleTimezone, restrictive.warningBytes, restrictive.limitBytes,
-                    SNOOZE_NEVER, SNOOZE_NEVER, restrictive.metered, restrictive.inferred));
+            mPolicies.add(new NetworkPolicy(templateAll, restrictive.cycleDay,
+                    restrictive.cycleLength, restrictive.cycleTimezone, restrictive.warningBytes,
+                    restrictive.limitBytes, SNOOZE_NEVER, SNOOZE_NEVER, restrictive.metered,
+                    restrictive.inferred));
             return true;
 
         } else if (!beforeSplit && split) {
@@ -355,11 +354,11 @@ public class NetworkPolicyEditor {
             }
             mPolicies.remove(policyAll);
             mPolicies.add(new NetworkPolicy(template3g, policyAll.cycleDay, policyAll.cycleLength,
-            		policyAll.cycleTimezone, policyAll.warningBytes, policyAll.limitBytes, SNOOZE_NEVER, 
-            		SNOOZE_NEVER, policyAll.metered, policyAll.inferred));
+                    policyAll.cycleTimezone, policyAll.warningBytes, policyAll.limitBytes,
+                    SNOOZE_NEVER, SNOOZE_NEVER, policyAll.metered, policyAll.inferred));
             mPolicies.add(new NetworkPolicy(template4g, policyAll.cycleDay, policyAll.cycleLength,
-            		policyAll.cycleTimezone, policyAll.warningBytes, policyAll.limitBytes, SNOOZE_NEVER, 
-            		SNOOZE_NEVER, policyAll.metered, policyAll.inferred));
+                    policyAll.cycleTimezone, policyAll.warningBytes, policyAll.limitBytes,
+                    SNOOZE_NEVER, SNOOZE_NEVER, policyAll.metered, policyAll.inferred));
             return true;
         } else {
             return false;

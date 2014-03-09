@@ -16,6 +16,7 @@
 
 package com.android.settings.cyanogenmod;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -46,8 +47,20 @@ public class PerformanceSettings extends SettingsPreferenceFragment implements
 
     private static final String USE_16BPP_ALPHA_PROP = "persist.sys.use_16bpp_alpha";
 
+    private static final String SCROLLINGCACHE_PREF = "pref_scrollingcache";
+
+    private static final String SCROLLINGCACHE_PERSIST_PROP = "persist.sys.scrollingcache";
+
+    private static final String SCROLLINGCACHE_DEFAULT = "2";
+
+    private ListPreference mScrollingCachePref;
+
+    private static final String FORCE_HIGHEND_GFX_PREF = "pref_force_highend_gfx";
+    private static final String FORCE_HIGHEND_GFX_PERSIST_PROP = "persist.sys.force_highendgfx";
+
     private ListPreference mPerfProfilePref;
     private CheckBoxPreference mUse16bppAlphaPref;
+    private CheckBoxPreference mForceHighEndGfx;
 
     private String[] mPerfProfileEntries;
     private String[] mPerfProfileValues;
@@ -97,9 +110,22 @@ public class PerformanceSettings extends SettingsPreferenceFragment implements
             mPerfProfilePref.setOnPreferenceChangeListener(this);
         }
 
+        mScrollingCachePref = (ListPreference) prefSet.findPreference(SCROLLINGCACHE_PREF);
+        mScrollingCachePref.setValue(SystemProperties.get(SCROLLINGCACHE_PERSIST_PROP,
+                SystemProperties.get(SCROLLINGCACHE_PERSIST_PROP, SCROLLINGCACHE_DEFAULT)));
+        mScrollingCachePref.setOnPreferenceChangeListener(this);
+
         mUse16bppAlphaPref = (CheckBoxPreference) prefSet.findPreference(USE_16BPP_ALPHA_PREF);
         String use16bppAlpha = SystemProperties.get(USE_16BPP_ALPHA_PROP, "0");
         mUse16bppAlphaPref.setChecked("1".equals(use16bppAlpha));
+
+        if (ActivityManager.isLowRamDeviceStatic()) {
+            mForceHighEndGfx = (CheckBoxPreference) prefSet.findPreference(FORCE_HIGHEND_GFX_PREF);
+            String forceHighendGfx = SystemProperties.get(FORCE_HIGHEND_GFX_PERSIST_PROP, "false");
+            mForceHighEndGfx.setChecked("true".equals(forceHighendGfx));
+        } else {
+            prefSet.removePreference(findPreference(FORCE_HIGHEND_GFX_PREF));
+        }
 
         /* Display the warning dialog */
         alertDialog = new AlertDialog.Builder(getActivity()).create();
@@ -141,6 +167,9 @@ public class PerformanceSettings extends SettingsPreferenceFragment implements
         if (preference == mUse16bppAlphaPref) {
             SystemProperties.set(USE_16BPP_ALPHA_PROP,
                     mUse16bppAlphaPref.isChecked() ? "1" : "0");
+        } else if (preference == mForceHighEndGfx) {
+            SystemProperties.set(FORCE_HIGHEND_GFX_PERSIST_PROP,
+                    mForceHighEndGfx.isChecked() ? "true" : "false");
         } else {
             // If we didn't handle it, let preferences handle it.
             return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -155,6 +184,9 @@ public class PerformanceSettings extends SettingsPreferenceFragment implements
                 Settings.System.putString(getActivity().getContentResolver(),
                         Settings.System.PERFORMANCE_PROFILE, String.valueOf(newValue));
                 setCurrentPerfProfileSummary();
+                return true;
+            } else if (preference == mScrollingCachePref) {
+                SystemProperties.set(SCROLLINGCACHE_PERSIST_PROP, (String)newValue);
                 return true;
             }
         }

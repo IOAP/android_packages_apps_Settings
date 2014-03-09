@@ -39,10 +39,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemProperties;
 import android.os.Vibrator;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
@@ -54,9 +56,6 @@ import android.view.VolumePanel;
 
 import java.util.Date;
 import java.util.Calendar;
-
-import com.android.settings.ioap.SeekBarPreference;
-
 import java.util.List;
 
 public class SoundSettings extends SettingsPreferenceFragment implements
@@ -77,7 +76,6 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private static final String KEY_DTMF_TONE = Settings.System.DTMF_TONE_WHEN_DIALING;
     private static final String KEY_SOUND_EFFECTS = Settings.System.SOUND_EFFECTS_ENABLED;
     private static final String KEY_HAPTIC_FEEDBACK = Settings.System.HAPTIC_FEEDBACK_ENABLED;
-    private static final String KEY_VIBRATION_DURATION = "vibration_duration";
     private static final String KEY_EMERGENCY_TONE = "emergency_tone";
     private static final String KEY_SOUND_SETTINGS = "sound_settings";
     private static final String KEY_LOCK_SOUNDS = Settings.System.LOCKSCREEN_SOUNDS_ENABLED;
@@ -89,6 +87,8 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private static final String KEY_DOCK_SOUNDS = "dock_sounds";
     private static final String KEY_DOCK_AUDIO_MEDIA_ENABLED = "dock_audio_media_enabled";
     private static final String KEY_QUIET_HOURS = "quiet_hours";
+    private static final String KEY_CAMERA_SOUNDS = "camera_sounds";
+    private static final String PROP_CAMERA_SOUND = "persist.sys.camera-sound";
     private static final String KEY_CONVERT_SOUND_TO_VIBRATE =
             Settings.System.NOTIFICATION_CONVERT_SOUND_TO_VIBRATION;
     private static final String KEY_VIBRATE_DURING_CALLS =
@@ -119,7 +119,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private ListPreference mVolumeOverlay;
     private ListPreference mRingMode;
     private CheckBoxPreference mSoundEffects;
-    private SeekBarPreference mVibrationDuration;
+    private CheckBoxPreference mCameraSounds;
     private Preference mMusicFx;
     private Preference mRingtonePreference;
     private Preference mNotificationPreference;
@@ -137,10 +137,6 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private CheckBoxPreference mPowerSounds;
     private CheckBoxPreference mPowerSoundsVibrate;
     private Preference mPowerSoundsRingtone;
-
-    private Vibrator mVib;
-
-    private boolean mFirstVibration = false;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -176,7 +172,6 @@ public class SoundSettings extends SettingsPreferenceFragment implements
 
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-        mVib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         addPreferencesFromResource(R.xml.sound_settings);
 
         if (TelephonyManager.PHONE_TYPE_CDMA != activePhoneType) {
@@ -216,29 +211,24 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         }
 
         mSoundEffects = (CheckBoxPreference) findPreference(KEY_SOUND_EFFECTS);
+        mCameraSounds = (CheckBoxPreference) findPreference(KEY_CAMERA_SOUNDS);
+        mCameraSounds.setPersistent(false);
+        mCameraSounds.setChecked(SystemProperties.getBoolean(
+                PROP_CAMERA_SOUND, true));
 
         if (!Utils.hasVolumeRocker(getActivity())) {
             getPreferenceScreen().removePreference(findPreference(KEY_VOLUME_ADJUST_SOUNDS));
         }
 
-        int userMillis = Settings.System.getInt(resolver,
-                Settings.System.MINIMUM_VIBRATION_DURATION, 0);
-        mVibrationDuration = (SeekBarPreference) findPreference(KEY_VIBRATION_DURATION);
-        mVibrationDuration.setInterval(1);
-        mVibrationDuration.setDefault(0);
-        mVibrationDuration.isMilliseconds(true);
-        mVibrationDuration.setInitValue(userMillis);
-        mVibrationDuration.setOnPreferenceChangeListener(this);
-
         mRingtonePreference = findPreference(KEY_RINGTONE);
         mNotificationPreference = findPreference(KEY_NOTIFICATION_SOUND);
 
-        if (mVib == null || !mVib.hasVibrator()) {
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator == null || !vibrator.hasVibrator()) {
             removePreference(KEY_VIBRATE);
             removePreference(KEY_HAPTIC_FEEDBACK);
             removePreference(KEY_CONVERT_SOUND_TO_VIBRATE);
             removePreference(KEY_VIBRATE_DURING_CALLS);
-            removePreference(KEY_VIBRATION_DURATION);
         }
 
         if (TelephonyManager.PHONE_TYPE_CDMA == activePhoneType) {
@@ -291,7 +281,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         mPowerSoundsVibrate = (CheckBoxPreference) findPreference(KEY_POWER_NOTIFICATIONS_VIBRATE);
         mPowerSoundsVibrate.setChecked(Settings.Global.getInt(resolver,
                 Settings.Global.POWER_NOTIFICATIONS_VIBRATE, 0) != 0);
-        if (mVib == null || !mVib.hasVibrator()) {
+        if (vibrator == null || !vibrator.hasVibrator()) {
             removePreference(KEY_POWER_NOTIFICATIONS_VIBRATE);
         }
 
@@ -423,7 +413,8 @@ public class SoundSettings extends SettingsPreferenceFragment implements
             } else {
                 mAudioManager.unloadSoundEffects();
             }
-
+        } else if (preference == mCameraSounds) {
+            SystemProperties.set(PROP_CAMERA_SOUND, mCameraSounds.isChecked() ? "1" : "0");
         } else if (preference == mMusicFx) {
             // let the framework fire off the intent
             return false;
@@ -498,15 +489,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
                     Settings.System.MODE_VOLUME_OVERLAY, value);
             mVolumeOverlay.setSummary(mVolumeOverlay.getEntries()[index]);
         }
-        if (preference == mVibrationDuration) {
-            int value = Integer.parseInt((String) objValue);
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.MINIMUM_VIBRATION_DURATION, value);
-            if (mFirstVibration && (value % 5 == 0) && mVib != null) {
-                mVib.vibrate(1);
-            }
-            mFirstVibration = true;
-        }
+
         return true;
     }
 

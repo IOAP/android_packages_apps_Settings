@@ -69,7 +69,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import dalvik.system.VMRuntime;
 
@@ -98,6 +97,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private static final String ENABLE_ADB = "enable_adb";
     private static final String ADB_NOTIFY = "adb_notify";
+    private static final String ADB_PARANOID = "adb_paranoid";
     private static final String CLEAR_ADB_KEYS = "clear_adb_keys";
     private static final String ENABLE_TERMINAL = "enable_terminal";
     private static final String ADB_TCPIP  = "adb_over_network";
@@ -124,6 +124,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private static final String SHOW_SCREEN_UPDATES_KEY = "show_screen_updates";
     private static final String DISABLE_OVERLAYS_KEY = "disable_overlays";
     private static final String SHOW_CPU_USAGE_KEY = "show_cpu_usage";
+    private static final String SHOW_CPU_INFO_KEY = "show_cpu_info";
     private static final String FORCE_HARDWARE_UI_KEY = "force_hw_ui";
     private static final String FORCE_MSAA_KEY = "force_msaa";
     private static final String TRACK_FRAME_TIME_KEY = "track_frame_time";
@@ -152,6 +153,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private static final String SHOW_ALL_ANRS_KEY = "show_all_anrs";
 
+    private static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
 
     private static final String TAG_CONFIRM_ENFORCE = "confirm_enforce";
 
@@ -161,13 +163,11 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private static final String DEVELOPMENT_TOOLS = "development_tools";
 
+    private static final String MEDIA_SCANNER_ON_BOOT = "media_scanner_on_boot";
+
     private static final String ADVANCED_REBOOT_KEY = "advanced_reboot";
 
     private static final String DEVELOPMENT_SHORTCUT_KEY = "development_shortcut";
-
-    private static final String KEY_CHAMBER_OF_SECRETS = "chamber_of_secrets";
-    private static final String KEY_CHAMBER_OF_UNLOCKED_SECRETS =
-            "chamber_of_unlocked_secrets";
 
     private static final int RESULT_DEBUG_APP = 1000;
 
@@ -182,6 +182,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private CheckBoxPreference mEnableAdb;
     private CheckBoxPreference mAdbNotify;
+    private CheckBoxPreference mAdbParanoid;
     private Preference mClearAdbKeys;
     private CheckBoxPreference mEnableTerminal;
     private Preference mBugreport;
@@ -204,6 +205,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private CheckBoxPreference mShowScreenUpdates;
     private CheckBoxPreference mDisableOverlays;
     private CheckBoxPreference mShowCpuUsage;
+    private CheckBoxPreference mShowCpuInfo;
     private CheckBoxPreference mForceHardwareUi;
     private CheckBoxPreference mForceMsaa;
     private CheckBoxPreference mShowHwScreenUpdates;
@@ -223,6 +225,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private ListPreference mAppProcessLimit;
 
     private CheckBoxPreference mShowAllANRs;
+    private CheckBoxPreference mKillAppLongpressBack;
 
     private ListPreference mRootAccess;
     private Object mSelectedRootValue;
@@ -232,8 +235,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private CheckBoxPreference mDevelopmentShortcut;
 
-    private Preference mChamber;
-    private CheckBoxPreference mChamberUnlocked;
+    private ListPreference mMSOB;
 
     private final ArrayList<Preference> mAllPrefs = new ArrayList<Preference>();
     private final ArrayList<CheckBoxPreference> mResetCbPrefs
@@ -276,11 +278,13 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 findPreference(DEBUG_DEBUGGING_CATEGORY_KEY);
 
         mEnableAdb = findAndInitCheckboxPref(ENABLE_ADB);
+        mAdbParanoid = findAndInitCheckboxPref(ADB_PARANOID);
         mAdbNotify = (CheckBoxPreference) findPreference(ADB_NOTIFY);
         mAllPrefs.add(mAdbNotify);
         mClearAdbKeys = findPreference(CLEAR_ADB_KEYS);
         if (!SystemProperties.getBoolean("ro.adb.secure", false)) {
             if (debugDebuggingCategory != null) {
+                debugDebuggingCategory.removePreference(mAdbParanoid);
                 debugDebuggingCategory.removePreference(mClearAdbKeys);
             }
         }
@@ -299,11 +303,15 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mPassword = (PreferenceScreen) findPreference(LOCAL_BACKUP_PASSWORD);
         mAllPrefs.add(mPassword);
         mAdvancedReboot = findAndInitCheckboxPref(ADVANCED_REBOOT_KEY);
-	updateAdvancedRebootOptions(); 
         mDevelopmentShortcut = findAndInitCheckboxPref(DEVELOPMENT_SHORTCUT_KEY);
+
+        mMSOB = (ListPreference) findPreference(MEDIA_SCANNER_ON_BOOT);
+        mAllPrefs.add(mMSOB);
+        mMSOB.setOnPreferenceChangeListener(this);
 
         if (!android.os.Process.myUserHandle().equals(UserHandle.OWNER)) {
             disableForUser(mEnableAdb);
+            disableForUser(mAdbParanoid);
             disableForUser(mClearAdbKeys);
             disableForUser(mEnableTerminal);
             disableForUser(mPassword);
@@ -329,6 +337,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mShowScreenUpdates = findAndInitCheckboxPref(SHOW_SCREEN_UPDATES_KEY);
         mDisableOverlays = findAndInitCheckboxPref(DISABLE_OVERLAYS_KEY);
         mShowCpuUsage = findAndInitCheckboxPref(SHOW_CPU_USAGE_KEY);
+        mShowCpuInfo = findAndInitCheckboxPref(SHOW_CPU_INFO_KEY);
         mForceHardwareUi = findAndInitCheckboxPref(FORCE_HARDWARE_UI_KEY);
         mForceMsaa = findAndInitCheckboxPref(FORCE_MSAA_KEY);
         mTrackFrameTime = addListPreference(TRACK_FRAME_TIME_KEY);
@@ -356,6 +365,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mAllPrefs.add(mShowAllANRs);
         mResetCbPrefs.add(mShowAllANRs);
 
+        mKillAppLongpressBack = findAndInitCheckboxPref(KILL_APP_LONGPRESS_BACK);
+
         Preference selectRuntime = findPreference(SELECT_RUNTIME_KEY);
         if (selectRuntime != null) {
             mAllPrefs.add(selectRuntime);
@@ -376,23 +387,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
         mDevelopmentTools = (PreferenceScreen) findPreference(DEVELOPMENT_TOOLS);
         mAllPrefs.add(mDevelopmentTools);
-
-        mChamber = (Preference) findPreference(KEY_CHAMBER_OF_SECRETS);
-        mAllPrefs.add(mChamber);
-        mChamberUnlocked =
-                findAndInitCheckboxPref(KEY_CHAMBER_OF_UNLOCKED_SECRETS);
-        mChamberUnlocked.setOnPreferenceChangeListener(this);
-
-        boolean chamberOpened = Settings.Secure.getInt(
-                getActivity().getContentResolver(),
-                Settings.Secure.CHAMBER_OF_SECRETS, 0) == 1;
-        mChamberUnlocked.setChecked(chamberOpened);
-
-        if (chamberOpened) {
-            removePreference(mChamber);
-        } else {
-            removePreference(mChamberUnlocked);
-        }
     }
 
     private ListPreference addListPreference(String prefKey) {
@@ -481,12 +475,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mAllPrefs.remove(preference);
     }
 
-    private void addPreference(Preference preference) {
-        getPreferenceScreen().addPreference(preference);
-        preference.setOnPreferenceChangeListener(this);
-        mAllPrefs.add(preference);
-    }
-
     private void setPrefsEnabledState(boolean enabled) {
         for (int i = 0; i < mAllPrefs.size(); i++) {
             Preference pref = mAllPrefs.get(i);
@@ -537,6 +525,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             setPrefsEnabledState(mLastEnabledState);
         }
 
+        updateKillAppLongpressBackOptions();
     }
 
     void updateCheckBox(CheckBoxPreference checkBox, boolean value) {
@@ -552,6 +541,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 Settings.Global.ADB_ENABLED, 0) != 0);
         mAdbNotify.setChecked(Settings.Secure.getInt(cr,
                 Settings.Secure.ADB_NOTIFY, 1) != 0);
+        mAdbParanoid.setChecked(Settings.Secure.getInt(cr,
+                Settings.Secure.ADB_PARANOID, 0) != 0);
         if (mEnableTerminal != null) {
             updateCheckBox(mEnableTerminal,
                     context.getPackageManager().getApplicationEnabledSetting(TERMINAL_APP_PACKAGE)
@@ -575,6 +566,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateShowTouchesOptions();
         updateFlingerOptions();
         updateCpuUsageOptions();
+        updateCpuInfoOptions();
         updateHardwareUiOptions();
         updateMsaaOptions();
         updateTrackFrameTimeOptions();
@@ -595,7 +587,27 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateWifiDisplayCertificationOptions();
         updateRootAccessOptions();
         updateAdvancedRebootOptions();
-	updateDevelopmentShortcutOptions();
+        updateDevelopmentShortcutOptions();
+        updateMSOBOptions();
+    }
+
+    private void resetMSOBOptions() {
+        Settings.System.putInt(getActivity().getContentResolver(),
+                Settings.System.MEDIA_SCANNER_ON_BOOT, 0);
+    }
+
+    private void writeMSOBOptions(Object newValue) {
+        Settings.System.putInt(getActivity().getContentResolver(),
+                Settings.System.MEDIA_SCANNER_ON_BOOT,
+                Integer.valueOf((String) newValue));
+        updateMSOBOptions();
+    }
+
+    private void updateMSOBOptions() {
+        int value = Settings.System.getInt(getActivity().getContentResolver(),
+                Settings.System.MEDIA_SCANNER_ON_BOOT, 0);
+        mMSOB.setValue(String.valueOf(value));
+        mMSOB.setSummary(mMSOB.getEntry());
     }
 
     private void writeAdvancedRebootOptions() {
@@ -606,7 +618,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private void updateAdvancedRebootOptions() {
         mAdvancedReboot.setChecked(Settings.Secure.getInt(getActivity().getContentResolver(),
-                Settings.Secure.ADVANCED_REBOOT, 0) != 0);
+                Settings.Secure.ADVANCED_REBOOT, 1) != 0);
     }
 
     private void resetDevelopmentShortcutOptions() {
@@ -663,6 +675,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             }
         }
         resetDebuggerOptions();
+        resetMSOBOptions();
         resetRootAccessOptions();
         resetAdbNotifyOptions();
         resetVerifyAppsOverUsbOptions();
@@ -786,6 +799,17 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             hdcpChecking.setSummary(summaries[index]);
             hdcpChecking.setOnPreferenceChangeListener(this);
         }
+    }
+
+    private void writeKillAppLongpressBackOptions() {
+        Settings.Secure.putInt(getActivity().getContentResolver(),
+                Settings.Secure.KILL_APP_LONGPRESS_BACK,
+                mKillAppLongpressBack.isChecked() ? 1 : 0);
+    }
+
+    private void updateKillAppLongpressBackOptions() {
+        mKillAppLongpressBack.setChecked(Settings.Secure.getInt(
+            getActivity().getContentResolver(), Settings.Secure.KILL_APP_LONGPRESS_BACK, 0) != 0);
     }
 
     private void updatePasswordSummary() {
@@ -1170,6 +1194,24 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 Settings.Global.SHOW_PROCESSES, 0) != 0);
     }
 
+    private void updateCpuInfoOptions() {
+        updateCheckBox(mShowCpuInfo, Settings.Global.getInt(getActivity().getContentResolver(),
+                Settings.Global.SHOW_CPU, 0) != 0);
+    }
+
+    private void writeCpuInfoOptions() {
+        boolean value = mShowCpuInfo.isChecked();
+        Settings.Global.putInt(getActivity().getContentResolver(),
+                Settings.Global.SHOW_CPU, value ? 1 : 0);
+        Intent service = (new Intent())
+                .setClassName("com.android.systemui", "com.android.systemui.CPUInfoService");
+        if (value) {
+            getActivity().startService(service);
+        } else {
+            getActivity().stopService(service);
+        }
+    }
+
     private void writeCpuUsageOptions() {
         boolean value = mShowCpuUsage.isChecked();
         Settings.Global.putInt(getActivity().getContentResolver(),
@@ -1199,7 +1241,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private void updateAnimationScaleValue(int which, ListPreference pref) {
         try {
             float scale = mWindowManager.getAnimationScale(which);
-            if (scale != .5) {
+            if (scale != 1) {
                 mHaveDebugSettings = true;
             }
             CharSequence[] values = pref.getEntryValues();
@@ -1400,6 +1442,10 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             Settings.Secure.putInt(getActivity().getContentResolver(),
                     Settings.Secure.ADB_NOTIFY,
                     mAdbNotify.isChecked() ? 1 : 0);
+        } else if (preference == mAdbParanoid) {
+            Settings.Secure.putInt(getActivity().getContentResolver(),
+                    Settings.Secure.ADB_PARANOID,
+                    mAdbParanoid.isChecked() ? 1 : 0);
         } else if (preference == mClearAdbKeys) {
             if (mAdbKeysDialog != null) dismissDialogs();
             mAdbKeysDialog = new AlertDialog.Builder(getActivity())
@@ -1463,6 +1509,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             writeDisableOverlaysOption();
         } else if (preference == mShowCpuUsage) {
             writeCpuUsageOptions();
+        } else if (preference == mShowCpuInfo) {
+            writeCpuInfoOptions();
         } else if (preference == mImmediatelyDestroyActivities) {
             writeImmediatelyDestroyActivitiesOptions();
         } else if (preference == mShowAllANRs) {
@@ -1483,20 +1531,10 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             writeWifiDisplayCertificationOptions();
         } else if (preference == mAdvancedReboot) {
             writeAdvancedRebootOptions();
-	} else if (preference == mDevelopmentShortcut) {
+        } else if (preference == mDevelopmentShortcut) {
             writeDevelopmentShortcutOptions();
-        } else if (preference == mChamber) {
-            if (Settings.Secure.getInt(getActivity().getContentResolver(),
-                    Settings.Secure.CHAMBER_OF_SECRETS, 0) == 0) {
-                Settings.Secure.putInt(getActivity().getContentResolver(),
-                        Settings.Secure.CHAMBER_OF_SECRETS, 1);
-                Toast.makeText(getActivity(),
-                        R.string.chamber_toast,
-                        Toast.LENGTH_LONG).show();
-                getPreferenceScreen().removePreference(mChamber);
-                addPreference(mChamberUnlocked);
-                mChamberUnlocked.setChecked(true);
-            }
+        } else if (preference == mKillAppLongpressBack) {
+            writeKillAppLongpressBackOptions();
         } else {
             return super.onPreferenceTreeClick(preferenceScreen, preference);
         }
@@ -1596,10 +1634,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 writeRootAccessOptions(newValue);
             }
             return true;
-        } else if (preference == mChamberUnlocked) {
-            Settings.Secure.putInt(getActivity().getContentResolver(),
-                    Settings.Secure.CHAMBER_OF_SECRETS,
-                    (Boolean) newValue ? 1 : 0);
+        } else if (preference == mMSOB) {
+            writeMSOBOptions(newValue);
             return true;
         }
         return false;

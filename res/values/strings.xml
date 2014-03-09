@@ -30,15 +30,17 @@
     <string name="deny">Deny</string>
 
     <!-- Device Info --> <skip />
+    <!-- Device Info screen. Used for a status item's value when the proper value is not known -->
+    <string name="device_info_default">Unknown</string>
     <!-- [CHAR LIMIT=NONE] Device Info screen. Countdown for user taps to enable development settings -->
     <plurals name="show_dev_countdown">
-        <item quantity="one">You are now <xliff:g id="step_count">%1$d</xliff:g> step away from enabling developer options.</item>
-        <item quantity="other">You are now <xliff:g id="step_count">%1$d</xliff:g> steps away from enabling developer options.</item>
+        <item quantity="one">You are now <xliff:g id="step_count">%1$d</xliff:g> step away from enabling development settings.</item>
+        <item quantity="other">You are now <xliff:g id="step_count">%1$d</xliff:g> steps away from enabling development settings.</item>
     </plurals>
     <!-- [CHAR LIMIT=NONE] Device Info screen. Confirmation that developer settings are enabled -->
-    <string name="show_dev_on">You have enabled developer options!</string>
+    <string name="show_dev_on">You have enabled development settings!</string>
     <!-- [CHAR LIMIT=NONE] Device Info screen. Okay we get it, stop pressing, you already have it on -->
-    <string name="show_dev_already">No need, you have already enabled developer options.</string>
+    <string name="show_dev_already">No need, you have already enabled development settings.</string>
 
     <!-- Category headings in left-pane header menu --> <skip />
     <!-- Settings main menu category heading. Wireless and networks (Wi-Fi, Bluetooth, data usage...). [CHAR LIMIT=40] -->
@@ -875,6 +877,11 @@
     <!-- Title for preference that guides the user through creating an unlock password [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_password_summary">High security</string>
 
+    <!-- Title for preference that guides the user through creating an unlock gesture [CHAR LIMIT=22] -->
+    <string name="unlock_set_unlock_gesture_title">Gesture</string>
+    <!-- Title for preference that guides the user through creating an unlock gesture [CHAR LIMIT=45] -->
+    <string name="unlock_set_unlock_gesture_summary">Low security, experimental</string>
+
     <!-- Summary for preference that has been disabled by because of the DevicePolicyAdmin, or because device encryption is enabled, or because there are credentials in the credential storage [CHAR LIMIT=50] -->
     <string name="unlock_set_unlock_disabled_summary">Disabled by administrator, encryption policy, or credential storage</string>
 
@@ -886,6 +893,8 @@
     <string name="unlock_set_unlock_mode_biometric_weak">Face Unlock</string>
     <!-- Summary for "Configure lockscreen" when security pattern is enabled [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_mode_pattern">Pattern</string>
+    <!-- Summary for "Configure lockscreen" when security gesture is enabled [CHAR LIMIT=45] -->
+    <string name="unlock_set_unlock_mode_gesture">Gesture</string>
     <!-- Summary for "Configure lockscreen" when security PIN is enabled [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_mode_pin">PIN</string>
     <!-- Summary for "Configure lockscreen" when security password is enabled [CHAR LIMIT=45] -->
@@ -1750,6 +1759,20 @@
     <string name="musicfx_title">Music effects</string>
     <!-- Sound settings screen, setting option name -->
     <string name="ring_volume_title">Ringer volume</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_alarm_title">Volume steps: Alarm</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_dtmf_title">Volume steps: DTMF</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_music_title">Volume steps: Music</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_notification_title">Volume steps: Notification</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_ring_title">Volume steps: Ringer</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_system_title">Volume steps: System</string>
+    <!-- Sound settings screen, setting option name -->
+    <string name="volume_steps_voice_call_title">Volume steps: Voice Call</string>
     <!-- Sound settings screen, setting option name checkbox -->
     <string name="vibrate_in_silent_title">Vibrate when silent</string>
     <!-- Sound settings screen, setting option name -->
@@ -1781,6 +1804,9 @@
     <string name="lock_sounds_enable_title">Screen lock sound</string>
     <!-- Sound settings screen, setting check box label -->
     <string name="haptic_feedback_enable_title">Vibrate on touch</string>
+    <!-- Sound settings screen, setting check box label -->
+    <string name="camera_sounds_title">Camera shutter sound</string>
+    <string name="camera_sounds_summary">WARNING: Disabling the camera shutter sound is illegal in some areas!</string>
     <!-- Sound settings screen, setting option name checkbox to enable/disable audio recording features that improve audio recording in noisy environments -->
     <string name="audio_record_proc_title">Noise cancellation</string>
     <!-- Volume description for media volume -->
@@ -1991,7 +2017,11 @@
     <!-- About tablet screen, summary of the item that takes you to tablet status screen -->
     <string name="device_status_summary" product="tablet">Status of the battery, network, and other information</string>
     <!-- About phone screen, summary of the item to go into the phone status screen -->
-    <string name="device_status_summary" product="default">Phone number, signal, etc.</string>
+    <string name="device_status_summary" product="default">Battery status, battery level, etc.</string>
+    <!-- About phone screen, summary of the item to go into the phone status screen -->
+    <string name="device_additional_status_summary">Phone number, signal, IMEI, etc.</string>
+    <!-- In About phone->Status screen, title of the item to go into the subscription status screen -->
+    <string name="device_additional_status">Additional status info</string>
     <!-- Main settings screen item's title to go into the storage settings screen [CHAR LIMIT=25] -->
     <string name="storage_settings" >Storage</string>
     <!-- Storage settings screen title -->
@@ -2159,10 +2189,6 @@
     <string name="usb_ptp_title">Camera (PTP)</string>
     <!-- Storage setting.  Label for installer CD [CHAR LIMIT=30]-->
     <string name="usb_ptp_summary">Lets you transfer photos using camera software, and transfer any files on computers that don\'t support MTP</string>
-    <!-- Storage setting.  Title for UMS checkbox [CHAR LIMIT=30]-->
-    <string name="usb_mass_storage_title">Mass storage (UMS)</string>
-    <!-- Storage setting.  Summary for UMS checkbox [CHAR LIMIT=NONE]-->
-    <string name="usb_mass_storage_summary">Lets you mount your storage device as a USB mass storage device</string>
     <!-- Storage setting.  Summary for PTP checkbox [CHAR LIMIT=NONE]-->
     <string name="usb_label_installer_cd">"Install file-transfer tools"</string>
 
@@ -3813,7 +3839,7 @@
     <!-- Text spoken by the TTS engine as an example if the engine doesn't provide sample text [CHAR LIMIT=100] -->
     <string name="tts_default_sample_string">This is an example of speech synthesis</string>
     <!-- On main TTS Settings screen, title of a field explaining current TTS engine status for
-	 current default language [CHAR LIMIT=50] -->
+     current default language [CHAR LIMIT=50] -->
     <string name="tts_status_title">Default language status</string>
     <!-- On main TTS Settings screen, current TTS engine status for the current default language,
          selected language is fully supported by the engine [CHAR LIMIT=150]-->
@@ -3825,7 +3851,7 @@
          selected language is not supported by the engine [CHAR LIMIT=150] -->
     <string name="tts_status_not_supported"><xliff:g id="locale" example="English (United States)">%1$s</xliff:g> is not supported</string>
     <!-- On main TTS Settings screen, current TTS engine status for the current default language,
-	 tts engine is queried for status [CHAR LIMIT=150] -->
+     tts engine is queried for status [CHAR LIMIT=150] -->
     <string name="tts_status_checking">Checking...</string>
     <!-- On main TTS Settings screen, text for divider under which all TTS engines are listed -->
     <string name="tts_engines_section">Engines</string>
@@ -4453,6 +4479,7 @@
     <string name="data_usage_tab_ethernet">Ethernet</string>
     <!-- Tab title for showing combined mobile data usage. [CHAR LIMIT=10] -->
     <string name="data_usage_tab_mobile">Mobile</string>
+    <string name="data_usage_tab_slot">SIM </string>
     <!-- Tab title for showing 4G data usage. [CHAR LIMIT=10] -->
     <string name="data_usage_tab_4g">4G</string>
     <!-- Tab title for showing 2G and 3G data usage. [CHAR LIMIT=10] -->
@@ -4669,6 +4696,56 @@
 
     <!-- Representation of a numerical percentage. [CHAR LIMIT=8] -->
     <string name="percentage"><xliff:g id="number" example="30">%d</xliff:g>%%</string>
+    <!-- Multi Sim Settings screen, Select Sub label -->
+    <string name="sel_sub_title">Configure Subscriptions </string>
+    <!-- Multi Sim Settings screen, Select Sub Summary label -->
+    <string name="sel_sub_summary">Select the Subscription SUB1, SUB2, etc..</string>
+    <!-- Select Subscription screen title -->
+    <string name="select_subscription">Select Subscription</string>
+    <!-- String displayed when no SIM info is present and Multi SIM settings is accessed-->
+    <string name="no_sim_info">SIM card info not available.\nMenu cannot be accessed</string>
+    <!-- Subscription settings title -->
+    <string name="subs_settings">SUBS Status</string>
+
+    <!-- Main settings screen, Multi Sim settings title for item to go into the Multi settings -->
+    <string name="multi_sim_settings_title">Multi Sim Settings</string>
+    <!-- Main settings screen, Multi Sim settings summary for item to go into Multi settings -->
+    <string name="multi_sim_settings_summary">Set up Multi Sim Settings for Voice, Data and SMS</string>
+
+    <!-- Multi Sim Settings screen, Voice box label -->
+    <string name="voice_title">Voice/USSD/MMI</string>
+    <!-- Multi Sim Settings screen, Voice Summary label -->
+    <string name="voice_summary">Select Subscription for Voice Call</string>
+
+    <!-- Multi Sim Settings screen, Data box label -->
+    <string name="data_title">Data Call</string>
+    <!-- Multi Sim Settings screen, Voice Summary label -->
+    <string name="data_summary">Select Subscription for Data Call</string>
+
+    <!-- Multi Sim Settings screen, SMS box label -->
+    <string name="sms_title">SMS </string>
+    <!-- Multi Sim Settings screen, Voice Summary label -->
+    <string name="sms_summary">Select the Subscription for Sending SMS</string>
+
+    <!-- Multi Sim Settings screen, Set DDS progress dialog message -->
+    <string name="set_data_subscription_progress">Set data subscription in progress</string>
+    <!-- Multi Sim Settings screen, Set DDS success message -->
+    <string name="set_dds_success">Set data subscription success</string>
+    <!-- Multi Sim Settings screen, Set DDS failure message -->
+    <string name="set_dds_failed">Error in set data subscription.  Clean up any existing data connection and try again.</string>
+    <!-- Multi Sim Settings screen, Set DDS error message -->
+    <string name="set_dds_error">Error in set data subscription.</string>
+    <!-- Multi Sim Settings screen, Set SMS error message -->
+    <string name="set_sms_error">Error in set sms subscription. Subscription not active.</string>
+    <!-- Multi Sim Settings screen, Set VOICE error message -->
+    <string name="set_voice_error">Error in set voice subscription. Subscription not active.</string>
+    <!-- Multi Sim Settings screen, Set PRIORITY SUB error message -->
+    <string name="set_priority_sub_error">Error in set priority subscription. Subscription not active.</string>
+
+
+    <!--Prompt, used only for voice-->
+    <string name="prompt">Prompt</string>
+    <string name="prompt_user">Prompt User</string>
 
     <!-- A menu item in "About phone" that allows the user to update the phone with settings
     from their cell phone carrier. The use of the string is similar to the string
@@ -4695,6 +4772,16 @@
     <string name="ssl_ca_cert_warning_message">A third party is capable of monitoring your network activity, including emails, apps, and secure websites.\n\nA trusted credential installed on your device is making this possible.</string>
     <!-- Label on button that will take the user to the Trusted Credentials settings page.  [CHAR LIMIT=NONE]-->
     <string name="ssl_ca_cert_settings_button">Check trusted credentials</string>
+    <!-- Tune Away settings -->
+    <string name="tune_away_title">Tune Away</string>
+    <string name="tune_away_Default">Disable</string>
+    <!-- Summary for the TuneAway status displayed in Multi SIM Settings -->
+    <string name="tune_away_enabled">TuneAway Enabled!</string>
+    <string name="tune_away_disabled">TuneAway Disabled!</string>
+
+    <!-- Priority subscription settings -->
+    <string name="priority_sub_title">Priority Subscription</string>
+    <string name="priority_sub_summary">Select Priority Subscription</string>
 
     <!-- User settings -->
     <skip/>
@@ -4921,6 +5008,4 @@
     <!-- An option in a photo selection dialog, if there is no photo yet [CHAR LIMIT=50] -->
     <string name="user_image_choose_photo" msgid="3746334626214970837">Choose photo from Gallery</string>
 
-    <!-- Text to display in regulatory info screen (from device overlay). -->
-    <string name="regulatory_info_text"></string>
 </resources>

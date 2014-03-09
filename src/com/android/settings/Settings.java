@@ -34,6 +34,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -48,6 +49,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.text.TextUtils;
+import android.telephony.MSimTelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +77,9 @@ import com.android.settings.blacklist.BlacklistSettings;
 import com.android.settings.bluetooth.BluetoothEnabler;
 import com.android.settings.bluetooth.BluetoothSettings;
 import com.android.settings.cyanogenmod.LockscreenInterface;
+import com.android.settings.cyanogenmod.MoreDeviceSettings;
+import com.android.settings.cyanogenmod.PerformanceSettings;
+import com.android.settings.cyanogenmod.SystemUiSettings;
 import com.android.settings.cyanogenmod.superuser.PolicyNativeFragment;
 import com.android.settings.deviceinfo.Memory;
 import com.android.settings.deviceinfo.UsbSettings;
@@ -94,9 +99,7 @@ import com.android.settings.profiles.AppGroupConfig;
 import com.android.settings.profiles.ProfileConfig;
 import com.android.settings.profiles.ProfileEnabler;
 import com.android.settings.profiles.ProfilesSettings;
-import com.android.settings.ioap.BatteryIconStyle;
-import com.android.settings.ioap.quicksettings.QuickSettingsTiles;
-import com.android.settings.ioap.themes.ThemeEnabler;
+import com.android.settings.slim.themes.ThemeEnabler;
 import com.android.settings.tts.TextToSpeechSettings;
 import com.android.settings.users.UserSettings;
 import com.android.settings.vpn2.VpnSettings;
@@ -174,7 +177,10 @@ public class Settings extends PreferenceActivity
             R.id.print_settings,
             R.id.nfc_payment_settings,
             R.id.home_settings,
+            R.id.interface_section,
             R.id.lock_screen_settings,
+            R.id.system_settings,
+            R.id.privacy_settings_cyanogenmod,
     };
 
     private SharedPreferences mDevelopmentPreferences;
@@ -364,14 +370,15 @@ public class Settings extends PreferenceActivity
         KeyboardLayoutPickerFragment.class.getName(),
         BlacklistSettings.class.getName(),
         ApnSettings.class.getName(),
-        QuickSettingsTiles.class.getName(),
-        BatteryIconStyle.class.getName(),
         HomeSettings.class.getName(),
         LockscreenInterface.class.getName(),
-        //SystemUiSettings.class.getName(),
+        SystemUiSettings.class.getName(),
+        MoreDeviceSettings.class.getName(),
         ProfilesSettings.class.getName(),
+        PerformanceSettings.class.getName(),
         PolicyNativeFragment.class.getName(),
-        com.android.settings.cyanogenmod.PrivacySettings.class.getName()
+        com.android.settings.cyanogenmod.PrivacySettings.class.getName(),
+        com.android.settings.quicksettings.QuickSettingsTiles.class.getName()
     };
 
     @Override
@@ -569,7 +576,7 @@ public class Settings extends PreferenceActivity
     private void updateHeaderList(List<Header> target) {
         final boolean showDev = mDevelopmentPreferences.getBoolean(
                 DevelopmentSettings.PREF_SHOW,
-                android.os.Build.TYPE.equals("eng") || android.os.Build.TYPE.equals("userdebug"));
+                android.os.Build.TYPE.equals("eng"));
         int i = 0;
 
         final UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -634,18 +641,10 @@ public class Settings extends PreferenceActivity
                 } else {
                     // Only show if NFC is on and we have the HCE feature
                     NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
-                    if (adapter == null || !adapter.isEnabled()
-                            || !getPackageManager().hasSystemFeature(
-                                    PackageManager.FEATURE_NFC_HOST_CARD_EMULATION)) {
-                       target.remove(i);
-                       if (adapter == null) {
-                           Log.e(LOG_TAG, "NFC feature advertised but the default adapter is NULL!");
-                       }
+                    if (!adapter.isEnabled() || !getPackageManager().hasSystemFeature(
+                            PackageManager.FEATURE_NFC_HOST_CARD_EMULATION)) {
+                        target.remove(i);
                     }
-                }
-            } else if (id == R.id.development_settings) {
-                if (!showDev) {
-                    target.remove(i);
                 }
             } else if (id == R.id.account_add) {
                 if (um.hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)) {
@@ -655,6 +654,9 @@ public class Settings extends PreferenceActivity
                 if (!DevelopmentSettings.isRootForAppsEnabled()) {
                     target.remove(i);
                 }
+            } else if (id == R.id.multi_sim_settings) {
+                if (!MSimTelephonyManager.getDefault().isMultiSimEnabled())
+                    target.remove(header);
             }
 
             if (i < target.size() && target.get(i) == header
@@ -1208,8 +1210,8 @@ public class Settings extends PreferenceActivity
     public static class ApnSettingsActivity extends Settings { /* empty */ }
     public static class ApnEditorActivity extends Settings { /* empty */ }
     public static class BlacklistSettingsActivity extends Settings { /* empty */ }
-    public static class ASSRamBarActivity extends Settings { /* empty */ } 
-    public static class QuietHoursSettingsActivity extends Settings { /* empty */ }
-    public static class QuickSettingsTilesSettingsActivity extends Settings { /* empty */ }
-    public static class BatteryIconStyleSettingsActivity extends Settings { /* empty */ }
+    public static class ASSRamBarActivity extends Settings { /* empty */ }
+    public static class SystemSettingsActivity extends Settings { /* empty */ }
+    public static class PerformanceSettingsActivity extends Settings { /* empty */ }
+    public static class QuickSettingsConfigActivity extends Settings { /* empty */ }
 }

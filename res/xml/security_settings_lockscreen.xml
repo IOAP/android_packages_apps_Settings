@@ -28,18 +28,8 @@
 
         <PreferenceScreen
             android:key="keyguard_style"
-            android:fragment="com.android.settings.ioap.LockscreenStyle"
+            android:fragment="com.android.settings.pac.LockscreenStyle"
             android:title="@string/lockscreen_style_title"/>
-
-        <CheckBoxPreference
-            android:key="lockscreen_battery_status"
-            android:title="@string/lockscreen_battery_status_title"
-            android:summary="@string/lockscreen_battery_status_summary" />
-
-        <PreferenceScreen
-            android:key="keyguard_enable_widgets"
-            android:fragment="com.android.settings.ioap.LockscreenWidgets"
-            android:title="@string/lockscreen_widgets_title"/>
 
         <PreferenceScreen
             android:fragment="com.android.settings.OwnerInfoSettings"
@@ -51,14 +41,6 @@
             android:key="see_through"
             android:title="@string/see_through_title"
             android:summary="@string/see_through_summary" />
-
-        <SeekBarPreference
-            android:key="blur_radius"
-            android:title="@string/blur_radius_title"
-            android:summary="@string/blur_radius_summary"
-            android:dependency="see_through"
-            android:max="25"
-            android:defaultValue="12" />
 
     </PreferenceCategory>
 

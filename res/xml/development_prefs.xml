@@ -32,6 +32,13 @@
             android:title="@*android:string/bugreport_title"
             android:dialogTitle="@*android:string/bugreport_title" />
 
+    <ListPreference
+        android:key="media_scanner_on_boot"
+        android:title="@string/media_scanner_on_boot_title"
+        android:persistent="false"
+        android:entries="@array/media_scanner_on_boot_entries"
+        android:entryValues="@array/media_scanner_on_boot_values" />
+
     <CheckBoxPreference
         android:key="advanced_reboot"
         android:title="@string/advanced_reboot_title"
@@ -109,6 +116,14 @@
             android:inputType="textNoSuggestions"
             android:persistent="false" />
 
+        <CheckBoxPreference
+            android:key="adb_paranoid"
+            android:title="@string/adb_paranoid"
+            android:summary="@string/adb_paranoid_summary"
+            android:dependency="enable_adb"
+            android:persistent="false"/>
+
+
         <Preference android:key="clear_adb_keys"
                 android:title="@string/clear_adb_keys" />
 
@@ -163,6 +178,12 @@
             android:key="pointer_location"
             android:title="@string/pointer_location"
             android:summary="@string/pointer_location_summary"/>
+
+        <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
+            android:key="edge_service_for_gestures"
+            android:title="@string/edge_gesture_service_title"
+            android:summary="@string/edge_gesture_service_summary"
+            android:defaultValue="1"/>
 
     </PreferenceCategory>
 
@@ -271,6 +292,11 @@
             android:title="@string/show_cpu_usage"
             android:summary="@string/show_cpu_usage_summary"/>
 
+        <CheckBoxPreference
+            android:key="show_cpu_info"
+            android:title="@string/show_cpu_info"
+            android:summary="@string/show_cpu_info_summary"/>
+
         <ListPreference
             android:key="track_frame_time"
             android:title="@string/track_frame_time"
@@ -314,15 +340,11 @@
             android:title="@string/show_all_anrs"
             android:summary="@string/show_all_anrs_summary"/>
 
+        <CheckBoxPreference
+            android:key="kill_app_longpress_back"
+            android:title="@string/kill_app_longpress_back"
+            android:summary="@string/kill_app_longpress_back_summary"/>
+
     </PreferenceCategory>
-
-     <!-- Must remain at bottom -->
-     <Preference
-         android:key="chamber_of_secrets"
-         android:title="\n \n" />
-
-     <CheckBoxPreference
-         android:key="chamber_of_unlocked_secrets"
-         android:title="@string/chamber_title" />
 
 </PreferenceScreen>

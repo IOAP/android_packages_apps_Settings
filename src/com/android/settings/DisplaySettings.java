@@ -39,12 +39,14 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.internal.view.RotationPolicy;
 import com.android.settings.DreamSettings;
+import com.android.settings.ioap.DisplayRotation;
 import com.android.settings.Utils;
-import com.android.settings.cyanogenmod.DisplayRotation;
 
 import org.cyanogenmod.hardware.AdaptiveBacklight;
 import org.cyanogenmod.hardware.TapToWake;
@@ -58,10 +60,11 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     /** If there is no setting in the provider, use this. */
     private static final int FALLBACK_SCREEN_TIMEOUT_VALUE = 30000;
 
+    private static final String STATUS_BAR_BRIGHTNESS_CONTROL = "status_bar_brightness_control";
+    private static final String KEY_DISPLAY_ROTATION = "display_rotation";
     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout";
     private static final String KEY_FONT_SIZE = "font_size";
     private static final String KEY_SCREEN_SAVER = "screensaver";
-    private static final String KEY_DISPLAY_ROTATION = "display_rotation";
     private static final String KEY_ADAPTIVE_BACKLIGHT = "adaptive_backlight";
     private static final String KEY_ADVANCED_DISPLAY_SETTINGS = "advanced_display_settings";
     private static final String KEY_TAP_TO_WAKE = "double_tap_wake_gesture";
@@ -70,19 +73,29 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_NOTIFICATION_PULSE = "notification_pulse";
     private static final String KEY_BATTERY_LIGHT = "battery_light";
     private static final String KEY_WAKE_WHEN_PLUGGED_OR_UNPLUGGED = "wake_when_plugged_or_unplugged";
-
-    private static final String PREF_SMART_COVER_CATEGORY = "smart_cover_category";
-    private static final String PREF_SMART_COVER_WAKE = "smart_cover_wake";
+    private static final String KEY_ANIMATION_OPTIONS = "category_animation_options";
+    private static final String KEY_POWER_CRT_MODE = "system_power_crt_mode";
 
     private static final int DLG_GLOBAL_CHANGE_WARNING = 1;
 
-    private CheckBoxPreference mAccelerometer;
+    private static final String ROTATION_ANGLE_0 = "0";
+    private static final String ROTATION_ANGLE_90 = "90";
+    private static final String ROTATION_ANGLE_180 = "180";
+    private static final String ROTATION_ANGLE_270 = "270";
+
+    private static final String KEY_LISTVIEW_ANIMATION = "listview_animation";
+    private static final String KEY_LISTVIEW_INTERPOLATOR = "listview_interpolator";
+    private static final String KEY_TOAST_ANIMATION = "toast_animation";
+
+    private static final String KEY_LOW_BATTERY_WARNING_POLICY = "pref_low_battery_warning_policy";
+
+    private PreferenceScreen mDisplayRotationPreference;
+
     private FontDialogPreference mFontSizePref;
     private CheckBoxPreference mWakeWhenPluggedOrUnplugged;
 
     private PreferenceScreen mNotificationPulse;
     private PreferenceScreen mBatteryPulse;
-    private PreferenceScreen mDisplayRotationPreference;
 
     private final Configuration mCurConfig = new Configuration();
 
@@ -91,21 +104,21 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
 
     private CheckBoxPreference mAdaptiveBacklight;
     private CheckBoxPreference mTapToWake;
+    private CheckBoxPreference mStatusBarBrightnessControl;
 
-    private CheckBoxPreference mSmartCoverWake;
+    private ListPreference mCrtMode;
+
+    private ListPreference mListViewAnimation;
+    private ListPreference mListViewInterpolator;
+    private ListPreference mToastAnimation;
+
+    private ListPreference mLowBatteryWarning;
+
 
     private ContentObserver mAccelerometerRotationObserver =
             new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
-            updateDisplayRotationPreferenceDescription();
-        }
-    };
-
-    private final RotationPolicy.RotationPolicyListener mRotationPolicyListener =
-            new RotationPolicy.RotationPolicyListener() {
-        @Override
-        public void onChange() {
             updateDisplayRotationPreferenceDescription();
         }
     };
@@ -118,8 +131,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
 
         addPreferencesFromResource(R.xml.display_settings);
 
+        PreferenceScreen prefSet = getPreferenceScreen();
+
         mDisplayRotationPreference = (PreferenceScreen) findPreference(KEY_DISPLAY_ROTATION);
-        if (!RotationPolicy.isRotationSupported(getActivity())) {
+        if (!RotationPolicy.isRotationSupported(getActivity())
+                || RotationPolicy.isRotationLockToggleSupported(getActivity())) {
+            // If rotation lock is supported, then we do not provide this option in
+            // Display settings.  However, is still available in Accessibility settings,
+            // if the device supports rotation.
             getPreferenceScreen().removePreference(mDisplayRotationPreference);
         }
 
@@ -137,19 +156,10 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         mScreenTimeoutPreference.setOnPreferenceChangeListener(this);
         disableUnusableTimeouts(mScreenTimeoutPreference);
         updateTimeoutPreferenceDescription(currentTimeout);
-        updateDisplayRotationPreferenceDescription();
 
         mFontSizePref = (FontDialogPreference) findPreference(KEY_FONT_SIZE);
         mFontSizePref.setOnPreferenceChangeListener(this);
         mFontSizePref.setOnPreferenceClickListener(this);
-
-        mSmartCoverWake = (CheckBoxPreference) findPreference(PREF_SMART_COVER_WAKE);
-        mSmartCoverWake.setOnPreferenceChangeListener(this);
-        if(!getResources().getBoolean(com.android.internal.R.bool.config_lidControlsSleep)) {
-            PreferenceCategory smartCoverOptions = (PreferenceCategory)
-                    getPreferenceScreen().findPreference(PREF_SMART_COVER_CATEGORY);
-            getPreferenceScreen().removePreference(smartCoverOptions);
-        }
 
         mAdaptiveBacklight = (CheckBoxPreference) findPreference(KEY_ADAPTIVE_BACKLIGHT);
         if (!isAdaptiveBacklightSupported()) {
@@ -193,54 +203,72 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         } else {
             getPreferenceScreen().removePreference(lightPrefs);
         }
-    }
 
-    private void updateDisplayRotationPreferenceDescription() {
-        if (mDisplayRotationPreference == null) {
-            // The preference was removed, do nothing
-            return;
+        //ListView Animations
+        mListViewAnimation = (ListPreference) findPreference(KEY_LISTVIEW_ANIMATION);
+        if (mListViewAnimation != null) {
+           int listViewAnimation = Settings.System.getInt(getContentResolver(),
+                    Settings.System.LISTVIEW_ANIMATION, 1);
+           mListViewAnimation.setSummary(mListViewAnimation.getEntry());
+           mListViewAnimation.setValue(String.valueOf(listViewAnimation));
         }
+        mListViewAnimation.setOnPreferenceChangeListener(this);
 
-        // We have a preference, lets update the summary
-        boolean rotationEnabled = Settings.System.getInt(getContentResolver(),
-                Settings.System.ACCELEROMETER_ROTATION, 0) != 0;
+        mListViewInterpolator = (ListPreference) findPreference(KEY_LISTVIEW_INTERPOLATOR);
+        if (mListViewInterpolator != null) {
+           int listViewInterpolator = Settings.System.getInt(getContentResolver(),
+                    Settings.System.LISTVIEW_INTERPOLATOR, 1);
+           mListViewInterpolator.setSummary(mListViewInterpolator.getEntry());
+           mListViewInterpolator.setValue(String.valueOf(listViewInterpolator));
+        }
+        mListViewInterpolator.setOnPreferenceChangeListener(this);
 
-        if (!rotationEnabled) {
-            mDisplayRotationPreference.setSummary(R.string.display_rotation_disabled);
-            return;
-        }
+        // Toast animation
+        mToastAnimation = (ListPreference)findPreference(KEY_TOAST_ANIMATION);
+        mToastAnimation.setSummary(mToastAnimation.getEntry());
+        int CurrentToastAnimation = Settings.System.getInt(getContentResolver(), Settings.System.TOAST_ANIMATION, 1);
+        mToastAnimation.setValueIndex(CurrentToastAnimation);
+        mToastAnimation.setSummary(mToastAnimation.getEntries()[CurrentToastAnimation]);
+        mToastAnimation.setOnPreferenceChangeListener(this);
 
-        StringBuilder summary = new StringBuilder();
-        int mode = Settings.System.getInt(getContentResolver(),
-                Settings.System.ACCELEROMETER_ROTATION_ANGLES,
-                DisplayRotation.ROTATION_0_MODE
-                | DisplayRotation.ROTATION_90_MODE
-                | DisplayRotation.ROTATION_270_MODE);
-        ArrayList<String> rotationList = new ArrayList<String>();
-        String delim = "";
+        // Low battery warning
+        mLowBatteryWarning = (ListPreference) findPreference(KEY_LOW_BATTERY_WARNING_POLICY);
+        int lowBatteryWarning = Settings.System.getInt(getActivity().getContentResolver(),
+                Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY, 0);
+        mLowBatteryWarning.setValue(String.valueOf(lowBatteryWarning));
+        mLowBatteryWarning.setSummary(mLowBatteryWarning.getEntry());
+        mLowBatteryWarning.setOnPreferenceChangeListener(this);
 
-        if ((mode & DisplayRotation.ROTATION_0_MODE) != 0) {
-            rotationList.add("0");
-        }
-        if ((mode & DisplayRotation.ROTATION_90_MODE) != 0) {
-            rotationList.add("90");
-        }
-        if ((mode & DisplayRotation.ROTATION_180_MODE) != 0) {
-            rotationList.add("180");
-        }
-        if ((mode & DisplayRotation.ROTATION_270_MODE) != 0) {
-            rotationList.add("270");
-        }
-        for (int i = 0; i < rotationList.size(); i++) {
-            summary.append(delim).append(rotationList.get(i));
-            if ((rotationList.size() - i) > 2) {
-                delim = ", ";
-            } else {
-                delim = " & ";
+        mStatusBarBrightnessControl = (CheckBoxPreference) findPreference(STATUS_BAR_BRIGHTNESS_CONTROL);
+        mStatusBarBrightnessControl.setChecked((Settings.System.getInt(getActivity().getContentResolver(),
+                Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL, 0) == 1));
+        mStatusBarBrightnessControl.setOnPreferenceChangeListener(this);
+
+        try {
+            if (Settings.System.getInt(getActivity().getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS_MODE) == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                mStatusBarBrightnessControl.setEnabled(false);
+                mStatusBarBrightnessControl.setSummary(R.string.status_bar_toggle_info);
             }
+        } catch (SettingNotFoundException e) {
         }
-        summary.append(" " + getString(R.string.display_rotation_unit));
-        mDisplayRotationPreference.setSummary(summary);
+
+        // respect device default configuration
+        // true fades while false animates
+        boolean electronBeamFadesConfig = getResources().getBoolean(
+                com.android.internal.R.bool.config_animateScreenLights);
+        PreferenceCategory animationOptions =
+            (PreferenceCategory) prefSet.findPreference(KEY_ANIMATION_OPTIONS);
+        mCrtMode = (ListPreference) prefSet.findPreference(KEY_POWER_CRT_MODE);
+        if (!electronBeamFadesConfig && mCrtMode != null) {
+            int crtMode = Settings.System.getInt(getContentResolver(),
+                    Settings.System.SYSTEM_POWER_CRT_MODE, 1);
+            mCrtMode.setValue(String.valueOf(crtMode));
+            mCrtMode.setSummary(mCrtMode.getEntry());
+            mCrtMode.setOnPreferenceChangeListener(this);
+        } else if (animationOptions != null) {
+//            prefSet.removePreference(animationOptions);
+        }
     }
 
     private void updateTimeoutPreferenceDescription(long currentTimeout) {
@@ -313,21 +341,18 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        updateDisplayRotationPreferenceDescription();
 
-        RotationPolicy.registerRotationPolicyListener(getActivity(),
-                mRotationPolicyListener);
-
-        final ContentResolver resolver = getContentResolver();
-
-        // Display rotation observer
-        resolver.registerContentObserver(
+        getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION), true,
                 mAccelerometerRotationObserver);
+
+        final ContentResolver resolver = getContentResolver();
 
         if (mAdaptiveBacklight != null) {
             mAdaptiveBacklight.setChecked(AdaptiveBacklight.isEnabled());
         }
+
+        updateDisplayRotationPreferenceDescription();
 
         if (mTapToWake != null) {
             mTapToWake.setChecked(TapToWake.isEnabled());
@@ -348,12 +373,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     public void onPause() {
         super.onPause();
 
-        RotationPolicy.unregisterRotationPolicyListener(getActivity(),
-                mRotationPolicyListener);
-
-        // Display rotation observer
         getContentResolver().unregisterContentObserver(mAccelerometerRotationObserver);
-
     }
 
     @Override
@@ -431,6 +451,48 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
     }
 
+    private void updateDisplayRotationPreferenceDescription() {
+        if (mDisplayRotationPreference == null) {
+            return;
+        }
+        PreferenceScreen preference = mDisplayRotationPreference;
+        StringBuilder summary = new StringBuilder();
+        Boolean rotationEnabled = Settings.System.getInt(getContentResolver(),
+                Settings.System.ACCELEROMETER_ROTATION, 0) != 0;
+        int mode = Settings.System.getInt(getContentResolver(),
+            Settings.System.ACCELEROMETER_ROTATION_ANGLES,
+            DisplayRotation.ROTATION_0_MODE|DisplayRotation.ROTATION_90_MODE|DisplayRotation.ROTATION_270_MODE);
+
+        if (!rotationEnabled) {
+            summary.append(getString(R.string.display_rotation_disabled));
+        } else {
+            ArrayList<String> rotationList = new ArrayList<String>();
+            String delim = "";
+            if ((mode & DisplayRotation.ROTATION_0_MODE) != 0) {
+                rotationList.add(ROTATION_ANGLE_0);
+            }
+            if ((mode & DisplayRotation.ROTATION_90_MODE) != 0) {
+                rotationList.add(ROTATION_ANGLE_90);
+            }
+            if ((mode & DisplayRotation.ROTATION_180_MODE) != 0) {
+                rotationList.add(ROTATION_ANGLE_180);
+            }
+            if ((mode & DisplayRotation.ROTATION_270_MODE) != 0) {
+                rotationList.add(ROTATION_ANGLE_270);
+            }
+            for (int i = 0; i < rotationList.size(); i++) {
+                summary.append(delim).append(rotationList.get(i));
+                if ((rotationList.size() - i) > 2) {
+                    delim = ", ";
+                } else {
+                    delim = " & ";
+                }
+            }
+            summary.append(" " + getString(R.string.display_rotation_unit));
+        }
+        preference.setSummary(summary);
+    }
+
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference == mAdaptiveBacklight) {
@@ -449,11 +511,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     @Override
     public boolean onPreferenceChange(Preference preference, Object objValue) {
         final String key = preference.getKey();
-        if (preference == mSmartCoverWake) {
-            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
-                    Settings.System.LOCKSCREEN_LID_WAKE, (Boolean) objValue ? 1 : 0);
-            return true;
-        } else if (KEY_SCREEN_TIMEOUT.equals(key)) {
+        if (KEY_SCREEN_TIMEOUT.equals(key)) {
             int value = Integer.parseInt((String) objValue);
             try {
                 Settings.System.putInt(getContentResolver(), SCREEN_OFF_TIMEOUT, value);
@@ -464,6 +522,49 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
         if (KEY_FONT_SIZE.equals(key)) {
             writeFontSizePreference(objValue);
+        }
+        if (KEY_LISTVIEW_ANIMATION.equals(key)) {
+            int value = Integer.parseInt((String) objValue);
+            int index = mListViewAnimation.findIndexOfValue((String) objValue);
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.LISTVIEW_ANIMATION,
+                    value);
+            mListViewAnimation.setSummary(mListViewAnimation.getEntries()[index]);
+        }
+        if (KEY_LISTVIEW_INTERPOLATOR.equals(key)) {
+            int value = Integer.parseInt((String) objValue);
+            int index = mListViewInterpolator.findIndexOfValue((String) objValue);
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.LISTVIEW_INTERPOLATOR,
+                    value);
+            mListViewInterpolator.setSummary(mListViewInterpolator.getEntries()[index]);
+        }
+        if (preference == mToastAnimation) {
+            int index = mToastAnimation.findIndexOfValue((String) objValue);
+            Settings.System.putString(getContentResolver(), Settings.System.TOAST_ANIMATION, (String) objValue);
+            mToastAnimation.setSummary(mToastAnimation.getEntries()[index]);
+            Toast.makeText(mContext, "Toast Test", Toast.LENGTH_SHORT).show();
+        }
+        if (preference == mLowBatteryWarning) {
+            int lowBatteryWarning = Integer.valueOf((String) objValue);
+            int index = mLowBatteryWarning.findIndexOfValue((String) objValue);
+            Settings.System.putInt(getActivity().getContentResolver(),
+                    Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY,
+                    lowBatteryWarning);
+            mLowBatteryWarning.setSummary(mLowBatteryWarning.getEntries()[index]);
+        }
+        if (preference == mStatusBarBrightnessControl) {
+            boolean value = (Boolean) objValue;
+            Settings.System.putInt(getActivity().getContentResolver(),
+                    Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL, value ? 1 : 0);
+        }
+        if (KEY_POWER_CRT_MODE.equals(key)) {
+            int value = Integer.parseInt((String) objValue);
+            int index = mCrtMode.findIndexOfValue((String) objValue);
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.SYSTEM_POWER_CRT_MODE,
+                    value);
+            mCrtMode.setSummary(mCrtMode.getEntries()[index]);
         }
         return true;
     }
