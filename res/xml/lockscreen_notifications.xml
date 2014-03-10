@@ -41,7 +41,7 @@
             android:title="@string/dismiss_all"
             android:summary="@string/dismiss_all_summary" />
 
-        <com.android.settings.pac.AppMultiSelectListPreference
+        <com.android.settings.ioap.AppMultiSelectListPreference
             android:key="excluded_apps"
             android:persistent="false"
             android:title="@string/excluded_apps_title"
@@ -59,7 +59,7 @@
                 android:max="100"
                 android:defaultValue="30" />
 
-            <com.android.settings.pac.preference.NumberPickerPreference
+            <com.android.settings.ioap.preference.NumberPickerPreference
                 android:key="notifications_height"
                 android:dialogMessage="@string/notifications_height"
                 android:title="@string/notifications_height"
