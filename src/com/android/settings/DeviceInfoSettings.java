@@ -68,7 +68,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
     private static final String KEY_EQUIPMENT_ID = "fcc_equipment_id";
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
     private static final String KEY_MOD_BUILD_DATE = "build_date";
-    private static final String KEY_PAC_VERSION = "ioap_version";
+    private static final String KEY_IOAP_VERSION = "ioap_version";
     private static final String KEY_DEVICE_CPU = "device_cpu";
     private static final String KEY_DEVICE_MEMORY = "device_memory";
     private static final String KEY_STATUS = "status_info";
@@ -102,8 +102,8 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
         setValueSummary(KEY_MOD_BUILD_DATE, "ro.build.date");
-        setValueSummary(KEY_PAC_VERSION, "ro.pac.version");
-        findPreference(KEY_PAC_VERSION).setEnabled(true);
+        setValueSummary(KEY_IOAP_VERSION, "ro.ioap.version");
+        findPreference(KEY_IOAP_VERSION).setEnabled(true);
 
         if (!SELinux.isSELinuxEnabled()) {
             String status = getResources().getString(R.string.selinux_status_disabled);

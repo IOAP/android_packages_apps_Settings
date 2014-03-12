@@ -29,6 +29,7 @@
     <string name="reset_message">Reset all entries to default?</string>
     <string name="style_title">Style</string>
     <string name="add">Add</string>
+    <string name="ioap_version">IOAP version</string>
 
      <!--AppOps-->
      <string name="appops_settings_title">App privacy</string>
@@ -248,8 +249,6 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
-
-    <string name="ioap_version">IOAP version</string>
 
     <string name="custom_statusbar_header_title">Contextual notification panel header</string>
     <string name="custom_statusbar_header_summary">Sets the background of the notification panel header to an image based on the current date and time</string>
@@ -808,8 +807,6 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
-
-    <string name="ioap_version">IOAP version</string>
 
     <!--- Volume key cursor control -->
     <string name="volume_key_cursor_control_title">Volume key cursor control</string>
