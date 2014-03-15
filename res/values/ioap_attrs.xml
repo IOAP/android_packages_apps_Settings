@@ -16,15 +16,52 @@
 
 <resources>
 
-    <declare-styleable name="SeekBarPreferenceChOS">
-        <attr name="minAD" format="integer" />
-        <attr name="interval" format="integer" />
-        <attr name="unitsLeft" format="string|reference" />
-        <attr name="unitsRight" format="string|reference" />
+    <declare-styleable name="DeveloperPreference">
+        <attr name="twitterHandle" format="string" />
+        <attr name="nameDev" format="string"/>
+        <attr name="donateLink" format="string" />
+	<attr name="githubLink" format="string" />
+        <attr name="googleLink" format="string" />
+        <attr name="facebookLink" format="string" />
+	<attr name="emailDev" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="ImageListPreference">
-        <attr name="entryImages" format="reference" />
+    <declare-styleable name="DragSortListView">
+        <attr name="collapsedHeight" format="dimension" />
+        <attr name="dragScrollStart" format="float" />
+        <attr name="maxDragScrollSpeed" format="float" />
+        <attr name="floatBackgroundColor" format="color" />
+        <attr name="removeMode">
+            <enum name="clickRemove" value="0" />
+            <enum name="flingRemove" value="1" />
+        </attr>
+        <attr name="trackDragSort" format="boolean"/>
+        <attr name="floatAlpha" format="float"/>
+        <attr name="slideShuffleSpeed" format="float"/>
+        <attr name="removeAnimationDuration" format="integer"/>
+        <attr name="dropAnimationDuration" format="integer"/>
+        <attr name="dragEnabled" format="boolean" />
+        <attr name="sortEnabled" format="boolean" />
+        <attr name="removeEnabled" format="boolean" />
+        <attr name="dragStartMode">
+            <enum name="onDown" value="0" />
+            <enum name="onMove" value="1" />
+            <enum name="onLongPress" value="2"/>
+        </attr>
+        <attr name="dragHandleId" format="integer" />
+        <attr name="flingHandleId" format="integer" />
+        <attr name="clickRemoveId" format="integer" />
+        <attr name="useDefaultController" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="SeekBarPreferenceChOS">
+	<attr name="minAD" format="integer" />
+	<attr name="maximum" format="integer" />
+	<attr name="minimum" format="integer" />
+	<attr name="smin" format="integer" />
+	<attr name="unitsLeft" format="string|reference" />
+	<attr name="unitsRight" format="string|reference" />
+	<attr name="interval" format="integer" />
     </declare-styleable>
 
 </resources>

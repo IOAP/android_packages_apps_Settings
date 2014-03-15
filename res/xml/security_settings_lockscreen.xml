@@ -27,11 +27,6 @@
             android:persistent="false"/>
 
         <PreferenceScreen
-            android:key="keyguard_style"
-            android:fragment="com.android.settings.ioap.LockscreenStyle"
-            android:title="@string/lockscreen_style_title"/>
-
-        <PreferenceScreen
             android:fragment="com.android.settings.OwnerInfoSettings"
             android:key="owner_info_settings"
             android:title="@string/owner_info_settings_title"
@@ -41,6 +36,10 @@
             android:key="see_through"
             android:title="@string/see_through_title"
             android:summary="@string/see_through_summary" />
+
+        <PreferenceScreen
+            android:title="@string/lockscreen_notifications"
+            android:fragment="com.android.settings.ioap.LockscreenNotifications" />
 
     </PreferenceCategory>
 

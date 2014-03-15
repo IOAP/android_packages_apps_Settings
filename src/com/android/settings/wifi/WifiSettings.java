@@ -671,11 +671,8 @@ public class WifiSettings extends RestrictedSettingsFragment
                                     new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Activity activity = getActivity();
-                                    if (activity != null) {
-                                        activity.setResult(RESULT_SKIP);
-                                        activity.finish();
-                                    }
+                                    getActivity().setResult(RESULT_SKIP);
+                                    getActivity().finish();
                                 }
                             })
                             .setPositiveButton(R.string.wifi_dont_skip,
@@ -693,11 +690,8 @@ public class WifiSettings extends RestrictedSettingsFragment
                                     new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Activity activity = getActivity();
-                                    if (activity != null) {
-                                        activity.setResult(RESULT_SKIP);
-                                        activity.finish();
-                                    }
+                                    getActivity().setResult(RESULT_SKIP);
+                                    getActivity().finish();
                                 }
                             })
                             .setPositiveButton(R.string.wifi_dont_skip,

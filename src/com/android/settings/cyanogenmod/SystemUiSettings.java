@@ -28,7 +28,7 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManagerGlobal;
-
+import com.android.settings.util.Helpers;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
@@ -41,19 +41,16 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
     private static final String KEY_EXPANDED_DESKTOP_NO_NAVBAR = "expanded_desktop_no_navbar";
     private static final String CATEGORY_EXPANDED_DESKTOP = "expanded_desktop_category";
     private static final String CATEGORY_NAVBAR = "navigation_bar";
-    private static final String CATAGORY_NAVBARRING = "navigation_bar_ring";
-    private static final String CATAGORY_NAVBARDIMENSIONS = "navbar_style_dimen_settings";
-    private static final String KEY_SCREEN_GESTURE_SETTINGS = "touch_screen_gesture_settings";
-    private static final String ENABLE_NAVIGATION_BAR = "enable_nav_bar";
+    private static final String KEY_SCREEN_GESTURE_SETTINGS = "touch_screen_gesture_settings";    
+    private static final String ENABLE_NAVIGATION_BAR = "enable_nav_bar"; // Enable/disable nav bar
+    private static final String CUSTOM_RECENT_MODE = "custom_recent_mode";
     private static final String KEY_NAVIGATION_BAR_LEFT = "navigation_bar_left";
 
     private ListPreference mExpandedDesktopPref;
-    private CheckBoxPreference mExpandedDesktopNoNavbarPref;
-    private CheckBoxPreference mEnableNavigationBar;
+    private CheckBoxPreference mExpandedDesktopNoNavbarPref;    
+    private CheckBoxPreference mEnableNavigationBar; // Enable/disable nav bar
+    private CheckBoxPreference mRecentsCustom;
     private CheckBoxPreference mNavigationBarLeftPref;
-    private PreferenceScreen mNavigationBar;
-    private PreferenceScreen mNavigationBarRing;
-    private PreferenceScreen mNavigationBarDimensions;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,16 +58,20 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
 
         addPreferencesFromResource(R.xml.system_ui_settings);
         PreferenceScreen prefScreen = getPreferenceScreen();
-        PreferenceCategory expandedCategory =
-                (PreferenceCategory) findPreference(CATEGORY_EXPANDED_DESKTOP);
 
+        PreferenceCategory expandedCategory = (PreferenceCategory) findPreference(CATEGORY_EXPANDED_DESKTOP);
         // Expanded desktop
         mExpandedDesktopPref = (ListPreference) findPreference(KEY_EXPANDED_DESKTOP);
-        mExpandedDesktopNoNavbarPref =
-                (CheckBoxPreference) findPreference(KEY_EXPANDED_DESKTOP_NO_NAVBAR);
+        mExpandedDesktopNoNavbarPref = (CheckBoxPreference) findPreference(KEY_EXPANDED_DESKTOP_NO_NAVBAR);
 
         // Navigation bar left
         mNavigationBarLeftPref = (CheckBoxPreference) findPreference(KEY_NAVIGATION_BAR_LEFT);
+
+        boolean enableRecentsCustom = Settings.System.getBoolean(getContentResolver(),
+                                      Settings.System.CUSTOM_RECENT, false);
+        mRecentsCustom = (CheckBoxPreference) findPreference(CUSTOM_RECENT_MODE);
+        mRecentsCustom.setChecked(enableRecentsCustom);
+        mRecentsCustom.setOnPreferenceChangeListener(this);
 
         Utils.updatePreferenceToSpecificActivityFromMetaDataOrRemove(getActivity(),
                 getPreferenceScreen(), KEY_SCREEN_GESTURE_SETTINGS);
@@ -87,11 +88,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
         mEnableNavigationBar = (CheckBoxPreference) findPreference(ENABLE_NAVIGATION_BAR);
         mEnableNavigationBar.setChecked(enableNavigationBar);
         mEnableNavigationBar.setOnPreferenceChangeListener(this);
-
-        mNavigationBar = (PreferenceScreen) findPreference(CATEGORY_NAVBAR);
-        mNavigationBarRing = (PreferenceScreen) findPreference(CATAGORY_NAVBARRING);
-        mNavigationBarDimensions = (PreferenceScreen) findPreference(CATAGORY_NAVBARDIMENSIONS);
-
         updateNavbarPreferences(enableNavigationBar);
 
         try {
@@ -101,9 +97,14 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
                 mExpandedDesktopPref.setOnPreferenceChangeListener(this);
                 mExpandedDesktopPref.setValue(String.valueOf(expandedDesktopValue));
                 updateExpandedDesktop(expandedDesktopValue);
-                prefScreen.removePreference(mEnableNavigationBar);
                 expandedCategory.removePreference(mExpandedDesktopNoNavbarPref);
+
+                if (!Utils.isPhone(getActivity())) {
+                    PreferenceCategory navCategory = (PreferenceCategory) findPreference(CATEGORY_NAVBAR);
+                    navCategory.removePreference(mNavigationBarLeftPref);
+                }
             } else {
+                // Hide no-op "Status bar visible" expanded desktop mode
                 mExpandedDesktopNoNavbarPref.setOnPreferenceChangeListener(this);
                 mExpandedDesktopNoNavbarPref.setChecked(expandedDesktopValue > 0);
                 expandedCategory.removePreference(mExpandedDesktopPref);
@@ -114,12 +115,7 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
     }
 
     // Enable/disbale nav bar
-    private void updateNavbarPreferences(boolean show) {
-        mNavigationBar.setEnabled(show);
-        mNavigationBarRing.setEnabled(show);
-        mNavigationBarLeftPref.setEnabled(show);
-        mNavigationBarDimensions.setEnabled(show);
-    }
+    private void updateNavbarPreferences(boolean show) {}
 
     public boolean onPreferenceChange(Preference preference, Object objValue) {
         if (preference == mExpandedDesktopPref) {
@@ -129,14 +125,21 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
         } else if (preference == mExpandedDesktopNoNavbarPref) {
             boolean value = (Boolean) objValue;
             updateExpandedDesktop(value ? 2 : 0);
-            return true;
-        } else if (preference == mEnableNavigationBar) {
+            return true;        
+        } else if (preference == mEnableNavigationBar) { // Enable/disbale nav bar (used in custom nav bar dimensions)
             Settings.System.putInt(getActivity().getContentResolver(),
                     Settings.System.NAVIGATION_BAR_SHOW,
                     ((Boolean) objValue) ? 1 : 0);
             updateNavbarPreferences((Boolean) objValue);
             return true;
+        } else if (preference == mRecentsCustom) { // Enable||disbale Slim Recent
+            Settings.System.putBoolean(getActivity().getContentResolver(),
+                    Settings.System.CUSTOM_RECENT,
+                    ((Boolean) objValue) ? true : false);
+            Helpers.restartSystemUI();
+            return true;
         }
+
         return false;
     }
 

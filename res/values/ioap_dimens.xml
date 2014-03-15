@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!--
+     Copyright (C) 2012-2013 The CyanogenMod Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,13 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources>
-
-    <!-- Gesture Anywhere -->
-    <dimen name="ga_gesture_thumbnail_inset">8dip</dimen>
-    <dimen name="ga_gesture_thumbnail_size">64dip</dimen>
-
     <!-- Default distance beyond which snaps to the matching target -->
     <dimen name="navbar_search_snap_margin">40dip</dimen>
     <!-- Diameter of outer shape drawable shown in navbar search. -->
@@ -31,12 +26,7 @@
 
     <dimen name="drag_grip_ridge_size">4dp</dimen>
     <dimen name="drag_grip_ridge_gap">2dp</dimen>
-
     <dimen name="list_toggle_height">64dp</dimen>
     <dimen name="list_toggle_width">320dp</dimen>
     <dimen name="toggle_rearrange_dialog_title_height">68dp</dimen>
-
-    <!-- Minimal notification row height used to calculate max notification count -->
-    <dimen name="notification_row_min_height">70dp</dimen>
-
 </resources>

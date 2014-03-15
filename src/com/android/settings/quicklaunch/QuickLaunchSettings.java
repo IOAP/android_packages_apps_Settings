@@ -119,12 +119,6 @@ public class QuickLaunchSettings extends PreferenceActivity implements
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getContentResolver().unregisterContentObserver(mBookmarksObserver);
-    }
-
-    @Override
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
         

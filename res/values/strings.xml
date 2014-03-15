@@ -877,11 +877,6 @@
     <!-- Title for preference that guides the user through creating an unlock password [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_password_summary">High security</string>
 
-    <!-- Title for preference that guides the user through creating an unlock gesture [CHAR LIMIT=22] -->
-    <string name="unlock_set_unlock_gesture_title">Gesture</string>
-    <!-- Title for preference that guides the user through creating an unlock gesture [CHAR LIMIT=45] -->
-    <string name="unlock_set_unlock_gesture_summary">Low security, experimental</string>
-
     <!-- Summary for preference that has been disabled by because of the DevicePolicyAdmin, or because device encryption is enabled, or because there are credentials in the credential storage [CHAR LIMIT=50] -->
     <string name="unlock_set_unlock_disabled_summary">Disabled by administrator, encryption policy, or credential storage</string>
 
@@ -893,8 +888,6 @@
     <string name="unlock_set_unlock_mode_biometric_weak">Face Unlock</string>
     <!-- Summary for "Configure lockscreen" when security pattern is enabled [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_mode_pattern">Pattern</string>
-    <!-- Summary for "Configure lockscreen" when security gesture is enabled [CHAR LIMIT=45] -->
-    <string name="unlock_set_unlock_mode_gesture">Gesture</string>
     <!-- Summary for "Configure lockscreen" when security PIN is enabled [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_mode_pin">PIN</string>
     <!-- Summary for "Configure lockscreen" when security password is enabled [CHAR LIMIT=45] -->
@@ -1759,20 +1752,6 @@
     <string name="musicfx_title">Music effects</string>
     <!-- Sound settings screen, setting option name -->
     <string name="ring_volume_title">Ringer volume</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_alarm_title">Volume steps: Alarm</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_dtmf_title">Volume steps: DTMF</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_music_title">Volume steps: Music</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_notification_title">Volume steps: Notification</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_ring_title">Volume steps: Ringer</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_system_title">Volume steps: System</string>
-    <!-- Sound settings screen, setting option name -->
-    <string name="volume_steps_voice_call_title">Volume steps: Voice Call</string>
     <!-- Sound settings screen, setting option name checkbox -->
     <string name="vibrate_in_silent_title">Vibrate when silent</string>
     <!-- Sound settings screen, setting option name -->
@@ -1804,9 +1783,6 @@
     <string name="lock_sounds_enable_title">Screen lock sound</string>
     <!-- Sound settings screen, setting check box label -->
     <string name="haptic_feedback_enable_title">Vibrate on touch</string>
-    <!-- Sound settings screen, setting check box label -->
-    <string name="camera_sounds_title">Camera shutter sound</string>
-    <string name="camera_sounds_summary">WARNING: Disabling the camera shutter sound is illegal in some areas!</string>
     <!-- Sound settings screen, setting option name checkbox to enable/disable audio recording features that improve audio recording in noisy environments -->
     <string name="audio_record_proc_title">Noise cancellation</string>
     <!-- Volume description for media volume -->
@@ -5008,4 +4984,6 @@
     <!-- An option in a photo selection dialog, if there is no photo yet [CHAR LIMIT=50] -->
     <string name="user_image_choose_photo" msgid="3746334626214970837">Choose photo from Gallery</string>
 
+    <!-- Text to display in regulatory info screen (from device overlay). -->
+    <string name="regulatory_info_text"></string>
 </resources>

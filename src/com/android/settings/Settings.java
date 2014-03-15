@@ -31,6 +31,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -76,6 +78,7 @@ import com.android.settings.applications.ProcessStatsUi;
 import com.android.settings.blacklist.BlacklistSettings;
 import com.android.settings.bluetooth.BluetoothEnabler;
 import com.android.settings.bluetooth.BluetoothSettings;
+import com.android.settings.cyanogenmod.ButtonSettings;
 import com.android.settings.cyanogenmod.LockscreenInterface;
 import com.android.settings.cyanogenmod.MoreDeviceSettings;
 import com.android.settings.cyanogenmod.PerformanceSettings;
@@ -181,6 +184,7 @@ public class Settings extends PreferenceActivity
             R.id.lock_screen_settings,
             R.id.system_settings,
             R.id.privacy_settings_cyanogenmod,
+            R.id.button_settings
     };
 
     private SharedPreferences mDevelopmentPreferences;
@@ -303,7 +307,11 @@ public class Settings extends PreferenceActivity
     public void onPause() {
         super.onPause();
 
-        unregisterReceiver(mBatteryInfoReceiver);
+        try {
+            unregisterReceiver(mBatteryInfoReceiver);
+        } catch (IllegalArgumentException e) {
+            // Ignore (receiver didn't have time to register)
+        }
 
         ListAdapter listAdapter = getListAdapter();
         if (listAdapter instanceof HeaderAdapter) {
@@ -373,12 +381,12 @@ public class Settings extends PreferenceActivity
         HomeSettings.class.getName(),
         LockscreenInterface.class.getName(),
         SystemUiSettings.class.getName(),
+        ButtonSettings.class.getName(),
         MoreDeviceSettings.class.getName(),
         ProfilesSettings.class.getName(),
         PerformanceSettings.class.getName(),
         PolicyNativeFragment.class.getName(),
-        com.android.settings.cyanogenmod.PrivacySettings.class.getName(),
-        com.android.settings.quicksettings.QuickSettingsTiles.class.getName()
+        com.android.settings.cyanogenmod.PrivacySettings.class.getName()
     };
 
     @Override
@@ -574,9 +582,7 @@ public class Settings extends PreferenceActivity
     }
 
     private void updateHeaderList(List<Header> target) {
-        final boolean showDev = mDevelopmentPreferences.getBoolean(
-                DevelopmentSettings.PREF_SHOW,
-                android.os.Build.TYPE.equals("eng"));
+	final boolean showDev = (UserHandle.myUserId() == UserHandle.USER_OWNER);
         int i = 0;
 
         final UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -645,6 +651,10 @@ public class Settings extends PreferenceActivity
                             PackageManager.FEATURE_NFC_HOST_CARD_EMULATION)) {
                         target.remove(i);
                     }
+                }
+            } else if (id == R.id.development_settings) {
+                if (!showDev) {
+                    target.remove(i);
                 }
             } else if (id == R.id.account_add) {
                 if (um.hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)) {
@@ -741,40 +751,51 @@ public class Settings extends PreferenceActivity
     }
 
     private boolean updateHomeSettingHeaders(Header header) {
-        // Once we decide to show Home settings, keep showing it forever
-        SharedPreferences sp = getSharedPreferences(HomeSettings.HOME_PREFS, Context.MODE_PRIVATE);
-        if (sp.getBoolean(HomeSettings.HOME_PREFS_DO_SHOW, false)) {
-            return true;
-        }
-
         try {
+            PackageManager pm = getPackageManager();
             final ArrayList<ResolveInfo> homeApps = new ArrayList<ResolveInfo>();
-            getPackageManager().getHomeActivities(homeApps);
+            pm.getHomeActivities(homeApps);
+
             if (homeApps.size() < 2) {
-                // When there's only one available home app, omit this settings
-                // category entirely at the top level UI.  If the user just
-                // uninstalled the penultimate home app candidiate, we also
-                // now tell them about why they aren't seeing 'Home' in the list.
-                if (sShowNoHomeNotice) {
-                    sShowNoHomeNotice = false;
-                    NoHomeDialogFragment.show(this);
+                Intent prefsIntent = new Intent(Intent.ACTION_MAIN);
+                prefsIntent.addCategory("com.cyanogenmod.category.LAUNCHER_PREFERENCES");
+                List<ResolveInfo> prefsActivities = pm.queryIntentActivities(prefsIntent, 0);
+
+                boolean hasAtleastOneSettings = false;
+                for (ResolveInfo info : homeApps) {
+                    for (ResolveInfo activityInfo : prefsActivities) {
+                        if (info.activityInfo.packageName
+                                .equals(activityInfo.activityInfo.packageName)) {
+                            hasAtleastOneSettings = true;
+                            break;
+                        }
+                    }
                 }
-                return false;
-            } else {
-                // Okay, we're allowing the Home settings category.  Tell it, when
-                // invoked via this front door, that we'll need to be told about the
-                // case when the user uninstalls all but one home app.
-                if (header.fragmentArguments == null) {
-                    header.fragmentArguments = new Bundle();
+                if (!hasAtleastOneSettings) {
+                    // When there's only one available home app, omit this settings
+                    // category entirely at the top level UI.  If the user just
+                    // uninstalled the penultimate home app candidiate, we also
+                    // now tell them about why they aren't seeing 'Home' in the list.
+                    if (sShowNoHomeNotice) {
+                        sShowNoHomeNotice = false;
+                        NoHomeDialogFragment.show(this);
+                    }
+                    return false;
                 }
-                header.fragmentArguments.putBoolean(HomeSettings.HOME_SHOW_NOTICE, true);
             }
+
+            // Okay, we're allowing the Home settings category.  Tell it, when
+            // invoked via this front door, that we'll need to be told about the
+            // case when the user uninstalls all but one home app.
+            if (header.fragmentArguments == null) {
+                header.fragmentArguments = new Bundle();
+            }
+            header.fragmentArguments.putBoolean(HomeSettings.HOME_SHOW_NOTICE, true);
         } catch (Exception e) {
             // Can't look up the home activity; bail on configuring the icon
             Log.w(LOG_TAG, "Problem looking up home activity!", e);
         }
 
-        sp.edit().putBoolean(HomeSettings.HOME_PREFS_DO_SHOW, true).apply();
         return true;
     }
 
@@ -1212,6 +1233,6 @@ public class Settings extends PreferenceActivity
     public static class BlacklistSettingsActivity extends Settings { /* empty */ }
     public static class ASSRamBarActivity extends Settings { /* empty */ }
     public static class SystemSettingsActivity extends Settings { /* empty */ }
-    public static class PerformanceSettingsActivity extends Settings { /* empty */ }
-    public static class QuickSettingsConfigActivity extends Settings { /* empty */ }
+    public static class AboutActivity extends Settings { /* empty */ }
+    public static class AnimationInterfaceSettingsActivity extends Settings { /* empty */ }
 }

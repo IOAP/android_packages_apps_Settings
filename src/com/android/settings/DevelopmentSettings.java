@@ -97,7 +97,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private static final String ENABLE_ADB = "enable_adb";
     private static final String ADB_NOTIFY = "adb_notify";
-    private static final String ADB_PARANOID = "adb_paranoid";
     private static final String CLEAR_ADB_KEYS = "clear_adb_keys";
     private static final String ENABLE_TERMINAL = "enable_terminal";
     private static final String ADB_TCPIP  = "adb_over_network";
@@ -182,7 +181,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private CheckBoxPreference mEnableAdb;
     private CheckBoxPreference mAdbNotify;
-    private CheckBoxPreference mAdbParanoid;
     private Preference mClearAdbKeys;
     private CheckBoxPreference mEnableTerminal;
     private Preference mBugreport;
@@ -278,13 +276,11 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 findPreference(DEBUG_DEBUGGING_CATEGORY_KEY);
 
         mEnableAdb = findAndInitCheckboxPref(ENABLE_ADB);
-        mAdbParanoid = findAndInitCheckboxPref(ADB_PARANOID);
         mAdbNotify = (CheckBoxPreference) findPreference(ADB_NOTIFY);
         mAllPrefs.add(mAdbNotify);
         mClearAdbKeys = findPreference(CLEAR_ADB_KEYS);
         if (!SystemProperties.getBoolean("ro.adb.secure", false)) {
             if (debugDebuggingCategory != null) {
-                debugDebuggingCategory.removePreference(mAdbParanoid);
                 debugDebuggingCategory.removePreference(mClearAdbKeys);
             }
         }
@@ -311,7 +307,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
         if (!android.os.Process.myUserHandle().equals(UserHandle.OWNER)) {
             disableForUser(mEnableAdb);
-            disableForUser(mAdbParanoid);
             disableForUser(mClearAdbKeys);
             disableForUser(mEnableTerminal);
             disableForUser(mPassword);
@@ -541,8 +536,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 Settings.Global.ADB_ENABLED, 0) != 0);
         mAdbNotify.setChecked(Settings.Secure.getInt(cr,
                 Settings.Secure.ADB_NOTIFY, 1) != 0);
-        mAdbParanoid.setChecked(Settings.Secure.getInt(cr,
-                Settings.Secure.ADB_PARANOID, 0) != 0);
         if (mEnableTerminal != null) {
             updateCheckBox(mEnableTerminal,
                     context.getPackageManager().getApplicationEnabledSetting(TERMINAL_APP_PACKAGE)
@@ -1194,6 +1187,19 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 Settings.Global.SHOW_PROCESSES, 0) != 0);
     }
 
+    private void writeCpuUsageOptions() {
+        boolean value = mShowCpuUsage.isChecked();
+        Settings.Global.putInt(getActivity().getContentResolver(),
+                Settings.Global.SHOW_PROCESSES, value ? 1 : 0);
+        Intent service = (new Intent())
+                .setClassName("com.android.systemui", "com.android.systemui.LoadAverageService");
+        if (value) {
+            getActivity().startService(service);
+        } else {
+            getActivity().stopService(service);
+        }
+    }
+
     private void updateCpuInfoOptions() {
         updateCheckBox(mShowCpuInfo, Settings.Global.getInt(getActivity().getContentResolver(),
                 Settings.Global.SHOW_CPU, 0) != 0);
@@ -1212,18 +1218,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         }
     }
 
-    private void writeCpuUsageOptions() {
-        boolean value = mShowCpuUsage.isChecked();
-        Settings.Global.putInt(getActivity().getContentResolver(),
-                Settings.Global.SHOW_PROCESSES, value ? 1 : 0);
-        Intent service = (new Intent())
-                .setClassName("com.android.systemui", "com.android.systemui.LoadAverageService");
-        if (value) {
-            getActivity().startService(service);
-        } else {
-            getActivity().stopService(service);
-        }
-    }
 
     private void writeImmediatelyDestroyActivitiesOptions() {
         try {
@@ -1442,10 +1436,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             Settings.Secure.putInt(getActivity().getContentResolver(),
                     Settings.Secure.ADB_NOTIFY,
                     mAdbNotify.isChecked() ? 1 : 0);
-        } else if (preference == mAdbParanoid) {
-            Settings.Secure.putInt(getActivity().getContentResolver(),
-                    Settings.Secure.ADB_PARANOID,
-                    mAdbParanoid.isChecked() ? 1 : 0);
         } else if (preference == mClearAdbKeys) {
             if (mAdbKeysDialog != null) dismissDialogs();
             mAdbKeysDialog = new AlertDialog.Builder(getActivity())
@@ -1555,10 +1545,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                             R.string.select_runtime_warning_message,
                             oldRuntimeValue, newRuntimeValue));
                 } else {
-                    builder.setMessage(Html.fromHtml(
-                            context.getResources().getString(
-                                    R.string.custom_runtime_warning_message,
-                                    oldRuntimeValue, newRuntimeValue)));
+                    builder.setMessage(Html.fromHtml(context.getResources().getString(
+                            R.string.custom_runtime_warning_message,
+                            oldRuntimeValue, newRuntimeValue)));
                     builder.setTitle(context.getResources().getString(
                             R.string.custom_runtime_warning_title));
                 }

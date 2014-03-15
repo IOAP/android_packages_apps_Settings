@@ -20,7 +20,7 @@
     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
 
     <Preference
-        android:fragment="com.android.settings.ioap.NotificationDrawerStyle"
+        android:fragment="com.android.settings.pac.NotificationDrawerStyle"
         android:key="notification_style"
         android:title="@string/notification_style_title"
         android:summary="@string/notification_style_summary" />
@@ -43,21 +43,6 @@
         android:title="@string/title_full_screen_swipe"
         android:summary="@string/summary_full_screen_swipe"
         android:defaultValue="false" />
-
-    <PreferenceCategory
-        android:title="@string/carrier_label_title" >
-
-        <Preference
-            android:key="custom_carrier_label"
-            android:title="@string/custom_carrier_label_title" />
-
-        <CheckBoxPreference
-            android:key="notification_show_wifi_ssid"
-            android:title="@string/notification_show_wifi_ssid_title"
-            android:summary="@string/notification_show_wifi_ssid_summary"
-            android:defaultValue="false" />
-
-    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/category_quick_access" >
@@ -84,38 +69,5 @@
             <extra android:name="config_ribbon" android:value="true" />
         </PreferenceScreen>
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/noti_reminder_category" />
-
-    <CheckBoxPreference
-        android:key="noti_reminder_enabled"
-        android:title="@string/noti_reminder_enable_title"
-        android:summaryOn="@string/enabled"
-        android:summaryOff="@string/disabled"
-        android:defaultValue="false" />
-
-    <ListPreference
-        android:key="noti_reminder_interval"
-        android:defaultValue="1500"
-        android:title="@string/noti_reminder_interval"
-        android:entries="@array/noti_reminder_interval_entries"
-        android:entryValues="@array/noti_reminder_interval_values"
-        android:dependency="noti_reminder_enabled" />
-
-    <ListPreference
-        android:key="noti_reminder_sound"
-        android:defaultValue="0"
-        android:title="@string/noti_reminder_sound_title"
-        android:entries="@array/noti_reminder_sound_entries"
-        android:entryValues="@array/noti_reminder_sound_values"
-        android:dependency="noti_reminder_enabled" />
-
-    <RingtonePreference
-        android:key="noti_reminder_ringtone"
-        android:title="@string/noti_reminder_ringtone"
-        android:ringtoneType="all"
-        android:showSilent="false"
-        android:dependency="noti_reminder_enabled" />
 
 </PreferenceScreen>

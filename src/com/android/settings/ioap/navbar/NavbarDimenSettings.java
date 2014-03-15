@@ -1,5 +1,5 @@
 package com.android.settings.ioap.navbar;
- 
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -18,40 +18,40 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
- 
+
 import com.android.internal.util.crdroid.DeviceUtils;
- 
+
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.R;
- 
+
 public class NavbarDimenSettings extends SettingsPreferenceFragment implements
         OnPreferenceChangeListener {
- 
+
     private static final String TAG = "NavBarStyleDimen";
     private static final String PREF_NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
     private static final String PREF_NAVIGATION_BAR_HEIGHT_LANDSCAPE = "navigation_bar_height_landscape";
     private static final String PREF_NAVIGATION_BAR_WIDTH = "navigation_bar_width";
     private static final String KEY_DIMEN_OPTIONS = "navbar_dimen";
- 
+
     private static final int MENU_RESET = Menu.FIRST;
- 
+
     ListPreference mNavigationBarHeight;
     ListPreference mNavigationBarHeightLandscape;
     ListPreference mNavigationBarWidth;
- 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
- 
+
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.navbar_dimen_settings);
- 
+
         PreferenceScreen prefSet = getPreferenceScreen();
- 
+
         mNavigationBarHeight =
             (ListPreference) findPreference(PREF_NAVIGATION_BAR_HEIGHT);
         mNavigationBarHeight.setOnPreferenceChangeListener(this);
- 
+
         mNavigationBarHeightLandscape =
             (ListPreference) findPreference(PREF_NAVIGATION_BAR_HEIGHT_LANDSCAPE);
         if (DeviceUtils.isPhone(getActivity())) {
@@ -60,7 +60,7 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
         } else {
             mNavigationBarHeightLandscape.setOnPreferenceChangeListener(this);
         }
- 
+
         mNavigationBarWidth =
             (ListPreference) findPreference(PREF_NAVIGATION_BAR_WIDTH);
         if (!DeviceUtils.isPhone(getActivity())) {
@@ -69,11 +69,11 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
         } else {
             mNavigationBarWidth.setOnPreferenceChangeListener(this);
         }
- 
+
         updateDimensionValues();
         setHasOptionsMenu(true);
     }
- 
+
     private void updateDimensionValues() {
         int navigationBarHeight = Settings.System.getInt(getContentResolver(),
                 Settings.System.NAVIGATION_BAR_HEIGHT, -2);
@@ -83,7 +83,7 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
                     / getResources().getDisplayMetrics().density);
         }
         mNavigationBarHeight.setValue(String.valueOf(navigationBarHeight));
- 
+
         if (mNavigationBarHeightLandscape == null) {
             return;
         }
@@ -95,7 +95,7 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
                     / getResources().getDisplayMetrics().density);
         }
         mNavigationBarHeightLandscape.setValue(String.valueOf(navigationBarHeightLandscape));
- 
+
         if (mNavigationBarWidth == null) {
             return;
         }
@@ -108,14 +108,14 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
         }
         mNavigationBarWidth.setValue(String.valueOf(navigationBarWidth));
     }
- 
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.add(0, MENU_RESET, 0, R.string.reset)
                 .setIcon(R.drawable.ic_settings_backup) // use the backup icon
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     }
- 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -126,7 +126,7 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
                 return super.onContextItemSelected(item);
         }
     }
- 
+
     private void resetToDefault() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setTitle(R.string.reset);
@@ -145,10 +145,10 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
         alertDialog.setNegativeButton(R.string.cancel, null);
         alertDialog.create().show();
     }
- 
+
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-    if (preference == mNavigationBarWidth) {
+	if (preference == mNavigationBarWidth) {
             String newVal = (String) newValue;
             Settings.System.putInt(getContentResolver(),
                     Settings.System.NAVIGATION_BAR_WIDTH,
@@ -169,10 +169,10 @@ public class NavbarDimenSettings extends SettingsPreferenceFragment implements
         }
         return false;
     }
- 
+
     @Override
     public void onResume() {
         super.onResume();
     }
- 
+
 }

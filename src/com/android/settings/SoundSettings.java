@@ -44,7 +44,6 @@ import android.os.Vibrator;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
@@ -57,6 +56,8 @@ import android.view.VolumePanel;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.List;
+
+import com.android.settings.crdroid.SeekBarPreferenceChOS;
 
 public class SoundSettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
@@ -87,16 +88,18 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private static final String KEY_DOCK_SOUNDS = "dock_sounds";
     private static final String KEY_DOCK_AUDIO_MEDIA_ENABLED = "dock_audio_media_enabled";
     private static final String KEY_QUIET_HOURS = "quiet_hours";
-    private static final String KEY_CAMERA_SOUNDS = "camera_sounds";
-    private static final String PROP_CAMERA_SOUND = "persist.sys.camera-sound";
     private static final String KEY_CONVERT_SOUND_TO_VIBRATE =
             Settings.System.NOTIFICATION_CONVERT_SOUND_TO_VIBRATION;
     private static final String KEY_VIBRATE_DURING_CALLS =
             Settings.System.NOTIFICATION_VIBRATE_DURING_ALERTS_DISABLED;
     private static final String KEY_VOLUME_ADJUST_SOUNDS = "volume_adjust_sounds_enabled";
+    private static final String KEY_CAMERA_SOUNDS = "camera_click_sound";
+    private static final String PROP_CAMERA_SOUND = "persist.sys.camera-sound";
+
     private static final String KEY_POWER_NOTIFICATIONS = "power_notifications";
     private static final String KEY_POWER_NOTIFICATIONS_VIBRATE = "power_notifications_vibrate";
     private static final String KEY_POWER_NOTIFICATIONS_RINGTONE = "power_notifications_ringtone";
+    private static final String KEY_VOLUME_PANEL_TIMEOUT = "volume_panel_timeout";
 
     private static final String RING_MODE_NORMAL = "normal";
     private static final String RING_MODE_VIBRATE = "vibrate";
@@ -119,7 +122,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private ListPreference mVolumeOverlay;
     private ListPreference mRingMode;
     private CheckBoxPreference mSoundEffects;
-    private CheckBoxPreference mCameraSounds;
+    private ListPreference mCameraSounds;
     private Preference mMusicFx;
     private Preference mRingtonePreference;
     private Preference mNotificationPreference;
@@ -137,6 +140,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private CheckBoxPreference mPowerSounds;
     private CheckBoxPreference mPowerSoundsVibrate;
     private Preference mPowerSoundsRingtone;
+    private SeekBarPreferenceChOS mVolumePanelTimeout;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -187,6 +191,13 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         mVolumeOverlay.setValue(Integer.toString(volumeOverlay));
         mVolumeOverlay.setSummary(mVolumeOverlay.getEntry());
 
+        // Volume panel timeout
+        mVolumePanelTimeout = (SeekBarPreferenceChOS) findPreference(KEY_VOLUME_PANEL_TIMEOUT);
+        int statusVolumePanelTimeout = Settings.System.getInt(resolver,
+                Settings.System.VOLUME_PANEL_TIMEOUT, 3000);
+        mVolumePanelTimeout.setValue(statusVolumePanelTimeout / 1000);
+        mVolumePanelTimeout.setOnPreferenceChangeListener(this);
+
         mRingMode = (ListPreference) findPreference(KEY_RING_MODE);
         if (!getResources().getBoolean(R.bool.has_silent_mode)) {
             getPreferenceScreen().removePreference(mRingMode);
@@ -211,14 +222,16 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         }
 
         mSoundEffects = (CheckBoxPreference) findPreference(KEY_SOUND_EFFECTS);
-        mCameraSounds = (CheckBoxPreference) findPreference(KEY_CAMERA_SOUNDS);
-        mCameraSounds.setPersistent(false);
-        mCameraSounds.setChecked(SystemProperties.getBoolean(
-                PROP_CAMERA_SOUND, true));
 
         if (!Utils.hasVolumeRocker(getActivity())) {
             getPreferenceScreen().removePreference(findPreference(KEY_VOLUME_ADJUST_SOUNDS));
         }
+
+        mCameraSounds = (ListPreference) findPreference(KEY_CAMERA_SOUNDS);
+        mCameraSounds.setOnPreferenceChangeListener(this);
+        final int currentCamSound = SystemProperties.getInt(PROP_CAMERA_SOUND, 1);
+        mCameraSounds.setValue(Integer.toString(currentCamSound));
+        mCameraSounds.setSummary(mCameraSounds.getEntry());
 
         mRingtonePreference = findPreference(KEY_RINGTONE);
         mNotificationPreference = findPreference(KEY_NOTIFICATION_SOUND);
@@ -413,8 +426,6 @@ public class SoundSettings extends SettingsPreferenceFragment implements
             } else {
                 mAudioManager.unloadSoundEffects();
             }
-        } else if (preference == mCameraSounds) {
-            SystemProperties.set(PROP_CAMERA_SOUND, mCameraSounds.isChecked() ? "1" : "0");
         } else if (preference == mMusicFx) {
             // let the framework fire off the intent
             return false;
@@ -488,6 +499,15 @@ public class SoundSettings extends SettingsPreferenceFragment implements
             Settings.System.putInt(getContentResolver(),
                     Settings.System.MODE_VOLUME_OVERLAY, value);
             mVolumeOverlay.setSummary(mVolumeOverlay.getEntries()[index]);
+        } else if (preference == mCameraSounds) {
+            final int value = Integer.valueOf((String)objValue);
+            final int index = mCameraSounds.findIndexOfValue((String) objValue);
+            SystemProperties.set(PROP_CAMERA_SOUND, (String)objValue);            
+            mCameraSounds.setSummary(mCameraSounds.getEntries()[index]);
+        } else if (preference == mVolumePanelTimeout) {
+            int volumePanelTimeout = (Integer) objValue;
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.VOLUME_PANEL_TIMEOUT, volumePanelTimeout * 1000);
         }
 
         return true;

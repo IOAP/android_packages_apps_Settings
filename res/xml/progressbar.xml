@@ -75,22 +75,29 @@
     <net.margaritov.preference.colorpicker.ColorPickerPreference
         android:key="progressbar_color_1"
         android:title="@string/progressbar_color_1_title"
-        android:defaultValue="#ffff00" />
+        android:defaultValue="#ffffff" />
 
     <net.margaritov.preference.colorpicker.ColorPickerPreference
         android:key="progressbar_color_2"
         android:title="@string/progressbar_color_2_title"
-        android:defaultValue="#99cc00" />
+        android:defaultValue="#ffffff" />
 
     <net.margaritov.preference.colorpicker.ColorPickerPreference
         android:key="progressbar_color_3"
         android:title="@string/progressbar_color_3_title"
-        android:defaultValue="#aa66cc" />
+        android:defaultValue="#ffffff" />
 
     <net.margaritov.preference.colorpicker.ColorPickerPreference
         android:key="progressbar_color_4"
         android:title="@string/progressbar_color_4_title"
-        android:defaultValue="#00ddff" />
+        android:defaultValue="#ffffff" />
+
+    <ListPreference
+            android:key="progressbar_interpolators"
+            android:title="@string/progressbar_interpolator"
+            android:entries="@array/progressbar_interpolators_entries"
+            android:entryValues="@array/progressbar_interpolators_values"
+            android:persistent="false" />
 
     </PreferenceCategory>
 

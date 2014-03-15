@@ -22,26 +22,15 @@
                 android:title="@string/brightness"
                 android:persistent="false"/>
 
-        <CheckBoxPreference
-                android:key="status_bar_brightness_control"
-                android:title="@string/status_bar_toggle_brightness"
-                android:summary="@string/status_bar_toggle_brightness_summary"
-                android:defaultValue="false" />
-
-        <PreferenceScreen
-                android:key="display_rotation"
-                android:fragment="com.android.settings.ioap.DisplayRotation"
-                android:title="@string/display_rotation_title" />
-
         <PreferenceScreen
                 android:key="wallpaper"
                 android:title="@string/wallpaper_settings_title"
                 android:fragment="com.android.settings.WallpaperTypeSettings" />
 
         <PreferenceScreen
-                android:key="screen_recorder"
-                android:title="@string/screen_recorder_title"
-                android:fragment="com.android.settings.chameleonos.ScreenRecorderSettings" />
+            android:key="display_rotation"
+            android:fragment="com.android.settings.cyanogenmod.DisplayRotation"
+            android:title="@string/display_rotation_title" />
 
         <ListPreference
                 android:key="screen_timeout"
@@ -93,42 +82,12 @@
         android:key="category_animation_options"
         android:title="@string/display_category_animation_options_title" >
 
-        <PreferenceScreen
-            android:id="@+id/animations"
-            android:title="@string/title_animation_controls"
-            android:summary="@string/header_summary_animation"
-            android:fragment="com.android.settings.cyanogenmod.fragments.AnimationControls" />
-
         <ListPreference
             android:key="system_power_crt_mode"
             android:dialogTitle="@string/system_power_crt_mode_dialog_title"
             android:title="@string/system_power_crt_mode_title"
             android:entries="@array/entries_system_power_crt_mode"
             android:entryValues="@array/values_system_power_crt_mode" />
-
-        <ListPreference
-            android:key="toast_animation"
-            android:title="@string/toast_animation_title"
-            android:entries="@array/toast_animation_entries"
-            android:entryValues="@array/toast_animation_values"
-            android:persistent="false" />
-
-        <ListPreference
-            android:key="listview_animation"
-            android:dialogTitle="@string/listview_animation_title"
-            android:title="@string/listview_animation_title"
-            android:entries="@array/listview_animation_entries"
-            android:entryValues="@array/listview_animation_values"
-            android:defaultValue="0" />
-
-        <ListPreference
-            android:key="listview_interpolator"
-            android:dialogTitle="@string/listview_interpolator_title"
-            android:title="@string/listview_interpolator_title"
-            android:entries="@array/listview_interpolator_entries"
-            android:entryValues="@array/listview_interpolator_values"
-            android:defaultValue="0"
-            android:dependency="listview_animation" />
 
     </PreferenceCategory>
 
@@ -151,21 +110,6 @@
                 android:title="@string/battery_light_title"
                 android:fragment="com.android.settings.notificationlight.BatteryLightSettings" />
 
-        </PreferenceCategory>
-
-        <PreferenceCategory
-            android:key="warnings_prefs"
-            android:title="@string/warnings_title">
-
-            <!-- Low battery pop-up warning -->
-            <ListPreference
-                android:key="pref_low_battery_warning_policy"
-                android:title="@string/pref_low_battery_warning_policy_title"
-                android:dialogTitle="@string/pref_low_battery_warning_policy_dialog_title"
-                android:entries="@array/pref_low_battery_warning_policy_entries"
-                android:entryValues="@array/pref_low_battery_warning_policy_values"
-                android:defaultValue="0" />
-
-        </PreferenceCategory>
+     </PreferenceCategory>
 
 </PreferenceScreen>
