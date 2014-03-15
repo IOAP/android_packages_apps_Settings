@@ -19,6 +19,12 @@
     android:title="@string/performance_settings_title"
     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
 
+    <!-- Performance Control -->
+        <PreferenceScreen
+        android:key="performance_controls"
+        android:fragment="com.brewcrewfoo.performance.activities.MainActivity"
+        android:title="@string/performance_settings" />
+
     <ListPreference
         android:key="pref_perf_profile"
         android:dialogTitle="@string/perf_profile_title"
@@ -34,6 +40,13 @@
         android:key="pref_use_16bpp_alpha"
         android:title="@string/pref_use_16bpp_alpha_title"
         android:summary="@string/pref_use_16bpp_alpha_summary" />
+
+    <ListPreference android:key="pref_scrollingcache"
+        android:dialogTitle="@string/pref_scrollingcache_title"
+        android:title="@string/pref_scrollingcache_title"
+        android:summary="@string/pref_scrollingcache_summary"
+        android:entries="@array/entries_scrollingcache"
+        android:entryValues="@array/values_scrollingcache" />
 
     <CheckBoxPreference
         android:key="pref_force_highend_gfx"

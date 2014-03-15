@@ -151,16 +151,11 @@
     <string name="app_halo_label_black">Blacklist from HALO</string>
     <string name="app_halo_label_white">Whitelist from HALO</string>    
 
-    <!-- Xposed -->
-    <string name="xposed_category_title">Xposed</string>
-    <string name="xposed_framework_modules_title">Framework &amp; Modules</string>
-    <string name="xposed_framework_modules_summary">Xposed framework installer and module manager. Check here first!</string>
-    <string name="xposed_per_app_title">Per App Settings</string>
-    <string name="xposed_per_app__summary">Customize DPI, UI layout, and more per app settings to your liking here</string>
-    <string name="xposed_netflix_title">Netflix Workaround</string>
-    <string name="xposed_netflix_summary">Netflix workaround for Exynos4 devices on AOSP 4.4.x+ Activate module to use</string>
-    <string name="xposed_warning_title">Warning:</string>
-    <string name="xposed_warning_summary">These mods may adversely affect performance and stability. Use at your own risk!</string>
+    <!-- Performance Settings | Warning dialog -->
+    <string name="performance_settings_warning_header">Warning</string>
+
+    <!-- Performance control -->
+    <string name="performance_settings">Performance control</string>
 
     <!-- Recents Ram Bar -->
     <string name="ram_bar">Recents RAM bar</string>

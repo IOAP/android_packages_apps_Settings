@@ -285,6 +285,13 @@
             android:targetClass="eu.chainfire.supersu.MainActivity" />
     </header>
 
+    <!-- Performance -->
+    <header
+        android:id="@+id/performance_settings"
+        android:fragment="com.android.settings.cyanogenmod.PerformanceSettings"
+        android:icon="@drawable/ic_settings_performance"
+        android:title="@string/performance_settings_title" />
+
     <!-- Development -->
     <header
         android:id="@+id/development_settings"
