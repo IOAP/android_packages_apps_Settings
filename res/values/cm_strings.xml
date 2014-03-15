@@ -696,8 +696,8 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
     <string name="device_hostname">Device hostname</string>
 
     <!-- System Interface settings  -->
-    <string name="system_settings_title">Interface</string>
-    <string name="system_interface_title">System interface</string>
+    <string name="system_settings_title">IOAP Settings</string>
+    <string name="system_interface_title">IOAP System Settings</string>
 
     <!-- Notification Drawer  -->
     <string name="notification_drawer_title">Notification drawer</string>

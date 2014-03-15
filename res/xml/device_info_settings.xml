@@ -30,12 +30,6 @@
                     android:targetClass="com.android.settings.deviceinfo.Status" />
         </PreferenceScreen>
 
-        <!-- Changelog -->
-        <PreferenceScreen android:key="changelog"
-            android:title="@string/ioap_changelog_title"
-            android:fragment="com.android.settings.cyanogenmod.ChangeLog" >
-        </PreferenceScreen>
-
         <!-- Legal Information -->
         <PreferenceScreen
                 android:key="container"
@@ -125,12 +119,6 @@
                 style="?android:preferenceInformationStyle"
                 android:title="@string/ioap_version"
                 android:summary="@string/ioap_version_default" />
-
-        <!-- Mod version -->
-        <Preference android:key="mod_version"
-                style="?android:preferenceInformationStyle"
-                android:title="@string/mod_version"
-                android:summary="@string/mod_version_default" />
 
         <!-- Mod build date -->
         <Preference android:key="build_date"

@@ -27,15 +27,29 @@
     <PreferenceScreen
         android:key="progressbar_settings"
         android:fragment="com.android.settings.cyanogenmod.ProgressBar"
-        android:title="@string/progressbar_title" >
-    </PreferenceScreen>
+        android:title="@string/progressbar_title" />
 
     <PreferenceScreen
         android:key="quick_settings_panel"
         android:fragment="com.android.settings.quicksettings.QuickSettings"
         android:title="@string/quick_settings_panel_title" />
 
-   <!-- OmniSwitch -->
+    <PreferenceScreen
+        android:key="button_settings"
+        android:fragment="com.android.settings.cyanogenmod.ButtonSettings"
+        android:title="@string/button_settings" />
+
+    <PreferenceScreen
+        android:id="@+id/interface_animation"
+        android:title="@string/interface_animation_title"
+        android:breadCrumbTitle="@string/interface_animation_title"
+        android:fragment="com.android.settings.ioap.interfacesettings.AnimationInterfaceSettings" />
+
+    <PreferenceScreen
+        android:id="@+id/halo_settings"
+        android:fragment="com.android.settings.crdroid.Halo"
+        android:title="@string/halo_settings_title" />
+
    <PreferenceScreen
         android:id="@+id/omniswitch"
         android:title="@string/omniswitch_settings_title" >
@@ -45,7 +59,6 @@
             android:targetClass="org.omnirom.omniswitch.SettingsActivity" />
    </PreferenceScreen>
 
-   <!-- Recents RAM bar -->
    <PreferenceScreen
     	android:key="recents_ram_bar"
     	android:fragment="com.android.settings.crdroid.RamBar"
@@ -55,7 +68,6 @@
         android:key="screen_recorder"
         android:title="@string/screen_recorder_title"
         android:fragment="com.android.settings.chameleonos.ScreenRecorderSettings" />
-
 
    <PreferenceScreen
   	android:key="lcd_density_setup"
@@ -68,18 +80,16 @@
         android:fragment="com.android.settings.chameleonos.labs.gestureanywhere.GestureAnywhereSettings"
         android:title="@string/gesture_anywhere_title" />
 
-    <!-- SlimSizer -->
+
     <PreferenceScreen
         android:id="@+id/system_app_remover"
         android:title="@string/system_app_remover"
         android:fragment="com.android.settings.slim.SystemappRemover" />
 
-   <!-- Active display -->	
    <PreferenceScreen	
     	android:key="active_display"	
         android:fragment="com.android.settings.crdroid.ActiveDisplaySettings"	
-    	android:title="@string/ad_settings_title"	
-    	android:summary="@string/ad_settings_summary" /> 
+    	android:title="@string/ad_settings_title" /> 
 
    <PreferenceScreen
         android:key="app_sidebar"
@@ -118,7 +128,6 @@
 
     <CheckBoxPreference
             android:key="enable_nav_bar"
-	    android:icon="@drawable/ic_ioap_navbar"
             android:title="@string/navbar_enable_bar"
             android:summary="@string/navbar_enable_bar_summary" />
 
@@ -154,7 +163,6 @@
     	<CheckBoxPreference
             android:key="custom_recent_mode"
             android:title="@string/custom_recent_title"
-            android:summary="@string/custom_recent_summary"
             android:persistent="false" />
 
         <ListPreference
@@ -174,42 +182,6 @@
                 android:title="@string/expanded_desktop_system_bars_visibility"
                 android:summary="@string/expanded_desktop_system_bars_visibility_summary"
                 android:defaultValue="false" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-	android:key="xposed_options"
-	android:title="@string/xposed_category_title" >
-
-	<PreferenceScreen
-		android:key="xposed_warning"
-		android:title="@string/xposed_warning_title"
-		android:summary="@string/xposed_warning_summary" >
-	</PreferenceScreen>
-
-	<PreferenceScreen
-		android:key="xposed_framework_modules"
-		android:title="@string/xposed_framework_modules_title"
-		android:summary="@string/xposed_framework_modules_summary" >
-	<intent android:action="android.intent.action.MAIN"
-		android:targetPackage="de.robv.android.xposed.installer"
-	android:targetClass="de.robv.android.xposed.installer.XposedInstallerActivity" />
-	</PreferenceScreen>
-
-	<PreferenceScreen
-		android:key="xposed__per_app_settings"
-		android:title="@string/xposed_per_app_title"
-		android:summary="@string/xposed_per_app__summary" >
-	 <intent android:action="android.intent.action.MAIN"
-		android:targetPackage="de.robv.android.xposed.mods.appsettings"
-		android:targetClass="de.robv.android.xposed.mods.appsettings.XposedModActivity" />
-	</PreferenceScreen>
-
-	<PreferenceScreen
-		android:key="xposed_netflix_workaround"
-		android:title="@string/xposed_netflix_title"
-		android:summary="@string/xposed_netflix_summary" >
-	</PreferenceScreen>
 
     </PreferenceCategory>
 
