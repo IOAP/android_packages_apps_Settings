@@ -2,5 +2,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <string name="ioap_version">IOAP version</string>
-    <string name="ioap_version_default">v3.55</string>
+    <string name="ioap_version_default">v3.57</string>
 </resources> 
