@@ -21,6 +21,8 @@
 -keep class com.android.settings.crdroid.*
 -keep class com.android.settings.ioap.**
 -keep class com.android.settings.ioap.interfacesettings.**
+-keep class com.android.settings.nameless.**
+-keep class com.android.settings.nameless.interfacesettings.**
 
 # Keep click responders
 -keepclassmembers class com.android.settings.inputmethod.UserDictionaryAddWordActivity {

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <!-- IOAP version -->
     <string name="ioap_version">IOAP version</string>
-    <string name="ioap_version_default">v3.57</string>
+    <string name="ioap_version_default">v3.58</string>
+
+    <!-- On-The-Go -->
+    <string name="power_menu_onthego_title">On-The-Go Mode</string>
+    <string name="title_tile_onthego">On-The-Go</string>
+
 </resources> 
