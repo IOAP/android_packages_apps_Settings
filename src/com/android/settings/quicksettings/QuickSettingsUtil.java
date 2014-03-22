@@ -189,7 +189,7 @@ public class QuickSettingsUtil {
         }
     }
 
-    private static synchronized void removeUnsupportedTiles(Context context) {
+    protected static synchronized void removeUnsupportedTiles(Context context) {
         // Don't show mobile data options if not supported
         if (!QSUtils.deviceSupportsMobileData(context)) {
             removeTile(TILE_MOBILEDATA);
@@ -220,6 +220,7 @@ public class QuickSettingsUtil {
         // Don't show the Camera tile if the device has no cameras
         if (!QSUtils.deviceSupportsCamera()) {
             removeTile(TILE_CAMERA);
+            removeTile(TILE_ONTHEGO);
         }
 
         // Don't show the performance profiles tile if is not available for the device
