@@ -980,10 +980,6 @@
     <string name="toast_SlideLeftRight_animation">Slide Left To Right Animation</string>
     <string name="toast_SlideRightLeft_animation">Slide Right To Left Animation</string>
 
-    <!-- GPS Settings -->
-    <string name="ioap_gps_settings_title">GPS Optimizer</string>
-    <string name="ioap_gps_settings_summary">Modify gps.conf to specific country</string>
-
     <!-- Custom Recent Settings -->
     <string name="custom_recent_title">Enable Slim Recents</string>
     <string name="custom_recent_summary">Tick this box to switch between Slim/IOAP RecentApps</string>
