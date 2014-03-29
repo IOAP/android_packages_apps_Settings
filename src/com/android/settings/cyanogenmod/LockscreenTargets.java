@@ -563,5 +563,4 @@ public class LockscreenTargets extends Fragment implements
     @Override
     public void onTargetChange(View v, final int target) {
     }
-
 }

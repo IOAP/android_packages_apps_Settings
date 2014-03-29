@@ -90,7 +90,7 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         checkDisabledByPolicy(mEnableKeyguardWidgets,
                 DevicePolicyManager.KEYGUARD_DISABLE_WIDGETS_ALL);
 
-	// Lock before Unlock
+	    // Lock before Unlock
         mLockBeforeUnlock = (CheckBoxPreference) findPreference(LOCK_BEFORE_UNLOCK);
 
         // Enable or disable camera widget based on device and policy

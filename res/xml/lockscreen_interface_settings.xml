@@ -19,6 +19,16 @@
     android:title="@string/themes_settings_title" >
 
     <PreferenceCategory
+        android:title="@string/lockscreen_notifications" >
+
+        <PreferenceScreen
+            android:id="@+id/lockscreen_notifcation_settings"
+            android:fragment="com.android.settings.ioap.LockscreenNotifications"
+            android:title="@string/lockscreen_notifications" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/title_general"
         android:key="lockscreen_general_category" >
 
@@ -29,15 +39,6 @@
             android:summary="@string/screen_security_summary">
             <extra android:name="cm_security" android:value="true" />
         </PreferenceScreen>
-
-        <ListPreference
-            android:key="lockscreen_battery_status"
-            android:persistent="false"
-            android:dialogTitle="@string/lockscreen_battery_status_title"
-            android:title="@string/lockscreen_battery_status_title"
-            android:entries="@array/lockscreen_battery_status_entries"
-            android:entryValues="@array/lockscreen_battery_status_values"
-            android:defaultValue="0" />
 
         <Preference
             android:fragment="com.android.settings.cyanogenmod.LockscreenTargets"
@@ -57,6 +58,22 @@
             android:summary="@string/lockscreen_buttons_summary" />
 
     </PreferenceCategory>
+
+    <PreferenceScreen
+        android:fragment="com.android.settings.cyanogenmod.LockscreenButtons"
+        android:key="lockscreen_buttons"
+        android:title="@string/lockscreen_buttons_title"
+        android:summary="@string/lockscreen_buttons_summary" />
+
+    <ListPreference
+        android:key="lockscreen_battery_status"
+        android:persistent="false"
+        android:dialogTitle="@string/lockscreen_battery_status_title"
+        android:title="@string/lockscreen_battery_status_title"
+        android:entries="@array/lockscreen_battery_status_entries"
+        android:entryValues="@array/lockscreen_battery_status_values"
+        android:defaultValue="0" />
+
 
     <PreferenceCategory
         android:title="@string/lockscreen_widgets_category_title"
