@@ -285,12 +285,12 @@
             android:targetClass="eu.chainfire.supersu.MainActivity" />
     </header>
 
-    <!-- Performance -->
+    <!-- Performance Controls -->
     <header
-        android:id="@+id/performance_settings"
-        android:fragment="com.android.settings.cyanogenmod.PerformanceSettings"
+        android:id="@+id/performance_controls"
+        android:fragment="com.brewcrewfoo.performance.activities.MainActivity"
         android:icon="@drawable/ic_settings_performance"
-        android:title="@string/performance_settings_title" />
+        android:title="@string/performance_settings" />
 
     <!-- Development -->
     <header
