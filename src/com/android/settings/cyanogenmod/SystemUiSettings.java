@@ -139,7 +139,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment  implements
             Helpers.restartSystemUI();
             return true;
         }
-
         return false;
     }
 
