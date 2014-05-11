@@ -51,6 +51,10 @@
             android:fragment="com.android.settings.ioap.LockscreenStyle"
             android:title="@string/lockscreen_style_title"/>
 
+        <CheckBoxPreference
+            android:key="lockscreen_modlock_enabled"
+            android:title="@string/lockscreen_enable_modlock_title" />
+
     </PreferenceCategory>
 
     <PreferenceScreen
@@ -98,7 +102,7 @@
 
     </PreferenceCategory>
 
-<PreferenceCategory
+    <PreferenceCategory
         android:title="@string/lockscreen_glowpad_doubletap_gesture" >
 
     <CheckBoxPreference
@@ -112,6 +116,19 @@
         android:entryValues="@array/glowpad_doubletap_option_values"
         android:dependency="glowpad_doubletap"
         android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="lockscreen_background_category"
+        android:title="@string/lockscreen_background">
+
+        <Preference
+            android:key="lockscreen_wallpaper_settings"
+            android:title="@string/lockscreen_wallpaper_settings_title">
+            <intent android:targetPackage="com.android.wallpapercropper"
+                    android:targetClass="com.android.wallpapercropper.LockWallpaperPickerActivity" />
+        </Preference>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

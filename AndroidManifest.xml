@@ -232,8 +232,8 @@
                 android:resource="@id/wireless_settings" />
         </activity>
 
-	<!-- About IOAP -->
-	<activity android:name=".ioap.About" />
+	    <!-- About IOAP -->
+	        <activity android:name=".ioap.About" />
 
         <!-- Top-level settings -->
 
