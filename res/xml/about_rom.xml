@@ -5,7 +5,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:rb="http://schemas.android.com/apk/res/com.android.settings">
 
 <PreferenceScreen android:key="ioap_logo"
-                 android:layout="@layout/logo" />
+                 android:layout="@layout/ioap_logo" />
 
 	<PreferenceCategory
 	android:key="links"

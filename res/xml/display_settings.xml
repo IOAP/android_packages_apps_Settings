@@ -22,15 +22,31 @@
                 android:title="@string/brightness"
                 android:persistent="false"/>
 
-        <PreferenceScreen
-                android:key="wallpaper"
-                android:title="@string/wallpaper_settings_title"
-                android:fragment="com.android.settings.WallpaperTypeSettings" />
+        <CheckBoxPreference
+                android:key="status_bar_brightness_control"
+                android:title="@string/status_bar_toggle_brightness"
+                android:summary="@string/status_bar_toggle_brightness_summary"
+                android:defaultValue="false" />
 
         <PreferenceScreen
-            android:key="display_rotation"
-            android:fragment="com.android.settings.cyanogenmod.DisplayRotation"
-            android:title="@string/display_rotation_title" />
+                android:key="display_rotation"
+                android:fragment="com.android.settings.ioap.DisplayRotation"
+                android:title="@string/display_rotation_title" />
+
+        <PreferenceScreen
+            android:persistent="false"
+            android:key="screencolor_settings"
+            android:title="@string/screencolor">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetPackage="com.android.settings"
+                android:targetClass="com.android.settings.ScreenColorSettings" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+                android:key="screen_recorder"
+                android:title="@string/screen_recorder_title"
+                android:fragment="com.android.settings.chameleonos.ScreenRecorderSettings" />
 
         <ListPreference
                 android:key="screen_timeout"
@@ -78,19 +94,6 @@
             android:summary="@string/wake_when_plugged_or_unplugged_summary"
             android:defaultValue="false" />
 
-    <PreferenceCategory
-        android:key="category_animation_options"
-        android:title="@string/display_category_animation_options_title" >
-
-        <ListPreference
-            android:key="system_power_crt_mode"
-            android:dialogTitle="@string/system_power_crt_mode_dialog_title"
-            android:title="@string/system_power_crt_mode_title"
-            android:entries="@array/entries_system_power_crt_mode"
-            android:entryValues="@array/values_system_power_crt_mode" />
-
-    </PreferenceCategory>
-
         <CheckBoxPreference
             android:key="double_tap_wake_gesture"
             android:title="@string/double_tap_to_wake_title"
@@ -110,6 +113,21 @@
                 android:title="@string/battery_light_title"
                 android:fragment="com.android.settings.notificationlight.BatteryLightSettings" />
 
-     </PreferenceCategory>
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:key="warnings_prefs"
+            android:title="@string/warnings_title">
+
+            <!-- Low battery pop-up warning -->
+            <ListPreference
+                android:key="pref_low_battery_warning_policy"
+                android:title="@string/pref_low_battery_warning_policy_title"
+                android:dialogTitle="@string/pref_low_battery_warning_policy_dialog_title"
+                android:entries="@array/pref_low_battery_warning_policy_entries"
+                android:entryValues="@array/pref_low_battery_warning_policy_values"
+                android:defaultValue="0" />
+
+        </PreferenceCategory>
 
 </PreferenceScreen>

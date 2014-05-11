@@ -6,7 +6,8 @@
     <PreferenceCategory
         android:key="category_general"
         android:title="@string/general" >
-        <CheckBoxPreference
+
+        <SwitchPreference
             android:key="lockscreen_notifications"
             android:title="@string/lockscreen_notifications"
             android:summary="@string/lockscreen_notifications_summary"
@@ -57,6 +58,7 @@
 
     </PreferenceCategory>
     <PreferenceCategory
+        android:key="category_layout"
         android:title="@string/layout" >
 
             <SeekBarPreference

@@ -34,7 +34,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.preference.PreferenceCategory;
 import android.text.InputFilter;
 import android.text.InputFilter.LengthFilter;
 import android.util.Log;
@@ -46,9 +45,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.telephony.TelephonyManager;
-import android.hardware.SensorManager;
-import android.hardware.Sensor;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -67,16 +63,14 @@ public class PropModder extends PreferenceFragment implements
     private static final String TAG = "PropModder";
     private static final String APPEND_CMD = "echo \"%s=%s\" >> /system/build.prop";
     private static final String KILL_PROP_CMD = "busybox sed -i \"/%s/D\" /system/build.prop";
-    private static final String REPLACE_CMD = "busybox sed -i \"/%s/ c %<s=%s\" /system/build.prop";
+    private static final String REPLACE_CMD = "busybox sed -i \"/%s/ c %s=%s\" /system/build.prop";
     private static final String LOGCAT_CMD = "busybox sed -i \"/log/ c %s\" /system/etc/init.d/72propmodder_script";
     private static final String FIND_CMD = "grep -q \"%s\" /system/build.prop";
-    private static final String REMOUNT_CMD = "busybox mount -o %s,remount -t yaffs2 /dev/block/mtdblock1 /system";
+    private static final String REMOUNT_CMD = "mount -o remount,%s /system";
     private static final String PROP_EXISTS_CMD = "grep -q %s /system/build.prop";
     private static final String DISABLE = "disable";
-    private static final String SHOWBUILD_PATH = "/system/tmp/showbuild";
-    private static final String INIT_SCRIPT_TEMP_PATH = "/system/tmp/init_script";
-    private static final String GENERAL_CAT = "general_category";
-    private static final String SWITCHES_CAT = "switches_category";
+    private static final String SHOWBUILD_PATH = "/cache/showbuild";
+    private static final String INIT_SCRIPT_TEMP_PATH = "/cache/init_script";
     private static final String WIFI_SCAN_PREF = "pref_wifi_scan_interval";
     private static final String WIFI_SCAN_PROP = "wifi.supplicant_scan_interval";
     private static final String WIFI_SCAN_PERSIST_PROP = "persist.wifi_scan_interval";
@@ -152,8 +146,6 @@ public class PropModder extends PreferenceFragment implements
     private final int MENU_REBOOT = 2;
     private int NOTE_ID;
 
-    private PreferenceCategory mGeneralCat;
-    private PreferenceCategory mSwitchesCat;
     private ListPreference mWifiScanPref;
     private ListPreference mMaxEventsPref;
     private ListPreference mRingDelayPref;
@@ -169,7 +161,7 @@ public class PropModder extends PreferenceFragment implements
     private AlertDialog mAlertDialog;
     private NotificationManager mNotificationManager;
 
-    private File tmpDir = new File("/system/tmp");
+    private File tmpDir = new File("/cache");
     private File init_d = new File("/system/etc/init.d");
 
     //handler for command processor
@@ -182,17 +174,6 @@ public class PropModder extends PreferenceFragment implements
 
         addPreferencesFromResource(R.xml.propmodder);
         prefSet = getPreferenceScreen();
-        
-        TelephonyManager tm = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-        
-        SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        
-        boolean isPhone = tm.getPhoneType() != TelephonyManager.PHONE_TYPE_NONE;
-        
-        boolean hasProximity = !sm.getSensorList(Sensor.TYPE_PROXIMITY).isEmpty();
-        
-        mGeneralCat = (PreferenceCategory) prefSet.findPreference(GENERAL_CAT);
-        mSwitchesCat = (PreferenceCategory) prefSet.findPreference(SWITCHES_CAT);
 
         mWifiScanPref = (ListPreference) prefSet.findPreference(WIFI_SCAN_PREF);
         mWifiScanPref.setOnPreferenceChangeListener(this);
@@ -200,37 +181,17 @@ public class PropModder extends PreferenceFragment implements
         mMaxEventsPref = (ListPreference) prefSet.findPreference(MAX_EVENTS_PREF);
         mMaxEventsPref.setOnPreferenceChangeListener(this);
 
-		//Don't show ringer options if we are not a phone.
         mRingDelayPref = (ListPreference) prefSet.findPreference(RING_DELAY_PREF);
-        if(isPhone){
-			mRingDelayPref.setOnPreferenceChangeListener(this);
-		}
-		else {
-			mRingDelayPref.setEnabled(false);
-			mGeneralCat.removePreference(mRingDelayPref);
-		}
+        mRingDelayPref.setOnPreferenceChangeListener(this);
 
         mVmHeapsizePref = (ListPreference) prefSet.findPreference(VM_HEAPSIZE_PREF);
         mVmHeapsizePref.setOnPreferenceChangeListener(this);
 
-		//Don't show HSPA+ options if we are not a phone.
         mFastUpPref = (ListPreference) prefSet.findPreference(FAST_UP_PREF);
-		if(isPhone){
-			mFastUpPref.setOnPreferenceChangeListener(this);
-		}
-		else{
-			mFastUpPref.setEnabled(false);
-			mGeneralCat.removePreference(mFastUpPref);
-		}
-        // Don't show proximity options if we don't have a proximity sensor
+        mFastUpPref.setOnPreferenceChangeListener(this);
+
         mProxDelayPref = (ListPreference) prefSet.findPreference(PROX_DELAY_PREF);
-		if(hasProximity){
-			mProxDelayPref.setOnPreferenceChangeListener(this);
-		}
-		else{
-			mProxDelayPref.setEnabled(false);
-			mGeneralCat.removePreference(mProxDelayPref);
-		}
+        mProxDelayPref.setOnPreferenceChangeListener(this);
 
         mSleepPref = (ListPreference) prefSet.findPreference(SLEEP_PREF);
         mSleepPref.setOnPreferenceChangeListener(this);
@@ -254,12 +215,7 @@ public class PropModder extends PreferenceFragment implements
         Log.d(TAG, String.format("ModPrefHoler = '%s' found build number = '%s'", ModPrefHolder, mod));
         mModVersionPref.setOnPreferenceChangeListener(this);
 
-        //Don't show 3g options if we are not a phone.
-        m3gSpeedPref = (CheckBoxPreference) prefSet.findPreference(THREE_G_PREF);  
-        if(!isPhone){
-			m3gSpeedPref.setEnabled(false);
-            mSwitchesCat.removePreference(m3gSpeedPref);
-		}
+        m3gSpeedPref = (CheckBoxPreference) prefSet.findPreference(THREE_G_PREF);
 
         mGpuPref = (CheckBoxPreference) prefSet.findPreference(GPU_PREF);
 
@@ -291,7 +247,7 @@ public class PropModder extends PreferenceFragment implements
         } else if (preference == mJitPref) {
             Log.d(TAG, "mJitPref.onPreferenceTreeClick()");
             value = mJitPref.isChecked();
-            return doMod(JIT_PERSIST_PROP, JIT_PROP, String.valueOf(value ? "int:fast" : "int:jit"));
+            return doMod(JIT_PERSIST_PROP, JIT_PROP, String.valueOf(value ? "int:jit" : "int:fast" ));
         } else if (preference == m3gSpeedPref) {
             value = m3gSpeedPref.isChecked();
             return doMod(THREE_G_PERSIST_PROP, THREE_G_PROP_0, String.valueOf(value ? 1 : DISABLE))
@@ -355,7 +311,7 @@ public class PropModder extends PreferenceFragment implements
         if (!mount("rw")) {
             throw new RuntimeException("Could not remount /system rw");
         }
-        boolean success = false;
+        boolean success = true;
         try {
             if (!propExists(key) && value.equals(DISABLE)) {
                 Log.d(TAG, String.format("We want {%s} DISABLED however it doesn't exist so we do nothing and move on", key));
@@ -365,13 +321,13 @@ public class PropModder extends PreferenceFragment implements
                     success = cmd.su.runWaitFor(String.format(KILL_PROP_CMD, key)).success();
                 } else {
                     Log.d(TAG, String.format("value != %s", DISABLE));
-                    success = cmd.su.runWaitFor(String.format(REPLACE_CMD, key, value)).success();
+                    success = cmd.su.runWaitFor(String.format(REPLACE_CMD, key, key, value)).success();
                 }
             } else {
                 Log.d(TAG, "append command starting");
                 success = cmd.su.runWaitFor(String.format(APPEND_CMD, key, value)).success();
             }
-            if (!success) {
+            if (success) {
                 restoreBuildProp();
             } else {
                 updateScreen();
@@ -394,7 +350,7 @@ public class PropModder extends PreferenceFragment implements
     }
 
     public void updateShowBuild() {
-        Log.d(TAG, "Setting up /system/tmp/showbuild");
+        Log.d(TAG, "Setting up /cache/showbuild");
         try {
             mount("rw");
             cmd.su.runWaitFor("cp -f /system/build.prop " + SHOWBUILD_PATH).success();
@@ -405,13 +361,13 @@ public class PropModder extends PreferenceFragment implements
     }
 
     public boolean backupBuildProp() {
-        Log.d(TAG, "Backing up build.prop to /system/tmp/pm_build.prop");
-        return cmd.su.runWaitFor("cp /system/build.prop /system/tmp/pm_build.prop").success();
+        Log.d(TAG, "Backing up build.prop to /cache/pm_build.prop");
+        return cmd.su.runWaitFor("cp /system/build.prop /cache/pm_build.prop").success();
     }
 
     public boolean restoreBuildProp() {
-        Log.d(TAG, "Restoring build.prop from /system/tmp/pm_build.prop");
-        return cmd.su.runWaitFor("cp /system/tmp/pm_build.prop /system/build.prop").success();
+        Log.d(TAG, "Restoring build.prop from /cache/pm_build.prop");
+        return cmd.su.runWaitFor("cp /cache/pm_build.prop /cache/build.prop").success();
     }
 
     public void updateScreen() {

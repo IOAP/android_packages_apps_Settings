@@ -43,10 +43,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
-* A preference that lists installed applications, with icons, as a multi choice list.
-*
-* @author Clark Scheff
-*/
+ * A preference that lists installed applications, with icons, as a multi choice list.
+ *
+ * @author Clark Scheff
+ */
 public class AppMultiSelectListPreference extends DialogPreference {
     private final List<MyApplicationInfo> mPackageInfoList = new ArrayList<MyApplicationInfo>();
     private CharSequence[] mEntries;
@@ -88,12 +88,12 @@ public class AppMultiSelectListPreference extends DialogPreference {
         entryValues.toArray(mEntryValues);
     }
 
-    /**
-* Sets the value of the key. This should contain entries in
-* {@link #getEntryValues()}.
-*
-* @param values The values to set for the key.
-*/
+/**
+ * Sets the value of the key. This should contain entries in
+ * {@link #getEntryValues()}.
+ *
+ * @param values The values to set for the key.
+ */
     public void setValues(Set<String> values) {
         mValues.clear();
         mValues.addAll(values);
@@ -101,19 +101,19 @@ public class AppMultiSelectListPreference extends DialogPreference {
         persistStringSet(values);
     }
 
-    /**
-* Retrieves the current value of the key.
-*/
+/**
+ * Retrieves the current value of the key.
+ */
     public Set<String> getValues() {
         return mValues;
     }
 
-    /**
-* Returns the index of the given value (in the entry values array).
-*
-* @param value The value whose index should be returned.
-* @return The index of the value, or -1 if not found.
-*/
+/**
+ * Returns the index of the given value (in the entry values array).
+ *
+ * @param value The value whose index should be returned.
+ * @return The index of the value, or -1 if not found.
+ */
     public int findIndexOfValue(String value) {
         if (value != null && mEntryValues != null) {
             for (int i = mEntryValues.length - 1; i >= 0; i--) {
@@ -134,7 +134,8 @@ public class AppMultiSelectListPreference extends DialogPreference {
     }
 
     @Override
-    protected void showDialog(Bundle state) {
+
+   protected void showDialog(Bundle state) {
         super.showDialog(state);
         final AlertDialog dialog = (AlertDialog) getDialog();
         final ListView listView = dialog.getListView();
@@ -147,7 +148,7 @@ public class AppMultiSelectListPreference extends DialogPreference {
                 final boolean isChecked = !holder.checkBox.isChecked();
                 holder.checkBox.setChecked(isChecked);
                 if (isChecked) {
-                    mPreferenceChanged |= mNewValues.add(mEntryValues[position].toString());
+                   mPreferenceChanged |= mNewValues.add(mEntryValues[position].toString());
                 } else {
                     mPreferenceChanged |= mNewValues.remove(mEntryValues[position].toString());
                 }
@@ -192,10 +193,10 @@ public class AppMultiSelectListPreference extends DialogPreference {
     }
 
     public class AppListAdapter extends ArrayAdapter<MyApplicationInfo> {
-        private final LayoutInflater mInflater;
+       private final LayoutInflater mInflater;
 
         public AppListAdapter(Context context) {
-            super(context, 0);
+           super(context, 0);
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             addAll(mPackageInfoList);
         }
@@ -231,7 +232,7 @@ public class AppMultiSelectListPreference extends DialogPreference {
 
         public static AppViewHolder createOrRecycle(LayoutInflater inflater, View convertView) {
             if (convertView == null) {
-                convertView = inflater.inflate(R.layout.ad_excluded_app_item, null);
+                convertView = inflater.inflate(R.layout.ln_excluded_app_item, null);
 
                 // Creates a ViewHolder and store references to the two children views
                 // we want to bind data to.
@@ -241,22 +242,22 @@ public class AppMultiSelectListPreference extends DialogPreference {
                 holder.appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
                 holder.checkBox = (CheckBox) convertView.findViewById(android.R.id.checkbox);
                 convertView.setTag(holder);
-                return holder;
-            } else {
+               return holder;
+           } else {
                 // Get the ViewHolder back to get fast access to the TextView
-                // and the ImageView.
+               // and the ImageView.
                 return (AppViewHolder)convertView.getTag();
-            }
+           }
         }
     }
 
     private final static Comparator<MyApplicationInfo> sDisplayNameComparator
             = new Comparator<MyApplicationInfo>() {
-        public final int
+       public final int
         compare(MyApplicationInfo a, MyApplicationInfo b) {
-            return collator.compare(a.label, b.label);
+           return collator.compare(a.label, b.label);
         }
 
-        private final Collator collator = Collator.getInstance();
+       private final Collator collator = Collator.getInstance();
     };
 }

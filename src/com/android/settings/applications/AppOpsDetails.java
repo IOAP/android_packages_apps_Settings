@@ -17,12 +17,9 @@
 package com.android.settings.applications;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.AppOpsManager;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -36,11 +33,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.android.settings.R;
@@ -61,36 +57,6 @@ public class AppOpsDetails extends Fragment {
     private View mRootView;
     private TextView mAppVersion;
     private LinearLayout mOperationsSection;
-
-    private final int MODE_ALLOWED = 0;
-    private final int MODE_IGNORED = 1;
-    private final int MODE_ASK     = 2;
-
-    private int modeToPosition(int mode) {
-        switch (mode) {
-        case AppOpsManager.MODE_ALLOWED:
-            return MODE_ALLOWED;
-        case AppOpsManager.MODE_IGNORED:
-            return MODE_IGNORED;
-        case AppOpsManager.MODE_ASK:
-            return MODE_ASK;
-        };
-
-        return MODE_IGNORED;
-    }
-
-    private int positionToMode(int position) {
-        switch (position) {
-        case MODE_ALLOWED:
-            return AppOpsManager.MODE_ALLOWED;
-        case MODE_IGNORED:
-            return AppOpsManager.MODE_IGNORED;
-        case MODE_ASK:
-            return AppOpsManager.MODE_ASK;
-        };
-
-        return AppOpsManager.MODE_IGNORED;
-    }
 
     // Utility method to set application label and icon.
     private void setAppLabelAndIcon(PackageInfo pkgInfo) {
@@ -133,19 +99,6 @@ public class AppOpsDetails extends Fragment {
             mPackageInfo = null;
         }
 
-        if (packageName != null && packageName.equals("android")) {
-            final Resources r = getActivity().getResources();
-
-            new AlertDialog.Builder(getActivity()).setTitle(r.getString(R.string.appops_sysapp_beware))
-                .setMessage(r.getString(R.string.appops_sysapp_warning))
-                .setPositiveButton(r.getString(R.string.dlg_ok), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-        }
-
         return packageName;
     }
 
@@ -185,31 +138,18 @@ public class AppOpsDetails extends Fragment {
                 }
                 ((TextView)view.findViewById(R.id.op_name)).setText(
                         entry.getSwitchText(mState));
-                ((TextView)view.findViewById(R.id.op_counts)).setText(
-                        entry.getCountsText(res));
                 ((TextView)view.findViewById(R.id.op_time)).setText(
                         entry.getTimeText(res, true));
-                Spinner sw = (Spinner)view.findViewById(R.id.spinnerWidget);
+                Switch sw = (Switch)view.findViewById(R.id.switchWidget);
                 final int switchOp = AppOpsManager.opToSwitch(firstOp.getOp());
-                int mode = mAppOps.checkOp(switchOp, entry.getPackageOps().getUid(),
-                        entry.getPackageOps().getPackageName());
-                sw.setSelection(modeToPosition(mode));
-                sw.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-                    boolean firstMode = true;
-
+                sw.setChecked(mAppOps.checkOp(switchOp, entry.getPackageOps().getUid(),
+                        entry.getPackageOps().getPackageName()) == AppOpsManager.MODE_ALLOWED);
+                sw.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
                     @Override
-                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                        if(firstMode) {
-                            firstMode = false;
-                            return;
-                         }
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         mAppOps.setMode(switchOp, entry.getPackageOps().getUid(),
-                                entry.getPackageOps().getPackageName(), positionToMode(position));
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parentView) {
-                        // Do nothing
+                                entry.getPackageOps().getPackageName(), isChecked
+                                ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
                     }
                 });
             }

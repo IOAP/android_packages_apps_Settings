@@ -27,16 +27,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcel;
-import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,7 +40,6 @@ import android.view.MenuItem;
 import com.android.internal.os.PowerProfile;
 import com.android.settings.HelpUtils;
 import com.android.settings.R;
-import com.android.settings.widget.PowerSaverPreference;
 
 import java.util.List;
 
@@ -53,8 +47,7 @@ import java.util.List;
  * Displays a list of apps and subsystems that consume power, ordered by how much power was
  * consumed since the last time it was unplugged.
  */
-public class PowerUsageSummary extends PreferenceFragment implements
-        Preference.OnPreferenceChangeListener {
+public class PowerUsageSummary extends PreferenceFragment {
 
     private static final boolean DEBUG = false;
 
@@ -62,11 +55,6 @@ public class PowerUsageSummary extends PreferenceFragment implements
 
     private static final String KEY_APP_LIST = "app_list";
     private static final String KEY_BATTERY_STATUS = "battery_status";
-    private static final String KEY_POWER_SAVER = "power_saver";
-    private static final String KEY_LOW_BATTERY_WARNING_POLICY = "pref_low_battery_warning_policy";
-    private static final String KEY_BATTERY_PREFS_CATEGORY = "battery_prefs";
-    private static final String KEY_BATTERY_STATS_CATEGORY = "battery_stats";
-    private static final String KEY_SCREEN_ON_NOTIFICATION_LED = "screen_on_notification_led";
 
     private static final int MENU_STATS_TYPE = Menu.FIRST;
     private static final int MENU_STATS_REFRESH = Menu.FIRST + 1;
@@ -75,11 +63,6 @@ public class PowerUsageSummary extends PreferenceFragment implements
 
     private PreferenceGroup mAppListGroup;
     private Preference mBatteryStatusPref;
-    private PowerSaverPreference mPowerSaverPref;
-    private ListPreference mLowBatteryWarning;
-    private PreferenceCategory mBatteryPrefsCat;
-    private PreferenceCategory mBatteryStatsCat;
-    private CheckBoxPreference mScreenOnNotificationLed;
 
     private int mStatsType = BatteryStats.STATS_SINCE_CHARGED;
 
@@ -122,29 +105,7 @@ public class PowerUsageSummary extends PreferenceFragment implements
         addPreferencesFromResource(R.xml.power_usage_summary);
         mAppListGroup = (PreferenceGroup) findPreference(KEY_APP_LIST);
         mBatteryStatusPref = mAppListGroup.findPreference(KEY_BATTERY_STATUS);
-        mPowerSaverPref = (PowerSaverPreference) mAppListGroup.findPreference(KEY_POWER_SAVER);
-
-	mBatteryPrefsCat =
-            (PreferenceCategory) mAppListGroup.findPreference(KEY_BATTERY_PREFS_CATEGORY);
-        mBatteryStatsCat =
-            (PreferenceCategory) mAppListGroup.findPreference(KEY_BATTERY_STATS_CATEGORY);
-
-        mLowBatteryWarning =
-            (ListPreference) mAppListGroup.findPreference(KEY_LOW_BATTERY_WARNING_POLICY);
-        int lowBatteryWarning = Settings.System.getInt(getActivity().getContentResolver(),
-                                    Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY, 0);
-        mLowBatteryWarning.setValue(String.valueOf(lowBatteryWarning));
-        mLowBatteryWarning.setSummary(mLowBatteryWarning.getEntry());
-        mLowBatteryWarning.setOnPreferenceChangeListener(this);
-	
         setHasOptionsMenu(true);
-
-        // Notification light when screen is on
-        int statusScreenOnNotificationLed = Settings.System.getInt(getActivity().getContentResolver(),
-                Settings.System.SCREEN_ON_NOTIFICATION_LED, 1);
-        mScreenOnNotificationLed = (CheckBoxPreference) findPreference(KEY_SCREEN_ON_NOTIFICATION_LED);
-        mScreenOnNotificationLed.setChecked(Settings.System.getInt(getActivity().getContentResolver(),
-                Settings.System.SCREEN_ON_NOTIFICATION_LED, 0) == 1);
     }
 
     @Override
@@ -189,9 +150,6 @@ public class PowerUsageSummary extends PreferenceFragment implements
                     R.string.history_details_title, null, null, 0);
             return super.onPreferenceTreeClick(preferenceScreen, preference);
         }
-        if (preference instanceof PowerSaverPreference) {
-            return super.onPreferenceTreeClick(preferenceScreen, preference);
-        }
         if (!(preference instanceof PowerGaugePreference)) {
             return false;
         }
@@ -199,25 +157,6 @@ public class PowerUsageSummary extends PreferenceFragment implements
         BatterySipper sipper = pgp.getInfo();
         mStatsHelper.startBatteryDetailPage((PreferenceActivity) getActivity(), sipper, true);
         return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
-
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (preference == mLowBatteryWarning) {
-            int lowBatteryWarning = Integer.valueOf((String) newValue);
-            int index = mLowBatteryWarning.findIndexOfValue((String) newValue);
-            Settings.System.putInt(getActivity().getContentResolver(),
-                    Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY,
-                    lowBatteryWarning);
-            mLowBatteryWarning.setSummary(mLowBatteryWarning.getEntries()[index]);
-            return true;
-
-        }else if (preference == mScreenOnNotificationLed) {
-            Settings.System.putInt(getActivity().getContentResolver(),
-                    Settings.System.SCREEN_ON_NOTIFICATION_LED,
-                    mScreenOnNotificationLed.isChecked() ? 1 : 0);
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -228,7 +167,7 @@ public class PowerUsageSummary extends PreferenceFragment implements
                     .setAlphabeticShortcut('t');
         }
         MenuItem refresh = menu.add(0, MENU_STATS_REFRESH, 0, R.string.menu_stats_refresh)
-                .setIcon(R.drawable.ic_menu_refresh_holo_dark)
+                .setIcon(R.drawable.ic_action_refresh)
                 .setAlphabeticShortcut('r');
         refresh.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM |
                 MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -280,15 +219,6 @@ public class PowerUsageSummary extends PreferenceFragment implements
         mAppListGroup.removeAll();
         mAppListGroup.setOrderingAsAdded(false);
 
-	mBatteryPrefsCat.setOrder(-5);
-        mAppListGroup.addPreference(mBatteryPrefsCat);
-        mLowBatteryWarning.setOrder(-4);
-        mAppListGroup.addPreference(mLowBatteryWarning);
-        mBatteryStatsCat.setOrder(-3);
-        mAppListGroup.addPreference(mBatteryStatsCat);
-
-        mAppListGroup.addPreference(mPowerSaverPref);
-        mPowerSaverPref.setOrder(-3);
         mBatteryStatusPref.setOrder(-2);
         mAppListGroup.addPreference(mBatteryStatusPref);
         BatteryHistoryPreference hist = new BatteryHistoryPreference(

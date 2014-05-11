@@ -32,6 +32,7 @@ import android.provider.Settings;
 
 import com.android.internal.widget.LockPatternUtils;
 import com.android.settings.ChooseLockSettingsHelper;
+import com.android.internal.util.slim.DeviceUtils;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
@@ -46,12 +47,14 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     private static final String KEY_ENABLE_WIDGETS = "keyguard_enable_widgets";
     private static final String KEY_LOCK_CLOCK = "lock_clock";
     private static final String KEY_ENABLE_CAMERA = "keyguard_enable_camera";
-    private static final String LOCK_BEFORE_UNLOCK = "lock_before_unlock";
+    private static final String KEY_LOCKSCREEN_GLOWPAD_DOUBLETAP = "glowpad_doubletap_option";
+    private static final String KEY_LOCKSCREEN_GLOWPAD = "glowpad_doubletap";
 
     private ListPreference mBatteryStatus;
     private CheckBoxPreference mEnableKeyguardWidgets;
     private CheckBoxPreference mEnableCameraWidget;
-    private CheckBoxPreference mLockBeforeUnlock;
+    private ListPreference mGlowpadOption;
+    private CheckBoxPreference mGlowpadDoubletap;
 
     private ChooseLockSettingsHelper mChooseLockSettingsHelper;
     private LockPatternUtils mLockUtils;
@@ -81,6 +84,14 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             mBatteryStatus.setOnPreferenceChangeListener(this);
         }
 
+         mGlowpadDoubletap = (CheckBoxPreference)findPreference(KEY_LOCKSCREEN_GLOWPAD);
+         mGlowpadDoubletap.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.DOUBLE_TAP_GLOWPAD_GESTURE, 0) == 1);
+         mGlowpadOption = (ListPreference)findPreference(KEY_LOCKSCREEN_GLOWPAD_DOUBLETAP);
+         int CurrentGlowpadOption = Settings.System.getInt(getContentResolver(), Settings.System.LOCKSCREEN_GLOWPAD_DOUBLETAP_OPTION, 0);
+         mGlowpadOption.setSummary(mGlowpadOption.getEntries()[CurrentGlowpadOption]);
+         mGlowpadOption.setValueIndex(CurrentGlowpadOption);
+         mGlowpadOption.setOnPreferenceChangeListener(this);
+
         // Remove lockscreen button actions if device doesn't have hardware keys
         if (!hasButtons()) {
             generalCategory.removePreference(findPreference(KEY_LOCKSCREEN_BUTTONS));
@@ -90,20 +101,18 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         checkDisabledByPolicy(mEnableKeyguardWidgets,
                 DevicePolicyManager.KEYGUARD_DISABLE_WIDGETS_ALL);
 
-	    // Lock before Unlock
-        mLockBeforeUnlock = (CheckBoxPreference) findPreference(LOCK_BEFORE_UNLOCK);
-
         // Enable or disable camera widget based on device and policy
         if (Camera.getNumberOfCameras() == 0) {
             widgetsCategory.removePreference(mEnableCameraWidget);
             mEnableCameraWidget = null;
+            mLockUtils.setCameraEnabled(false);
         } else if (mLockUtils.isSecure()) {
             checkDisabledByPolicy(mEnableCameraWidget,
                     DevicePolicyManager.KEYGUARD_DISABLE_SECURE_CAMERA);
         }
 
         // Remove cLock settings item if not installed
-        if (!isPackageInstalled("com.cyanogenmod.lockclock")) {
+        if (!Utils.isPackageInstalled(getActivity(), "com.cyanogenmod.lockclock")) {
             widgetsCategory.removePreference(findPreference(KEY_LOCK_CLOCK));
         }
 
@@ -147,9 +156,11 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         } else if (KEY_ENABLE_CAMERA.equals(key)) {
             mLockUtils.setCameraEnabled(mEnableCameraWidget.isChecked());
             return true;
-        } else if (preference == mLockBeforeUnlock) {
-            Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCK_BEFORE_UNLOCK,
-                    mLockBeforeUnlock.isChecked() ? 1 : 0);
+        } else if (KEY_LOCKSCREEN_GLOWPAD.equals(key)) {
+            boolean value = mGlowpadDoubletap.isChecked();
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.DOUBLE_TAP_GLOWPAD_GESTURE, value ? 1 : 0);
+            return true;
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -165,8 +176,12 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             Settings.System.putInt(cr, Settings.System.LOCKSCREEN_BATTERY_VISIBILITY, value);
             mBatteryStatus.setSummary(mBatteryStatus.getEntries()[index]);
             return true;
+        } else if (preference == mGlowpadOption) {
+            int index = mGlowpadOption.findIndexOfValue((String) objValue);
+            Settings.System.putString(cr, Settings.System.LOCKSCREEN_GLOWPAD_DOUBLETAP_OPTION, (String) objValue);
+            mGlowpadOption.setSummary(mGlowpadOption.getEntries()[index]);
+            return true;
         }
-
         return false;
     }
 

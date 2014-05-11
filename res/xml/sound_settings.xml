@@ -28,11 +28,6 @@
             android:title="@string/all_volume_title"
             android:persistent="false"
             android:streamType="ring" />
-            
-    <PreferenceScreen
-        android:key="volume_steps_settings"
-        android:fragment="com.android.settings.du.VolumeSteps"
-        android:title="@string/volume_steps_title" />
 
     <ListPreference
             android:key="ring_mode"
@@ -46,20 +41,16 @@
             android:entries="@array/volume_overlay_entries"
             android:entryValues="@array/volume_overlay_values" />
 
-
-    <com.android.settings.crdroid.SeekBarPreferenceChOS
-            android:key="volume_panel_timeout"
-            android:title="@string/volume_panel_timeout_title"
-            android:summary="@string/volume_panel_timeout_summary"
-            android:max="10"
-            settings:min="1"
-            settings:unitsLeft=""
-            settings:unitsRight="sec"
-            android:persistent="false" />
-
     <PreferenceCategory
             android:key="category_automation_effects"
             android:title="@string/automation_effects_title"/>
+
+    <!-- Volume steps -->
+    <PreferenceScreen
+            android:key="volume_steps"
+            android:fragment="com.android.settings.ioap.VolumeSteps"
+            android:summary="@string/volume_steps_summary"
+            android:title="@string/volume_steps_title" />
 
     <!-- Quiet hours -->
     <PreferenceScreen
@@ -77,6 +68,7 @@
             android:title="@string/sound_category_call_ringtone_vibrate_title"/>
 
     <!-- Do not nest these, or removals in code will break -->
+
     <com.android.settings.DefaultRingtonePreference
             android:key="ringtone"
             android:title="@string/ringtone_title"
@@ -94,11 +86,6 @@
             android:dialogTitle="@string/increasing_ring_title"
             android:persistent="false"
             android:streamType="ring" />
-
-    <PreferenceScreen
-            android:key="sound_packages"
-            android:fragment="com.android.settings.ioap.sounds.SoundPackageSettings"
-            android:title="@string/sound_packages_title" />
 
     <PreferenceCategory
             android:title="@string/volume_notification_description"/>
@@ -122,17 +109,15 @@
             android:summary="@string/notification_vibrate_during_calls_summary"
             android:defaultValue="false" />
 
-    <ListPreference
-            android:key="camera_click_sound"
-            android:title="@string/camera_sounds_title"
-            android:entries="@array/camera_sounds_entries"
-            android:entryValues="@array/camera_sounds_values" 
-            android:defaultValue="1" />
-
     <PreferenceCategory
             android:title="@string/sound_category_system_title"/>
 
     <!-- Do not nest these, or removals in code will break -->
+
+    <PreferenceScreen
+            android:key="sound_packages"
+            android:fragment="com.android.settings.omni.sounds.SoundPackageSettings"
+            android:title="@string/sound_packages_title" />
 
     <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
             android:key="dtmf_tone"
@@ -152,6 +137,12 @@
     <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
             android:key="haptic_feedback_enabled"
             android:title="@string/haptic_feedback_enable_title"
+            android:defaultValue="true" />
+    
+    <CheckBoxPreference
+            android:key="camera_sounds"
+            android:title="@string/camera_sounds_title"
+            android:summary="@string/camera_sounds_summary"
             android:defaultValue="true" />
 
     <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference

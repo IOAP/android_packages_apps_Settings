@@ -28,7 +28,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -52,8 +51,10 @@ public class SettingsPreferenceFragment extends PreferenceFragment implements Di
 
     private String mHelpUrl;
 
-    //Needed for Lockscreen Notifications
     protected Context mContext;
+
+    // Need to use AOKP Custom system animation
+    protected ContentResolver mContentRes;
 
     // Cache the content resolver for async callbacks
     private ContentResolver mContentResolver;
@@ -62,7 +63,10 @@ public class SettingsPreferenceFragment extends PreferenceFragment implements Di
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-	mContext = getActivity().getApplicationContext();
+        mContext = getActivity().getApplicationContext();
+
+        // Need to use AOKP Custom system animation
+        mContentRes = getActivity().getContentResolver();
 
         // Prepare help url and enable menu if necessary
         int helpResource = getHelpResource();
@@ -341,11 +345,8 @@ public class SettingsPreferenceFragment extends PreferenceFragment implements Di
         return true;
     }
 
-    protected boolean isCheckBoxPrefernceChecked(Preference p) {
-        if(p instanceof CheckBoxPreference) {
-            return ((CheckBoxPreference) p).isChecked();
-        } else {
-            return false;
-        }
+    // Need to AOKP Custom system animation
+    public void setTitle(int resId) {
+        getActivity().setTitle(resId);
     }
 }

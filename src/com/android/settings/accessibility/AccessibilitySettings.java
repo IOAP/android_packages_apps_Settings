@@ -581,6 +581,7 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
             mGlobalGesturePreferenceScreen.setSummary(
                     R.string.accessibility_global_gesture_preference_summary_off);
         }
+
     }
 
     private void updateLockScreenRotationCheckbox() {

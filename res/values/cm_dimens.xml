@@ -15,6 +15,7 @@
      limitations under the License.
 -->
 <resources>
+
     <!-- Height of a normal list item in edit playlist mode -->
     <dimen name="normal_height">64dip</dimen>
     <!-- Height of an expanded list item in edit playlist mode -->

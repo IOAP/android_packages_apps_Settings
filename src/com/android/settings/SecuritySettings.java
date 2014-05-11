@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2012-2013 The Linux Foundation. All rights reserved.
- * Not a Contribution.
  * Copyright (C) 2007 The Android Open Source Project
  * Modifications Copyright (C) 2012-2013 CyanogenMod
  *
@@ -25,6 +23,8 @@ import static android.provider.Settings.System.SCREEN_OFF_TIMEOUT;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.admin.DevicePolicyManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -45,11 +45,11 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.security.KeyStore;
-import android.telephony.MSimTelephonyManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.util.slim.DeviceUtils;
 import com.android.settings.R;
 import com.android.settings.cyanogenmod.ButtonSettings;
 
@@ -70,21 +70,28 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private static final String KEY_BIOMETRIC_WEAK_LIVELINESS = "biometric_weak_liveliness";
     private static final String KEY_LOCK_ENABLED = "lockenabled";
     private static final String KEY_VISIBLE_PATTERN = "visiblepattern";
+    private static final String KEY_VISIBLE_GESTURE = "visiblegesture";
     private static final String KEY_VISIBLE_ERROR_PATTERN = "visible_error_pattern";
     private static final String KEY_VISIBLE_DOTS = "visibledots";
     private static final String KEY_SECURITY_CATEGORY = "security_category";
     private static final String KEY_DEVICE_ADMIN_CATEGORY = "device_admin_category";
     private static final String KEY_LOCK_AFTER_TIMEOUT = "lock_after_timeout";
     private static final String KEY_OWNER_INFO_SETTINGS = "owner_info_settings";
+    private static final String LOCK_NUMPAD_RANDOM = "lock_numpad_random";
+    private static final String KEY_INTERFACE_SETTINGS = "lock_screen_settings";
+    private static final String KEY_TARGET_SETTINGS = "lockscreen_targets";
+    private static final String KEY_SHAKE_TO_SECURE = "shake_to_secure";
+    private static final String KEY_SHAKE_AUTO_TIMEOUT = "shake_auto_timeout";
+    private static final String LOCK_BEFORE_UNLOCK = "lock_before_unlock";
     private static final String KEY_SEE_THROUGH = "see_through";
 
     private static final int SET_OR_CHANGE_LOCK_METHOD_REQUEST = 123;
     private static final int CONFIRM_EXISTING_FOR_BIOMETRIC_WEAK_IMPROVE_REQUEST = 124;
     private static final int CONFIRM_EXISTING_FOR_BIOMETRIC_WEAK_LIVELINESS_OFF = 125;
+    private static final int DLG_SHAKE_WARN = 0;
 
     // Misc Settings
     private static final String KEY_SIM_LOCK = "sim_lock";
-    private static final String KEY_SIM_LOCK_SETTINGS = "sim_lock_settings";
     private static final String KEY_SHOW_PASSWORD = "show_password";
     private static final String KEY_CREDENTIAL_STORAGE_TYPE = "credential_storage_type";
     private static final String KEY_RESET_CREDENTIALS = "reset_credentials";
@@ -101,14 +108,14 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private static final String KEY_SMS_SECURITY_CHECK_PREF = "sms_security_check_limit";
     private static final String SLIDE_LOCK_TIMEOUT_DELAY = "slide_lock_timeout_delay";
     private static final String SLIDE_LOCK_SCREENOFF_DELAY = "slide_lock_screenoff_delay";
-    private static final String LOCK_NUMPAD_RANDOM = "lock_numpad_random";
-    // MULTIUSER
-    public static final String ALLOW_MULTIUSER = "allow_multiuser";
-    
+
+    // Omni Additions
     private static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
 
     private PackageManager mPM;
     private DevicePolicyManager mDPM;
+
+    private PreferenceGroup mSecurityCategory;
 
     private ChooseLockSettingsHelper mChooseLockSettingsHelper;
     private LockPatternUtils mLockPatternUtils;
@@ -116,6 +123,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
     private CheckBoxPreference mBiometricWeakLiveliness;
     private CheckBoxPreference mVisiblePattern;
+    private CheckBoxPreference mVisibleGesture;
     private CheckBoxPreference mVisibleErrorPattern;
     private CheckBoxPreference mVisibleDots;
 
@@ -124,17 +132,20 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private KeyStore mKeyStore;
     private Preference mResetCredentials;
 
-    private CheckBoxPreference mAllowMultiuserPreference;
     private CheckBoxPreference mToggleAppInstallation;
     private DialogInterface mWarnInstallApps;
     private CheckBoxPreference mToggleVerifyApps;
     private CheckBoxPreference mPowerButtonInstantlyLocks;
 
     private ListPreference mLockNumpadRandom;
-
+    private CheckBoxPreference mShakeToSecure;
+    private ListPreference mShakeTimer;
+    private CheckBoxPreference mLockBeforeUnlock;
     private CheckBoxPreference mSeeThrough;
 
     private Preference mNotificationAccess;
+    private Preference mLockInterface;
+    private Preference mLockTargets;
 
     private boolean mIsPrimary;
 
@@ -142,11 +153,13 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private ListPreference mSmsSecurityCheck;
     private ListPreference mSlideLockTimeoutDelay;
     private ListPreference mSlideLockScreenOffDelay;
-    private CheckBoxPreference mLockRingBattery;
 
     public SecuritySettings() {
         super(null /* Don't ask for restrictions pin on creation. */);
     }
+
+    // Omni Additions
+    private CheckBoxPreference mLockRingBattery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -209,6 +222,9 @@ public class SecuritySettings extends RestrictedSettingsFragment
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
                     resid = R.xml.security_settings_password;
+                    break;
+                case DevicePolicyManager.PASSWORD_QUALITY_GESTURE_WEAK:
+                    resid = R.xml.security_settings_gesture;
                     break;
             }
         }
@@ -275,26 +291,19 @@ public class SecuritySettings extends RestrictedSettingsFragment
             checkPowerInstantLockDependency();
         }
 
-        // lockscreen see through
-        mSeeThrough = (CheckBoxPreference) root.findPreference(KEY_SEE_THROUGH);
-        if (mSeeThrough != null) {
-            mSeeThrough.setChecked(Settings.System.getInt(getContentResolver(),
-                    Settings.System.LOCKSCREEN_SEE_THROUGH, 0) == 1);
-        }
-
-        mAllowMultiuserPreference = (CheckBoxPreference) root.findPreference(ALLOW_MULTIUSER);
-        mAllowMultiuserPreference.setEnabled(UserHandle.myUserId() == UserHandle.USER_OWNER);
-        mAllowMultiuserPreference.setChecked(Settings.System.getIntForUser(getContentResolver(),
-            Settings.System.ALLOW_MULTIUSER, 0, UserHandle.USER_OWNER) == 1);
-        if (Utils.isTablet(getActivity())) {
-            root.removePreference(mAllowMultiuserPreference);
-        }
-
+        // Add the additional Omni settings
         mLockRingBattery = (CheckBoxPreference) root
                 .findPreference(BATTERY_AROUND_LOCKSCREEN_RING);
         if (mLockRingBattery != null) {
             mLockRingBattery.setChecked(Settings.System.getInt(getContentResolver(),
                     Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, 0) == 1);
+        }
+
+        // lockscreen see through
+        mSeeThrough = (CheckBoxPreference) root.findPreference(KEY_SEE_THROUGH);
+        if (mSeeThrough != null) {
+            mSeeThrough.setChecked(Settings.System.getInt(getContentResolver(),
+                    Settings.System.LOCKSCREEN_SEE_THROUGH, 0) == 1);
         }
 
         // biometric weak liveliness
@@ -303,6 +312,9 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
         // visible pattern
         mVisiblePattern = (CheckBoxPreference) root.findPreference(KEY_VISIBLE_PATTERN);
+
+        // visible gesture
+        mVisibleGesture = (CheckBoxPreference) root.findPreference(KEY_VISIBLE_GESTURE);
 
         // visible error pattern
         mVisibleErrorPattern = (CheckBoxPreference) root.findPreference(KEY_VISIBLE_ERROR_PATTERN);
@@ -313,6 +325,14 @@ public class SecuritySettings extends RestrictedSettingsFragment
         // lock instantly on power key press
         mPowerButtonInstantlyLocks = (CheckBoxPreference) root.findPreference(
                 KEY_POWER_INSTANTLY_LOCKS);
+
+        mSecurityCategory = (PreferenceGroup)
+                root.findPreference(KEY_SECURITY_CATEGORY);
+        if (mSecurityCategory != null) {
+            mLockInterface = findPreference(KEY_INTERFACE_SETTINGS);
+            mLockTargets = findPreference(KEY_TARGET_SETTINGS);
+            shouldEnableTargets();
+        }
 
         // don't display visible pattern if biometric and backup is not pattern
         if (resid == R.xml.security_settings_biometric_weak &&
@@ -326,7 +346,11 @@ public class SecuritySettings extends RestrictedSettingsFragment
                 securityCategory.removePreference(mVisibleErrorPattern);
                 securityCategory.removePreference(mVisibleDots);
             }
+            if (mSecurityCategory != null && mVisiblePattern != null) {
+                mSecurityCategory.removePreference(root.findPreference(KEY_VISIBLE_PATTERN));
+            }
         }
+
 
         // Lock Numpad Random
         mLockNumpadRandom = (ListPreference) root.findPreference(LOCK_NUMPAD_RANDOM);
@@ -338,70 +362,66 @@ public class SecuritySettings extends RestrictedSettingsFragment
             mLockNumpadRandom.setOnPreferenceChangeListener(this);
         }
 
+        // Shake to secure
+        // Don't show if device admin requires security
+        boolean shakeEnabled = mLockPatternUtils.getRequestedMinimumPasswordLength()
+                == DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED;
+        mShakeToSecure = (CheckBoxPreference) root
+                .findPreference(KEY_SHAKE_TO_SECURE);
+        if (mShakeToSecure != null) {
+            mShakeToSecure.setChecked(
+                    Settings.Secure.getInt(getContentResolver(),
+                    Settings.Secure.LOCK_SHAKE_TEMP_SECURE, 0) == 1);
+            mShakeToSecure.setOnPreferenceChangeListener(this);
+            if (!shakeEnabled) {
+                mSecurityCategory.removePreference(mShakeToSecure);
+            }
+        }
+
+        mShakeTimer = (ListPreference) root.findPreference(KEY_SHAKE_AUTO_TIMEOUT);
+        if (mShakeTimer != null) {
+            long shakeTimer = Settings.Secure.getLongForUser(getContentResolver(),
+                    Settings.Secure.LOCK_SHAKE_SECURE_TIMER, 0,
+                    UserHandle.USER_CURRENT);
+            mShakeTimer.setValue(String.valueOf(shakeTimer));
+            updateShakeTimerPreferenceSummary();
+            mShakeTimer.setOnPreferenceChangeListener(this);
+            if (!shakeEnabled) {
+                mSecurityCategory.removePreference(mShakeTimer);
+            }
+        }
+
+        // Lock before Unlock
+        mLockBeforeUnlock = (CheckBoxPreference) root
+                .findPreference(LOCK_BEFORE_UNLOCK);
+        if (mLockBeforeUnlock != null) {
+            mLockBeforeUnlock.setChecked(
+                    Settings.Secure.getInt(getContentResolver(),
+                    Settings.Secure.LOCK_BEFORE_UNLOCK, 0) == 1);
+            mLockBeforeUnlock.setOnPreferenceChangeListener(this);
+        }
+
         // Append the rest of the settings
         if (!isCmSecurity) {
             addPreferencesFromResource(R.xml.security_settings_misc);
 
-            if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
-                MSimTelephonyManager tm = MSimTelephonyManager.getDefault();
-                int numPhones = MSimTelephonyManager.getDefault().getPhoneCount();
-                boolean disableLock = true;
-                boolean removeLock = true;
-                for (int i = 0; i < numPhones; i++) {
-                    // Do not display SIM lock for devices without an Icc card
-                    if (tm.hasIccCard(i)) {
-                        // Disable SIM lock if sim card is missing or unknown
-                        removeLock = false;
-                        if (!((tm.getSimState(i) == TelephonyManager.SIM_STATE_ABSENT)
-                                || (tm.getSimState(i) == TelephonyManager.SIM_STATE_UNKNOWN)
-                                || (tm.getSimState(i) == TelephonyManager.SIM_STATE_CARD_IO_ERROR))) {
-                            disableLock = false;
-                        }
-                    }
-                }
-                if (removeLock) {
-                    root.removePreference(root.findPreference(KEY_SIM_LOCK));
-                } else {
-                    if (disableLock) {
-                        root.findPreference(KEY_SIM_LOCK).setEnabled(false);
-                    }
-                }
+            // Do not display SIM lock for devices without an Icc card
+            TelephonyManager tm = TelephonyManager.getDefault();
+            if (!mIsPrimary || !tm.hasIccCard()) {
+                root.removePreference(root.findPreference(KEY_SIM_LOCK));
             } else {
-                // Do not display SIM lock for devices without an Icc card
-                TelephonyManager tm = TelephonyManager.getDefault();
-                if (!mIsPrimary || !tm.hasIccCard()) {
-                    root.removePreference(root.findPreference(KEY_SIM_LOCK));
-                } else {
-                    // Disable SIM lock if sim card is missing or unknown
-                    if ((TelephonyManager.getDefault().getSimState() ==
+                // Disable SIM lock if sim card is missing or unknown
+                if ((TelephonyManager.getDefault().getSimState() ==
                                      TelephonyManager.SIM_STATE_ABSENT) ||
-                            (TelephonyManager.getDefault().getSimState() ==
+                    (TelephonyManager.getDefault().getSimState() ==
                                      TelephonyManager.SIM_STATE_UNKNOWN)) {
-                        root.findPreference(KEY_SIM_LOCK).setEnabled(false);
-                    }
+                    root.findPreference(KEY_SIM_LOCK).setEnabled(false);
                 }
             }
 
             // Show password
             mShowPassword = (CheckBoxPreference) root.findPreference(KEY_SHOW_PASSWORD);
             mResetCredentials = root.findPreference(KEY_RESET_CREDENTIALS);
-
-            if (root.findPreference(KEY_SIM_LOCK) != null) {
-                // SIM/RUIM lock
-                Preference iccLock = (Preference) root.findPreference(KEY_SIM_LOCK_SETTINGS);
-
-                Intent intent = new Intent();
-                if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
-                    intent.setClassName("com.android.settings",
-                            "com.android.settings.SelectSubscription");
-                    intent.putExtra(SelectSubscription.PACKAGE, "com.android.settings");
-                    intent.putExtra(SelectSubscription.TARGET_CLASS,
-                            "com.android.settings.IccLockSettings");
-                } else {
-                    intent.setClassName("com.android.settings", "com.android.settings.IccLockSettings");
-                }
-                iccLock.setIntent(intent);
-            }
 
             // Credential storage
             final UserManager um = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);
@@ -505,6 +525,25 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private boolean isNonMarketAppsAllowed() {
         return Settings.Global.getInt(getContentResolver(),
                                       Settings.Global.INSTALL_NON_MARKET_APPS, 0) > 0;
+    }
+
+    private void shouldEnableTargets() {
+        boolean shakeToSecure = Settings.Secure.getInt(
+                getContentResolver(),
+                            Settings.Secure.LOCK_SHAKE_TEMP_SECURE, 0) == 1;
+        boolean lockBeforeUnlock = Settings.Secure.getInt(
+                getContentResolver(),
+                Settings.Secure.LOCK_BEFORE_UNLOCK, 0) == 1;
+        if (mLockInterface != null && mLockTargets != null) {
+            if (!DeviceUtils.isPhone(getActivity())) {
+                // Nothing for tablets and large screen devices
+                mSecurityCategory.removePreference(mLockInterface);
+            } else {
+                mSecurityCategory.removePreference(mLockTargets);
+            }
+            mLockInterface.setEnabled(shakeToSecure || lockBeforeUnlock);
+            mLockTargets.setEnabled(shakeToSecure || lockBeforeUnlock);
+        }
     }
 
     private void setNonMarketAppsAllowed(boolean enabled) {
@@ -637,6 +676,23 @@ public class SecuritySettings extends RestrictedSettingsFragment
         mLockAfter.setSummary(getString(R.string.lock_after_timeout_summary, entries[best]));
     }
 
+    private void updateShakeTimerPreferenceSummary() {
+        // Update summary message with current value
+        long shakeTimer = Settings.Secure.getLongForUser(getContentResolver(),
+                Settings.Secure.LOCK_SHAKE_SECURE_TIMER, 0,
+                UserHandle.USER_CURRENT);
+        final CharSequence[] entries = mShakeTimer.getEntries();
+        final CharSequence[] values = mShakeTimer.getEntryValues();
+        int best = 0;
+        for (int i = 0; i < values.length; i++) {
+            long timeout = Long.valueOf(values[i].toString());
+                        if (shakeTimer >= timeout) {
+                best = i;
+            }
+        }
+        mShakeTimer.setSummary(entries[best]);
+    }
+
     private void checkPowerInstantLockDependency() {
         if (mPowerButtonInstantlyLocks != null) {
             long timeout = Settings.Secure.getLong(getContentResolver(),
@@ -760,6 +816,8 @@ public class SecuritySettings extends RestrictedSettingsFragment
             lockPatternUtils.setLockPatternEnabled(isToggled(preference));
         } else if (KEY_VISIBLE_PATTERN.equals(key)) {
             lockPatternUtils.setVisiblePatternEnabled(isToggled(preference));
+        } else if (KEY_VISIBLE_GESTURE.equals(key)) {
+            lockPatternUtils.setVisibleGestureEnabled(isToggled(preference));
         } else if (KEY_VISIBLE_ERROR_PATTERN.equals(key)) {
             lockPatternUtils.setShowErrorPath(isToggled(preference));
         } else if (KEY_VISIBLE_DOTS.equals(key)) {
@@ -772,8 +830,6 @@ public class SecuritySettings extends RestrictedSettingsFragment
         } else if (preference == mShowPassword) {
             Settings.System.putInt(getContentResolver(), Settings.System.TEXT_SHOW_PASSWORD,
                     mShowPassword.isChecked() ? 1 : 0);
-        } else if (mAllowMultiuserPreference == preference) {
-            handleMultiUserClick();
         } else if (preference == mToggleAppInstallation) {
             if (mToggleAppInstallation.isChecked()) {
                 mToggleAppInstallation.setChecked(false);
@@ -843,17 +899,40 @@ public class SecuritySettings extends RestrictedSettingsFragment
             Settings.System.putInt(getContentResolver(),
                     Settings.System.SCREEN_LOCK_SLIDE_SCREENOFF_DELAY, slideScreenOffDelay);
             updateSlideAfterScreenOffSummary();
+        } else if (preference == mSmsSecurityCheck) {
+            int smsSecurityCheck = Integer.valueOf((String) value);
+            Settings.Global.putInt(getContentResolver(),
+                    Settings.Global.SMS_OUTGOING_CHECK_MAX_COUNT, smsSecurityCheck);
+            updateSmsSecuritySummary(smsSecurityCheck);
         } else if (preference == mLockNumpadRandom) {
             Settings.Secure.putInt(getContentResolver(),
                     Settings.Secure.LOCK_NUMPAD_RANDOM,
                     Integer.valueOf((String) value));
             mLockNumpadRandom.setValue(String.valueOf(value));
             mLockNumpadRandom.setSummary(mLockNumpadRandom.getEntry());
-        } else if (preference == mSmsSecurityCheck) {
-            int smsSecurityCheck = Integer.valueOf((String) value);
-            Settings.Global.putInt(getContentResolver(),
-                    Settings.Global.SMS_OUTGOING_CHECK_MAX_COUNT, smsSecurityCheck);
-            updateSmsSecuritySummary(smsSecurityCheck);
+        } else if (preference == mShakeToSecure) {
+            boolean checked = ((Boolean) value);
+            if (checked) {
+                showDialogInner(DLG_SHAKE_WARN);
+            } else {
+                Settings.Secure.putInt(getContentResolver(),
+                        Settings.Secure.LOCK_SHAKE_TEMP_SECURE, 0);
+                shouldEnableTargets();
+            }
+        } else if (preference == mShakeTimer) {
+            int shakeTime = Integer.parseInt((String) value);
+            try {
+                Settings.Secure.putInt(getContentResolver(),
+                        Settings.Secure.LOCK_SHAKE_SECURE_TIMER, shakeTime);
+            } catch (NumberFormatException e) {
+                Log.e("SecuritySettings", "could not persist lockAfter timeout setting", e);
+            }
+            updateShakeTimerPreferenceSummary();
+        } else if (preference == mLockBeforeUnlock) {
+            Settings.Secure.putInt(getContentResolver(),
+                    Settings.Secure.LOCK_BEFORE_UNLOCK,
+                    ((Boolean) value) ? 1 : 0);
+            shouldEnableTargets();
         }
         return true;
     }
@@ -863,15 +942,80 @@ public class SecuritySettings extends RestrictedSettingsFragment
         return R.string.help_url_security;
     }
 
-    private void handleMultiUserClick() {
-        Settings.System.putIntForUser(getContentResolver(),
-                Settings.System.ALLOW_MULTIUSER, (mAllowMultiuserPreference.isChecked() ? 1 : 0), UserHandle.USER_OWNER);
-    }
-
     public void startBiometricWeakImprove(){
         Intent intent = new Intent();
         intent.setClassName("com.android.facelock", "com.android.facelock.AddToSetup");
         startActivity(intent);
     }
 
+    private void showDialogInner(int id) {
+        DialogFragment newFragment = MyAlertDialogFragment.newInstance(id);
+        newFragment.setTargetFragment(this, 0);
+        newFragment.show(getFragmentManager(), "dialog " + id);
+    }
+
+    public static class MyAlertDialogFragment extends DialogFragment {
+
+        public static MyAlertDialogFragment newInstance(int id) {
+            MyAlertDialogFragment frag = new MyAlertDialogFragment();
+                        Bundle args = new Bundle();
+            args.putInt("id", id);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        SecuritySettings getOwner() {
+            return (SecuritySettings) getTargetFragment();
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int id = getArguments().getInt("id");
+            switch (id) {
+                case DLG_SHAKE_WARN:
+                    return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.shake_to_secure_dlg_title)
+                    .setMessage(R.string.shake_to_secure_dlg_message)
+                    .setNegativeButton(R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            disableShakeLock();
+                        }
+                    })
+                    .setPositiveButton(R.string.dlg_ok,
+                        new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (getOwner().mShakeToSecure != null) {
+                                Settings.Secure.putInt(getActivity().getContentResolver(),
+                                        Settings.Secure.LOCK_SHAKE_TEMP_SECURE, 1);
+                                getOwner().mShakeToSecure.setChecked(true);
+                                getOwner().shouldEnableTargets();
+                            }
+                        }
+                    })
+                    .create();
+            }
+            throw new IllegalArgumentException("unknown id " + id);
+        }
+
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            int id = getArguments().getInt("id");
+            switch (id) {
+                case DLG_SHAKE_WARN:
+                    disableShakeLock();
+                    break;
+                default:
+                    // N/A at the moment
+            }
+        }
+
+        private void disableShakeLock() {
+            if (getOwner().mShakeToSecure != null) {
+                Settings.Secure.putInt(getActivity().getContentResolver(),
+                        Settings.Secure.LOCK_SHAKE_TEMP_SECURE, 0);
+                getOwner().mShakeToSecure.setChecked(false);
+            }
+        }
+    }
 }

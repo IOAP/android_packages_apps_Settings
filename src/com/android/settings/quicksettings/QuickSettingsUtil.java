@@ -33,7 +33,6 @@ import static com.android.internal.util.cm.QSConstants.TILE_MUSIC;
 import static com.android.internal.util.cm.QSConstants.TILE_NETWORKADB;
 import static com.android.internal.util.cm.QSConstants.TILE_NETWORKMODE;
 import static com.android.internal.util.cm.QSConstants.TILE_NFC;
-import static com.android.internal.util.cm.QSConstants.TILE_ONTHEGO;
 import static com.android.internal.util.cm.QSConstants.TILE_PROFILE;
 import static com.android.internal.util.cm.QSConstants.TILE_PERFORMANCE_PROFILE;
 import static com.android.internal.util.cm.QSConstants.TILE_QUIETHOURS;
@@ -48,6 +47,7 @@ import static com.android.internal.util.cm.QSConstants.TILE_VOLUME;
 import static com.android.internal.util.cm.QSConstants.TILE_WIFI;
 import static com.android.internal.util.cm.QSConstants.TILE_WIFIAP;
 import static com.android.internal.util.cm.QSConstants.TILE_QUICKRECORD;
+import static com.android.internal.util.cm.QSConstants.TILE_ONTHEGO;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -189,7 +189,7 @@ public class QuickSettingsUtil {
         }
     }
 
-    private static synchronized void removeUnsupportedTiles(Context context) {
+    protected static synchronized void removeUnsupportedTiles(Context context) {
         // Don't show mobile data options if not supported
         if (!QSUtils.deviceSupportsMobileData(context)) {
             removeTile(TILE_MOBILEDATA);
@@ -220,7 +220,6 @@ public class QuickSettingsUtil {
         // Don't show the Camera tile if the device has no cameras
         if (!QSUtils.deviceSupportsCamera()) {
             removeTile(TILE_CAMERA);
-            removeTile(TILE_ONTHEGO);
         }
 
         // Don't show the performance profiles tile if is not available for the device

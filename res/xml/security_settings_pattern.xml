@@ -26,6 +26,11 @@
             android:summary="@string/unlock_set_unlock_mode_pattern"
             android:persistent="false"/>
 
+        <PreferenceScreen
+            android:key="keyguard_style"
+            android:fragment="com.android.settings.ioap.LockscreenStyle"
+            android:title="@string/lockscreen_style_title"/>
+
         <CheckBoxPreference
             android:key="visiblepattern"
             android:persistent="false"
@@ -53,6 +58,24 @@
             android:key="power_button_instantly_locks"
             android:title="@string/lockpattern_settings_enable_power_button_instantly_locks"/>
 
+        <CheckBoxPreference
+            android:key="shake_to_secure"
+            android:title="@string/shake_to_secure_title"
+            android:summary="@string/shake_to_secure_summary" />
+
+        <ListPreference
+            android:key="shake_auto_timeout"
+            android:title="@string/shake_secure_timeout_title"
+            android:dependency="shake_to_secure"
+            android:entries="@array/shake_secure_timeout_entries"
+            android:entryValues="@array/shake_secure_timeout_values"
+            android:persistent="false"/>
+
+        <CheckBoxPreference
+            android:key="lock_before_unlock"
+            android:title="@string/lock_before_unlock_title"
+            android:summary="@string/lock_before_unlock_summary" />
+
         <PreferenceScreen
             android:fragment="com.android.settings.OwnerInfoSettings"
             android:key="owner_info_settings"
@@ -63,10 +86,6 @@
             android:key="see_through"
             android:title="@string/see_through_title"
             android:summary="@string/see_through_summary" />
-
-        <PreferenceScreen
-            android:title="@string/lockscreen_notifications"
-            android:fragment="com.android.settings.ioap.LockscreenNotifications" />
 
     </PreferenceCategory>
 
